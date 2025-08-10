@@ -23,9 +23,9 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️  Warning: Could not create tables: {e}")
         # Don't crash the app on startup
-    
+
     yield
-    
+
     # Shutdown
     print("🛑 Shutting down LaundroMate API...")
 

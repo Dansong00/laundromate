@@ -10,17 +10,17 @@ class Customer(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), unique=True, nullable=False)
-    
+
     # Customer-specific fields
     preferred_pickup_time = Column(String(50), nullable=True)  # e.g., "morning", "afternoon", "evening"
     special_instructions = Column(Text, nullable=True)
     loyalty_points = Column(Integer, default=0)
     is_vip = Column(Boolean, default=False)
-    
+
     # Contact preferences
     email_notifications = Column(Boolean, default=True)
     sms_notifications = Column(Boolean, default=True)
-    
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

@@ -9,7 +9,7 @@ class Address(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
-    
+
     # Address fields
     address_line_1 = Column(String(255), nullable=False)
     address_line_2 = Column(String(255), nullable=True)
@@ -17,17 +17,17 @@ class Address(Base):
     state = Column(String(50), nullable=False)
     zip_code = Column(String(20), nullable=False)
     country = Column(String(100), default="USA")
-    
+
     # Address type and preferences
     address_type = Column(String(50), nullable=False)  # "home", "work", "pickup", "delivery"
     is_default = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
-    
+
     # Additional details
     instructions = Column(Text, nullable=True)  # e.g., "Ring doorbell twice", "Leave with doorman"
     latitude = Column(String(20), nullable=True)
     longitude = Column(String(20), nullable=True)
-    
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
