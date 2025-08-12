@@ -1,6 +1,8 @@
 services:
   # PostgreSQL Database
   postgres:
+    ports:
+      - "5433:5432"  # Host port 5433 -> Container port 5432
     image: postgres:15
     environment:
       POSTGRES_DB: laundromate
