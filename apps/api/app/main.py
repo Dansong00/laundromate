@@ -6,23 +6,14 @@ from app.auth.router import router as auth_router
 from app.customers.router import router as customers_router
 from app.orders.router import router as orders_router
 from app.notifications.router import router as notifications_router
-from app.core.database.migrate import create_all_tables
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     print("🚀 Starting LaundroMate API...")
-    try:
-        if settings.ENV == "development":
-            print("🔧 Development mode: Creating database tables...")
-            create_all_tables()
-            print("✅ Database tables created/updated successfully!")
-        else:
-            print("🏭 Production mode: Skipping auto table creation")
-    except Exception as e:
-        print(f"⚠️  Warning: Could not create tables: {e}")
-        # Don't crash the app on startup
+    print("🔒 Database tables must be created via Alembic migrations")
+    print("📚 Run 'alembic upgrade head' to apply pending migrations")
 
     yield
 
