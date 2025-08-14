@@ -3,7 +3,6 @@
   "image": "python:3.11-slim",
 
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.11"
     }
@@ -19,7 +18,7 @@
         "ms-python.flake8",
         "ms-python.pylint",
         "ms-vscode.vscode-json",
-        "bradlc.vscode-tailwindcss",
+        "bradlc.vscode.tailwindcss",
         "esbenp.prettier-vscode"
       ],
       "settings": {
@@ -42,7 +41,7 @@
 
   "remoteUser": "root",
 
-  "postCreateCommand": "pip install poetry && poetry config virtualenvs.create false",
+  "postCreateCommand": "apt-get update && apt-get install -y docker.io docker-compose && pip install poetry && poetry config virtualenvs.create false",
 
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
