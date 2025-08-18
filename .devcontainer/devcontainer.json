@@ -1,18 +1,13 @@
 {
   "name": "LaundroMate Dev Environment",
-  "image": "python:3.11-slim",
-
-  "features": {
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11"
-    }
-  },
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
 
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
         "ms-python.poetry",
+        "astral-sh.uv",
         "ms-python.black-formatter",
         "ms-python.isort",
         "ms-python.flake8",
@@ -39,10 +34,6 @@
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
 
-  "remoteUser": "root",
-
-  "postCreateCommand": "apt-get update && apt-get install -y docker.io docker-compose && pip install poetry && poetry config virtualenvs.create false",
-
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
 
@@ -50,5 +41,7 @@
 
   "environmentVariables": {
     "PYTHONPATH": "/workspace/apps/api"
-  }
+  },
+
+  "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && echo 'export PATH=\"$HOME/.cargo/bin:$PATH\"' >> ~/.bashrc && export PATH=\"$HOME/.cargo/bin:$PATH\" && uv pip install -r /workspace/apps/api/requirements.txt"
 }

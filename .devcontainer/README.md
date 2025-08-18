@@ -5,7 +5,7 @@ This dev container provides a consistent development environment for the Laundro
 ## Features
 
 - **Python 3.11** with Poetry package management
-- **Docker-in-Docker** support for running docker-compose commands
+- **Docker socket access** for running docker-compose commands
 - **Pre-installed extensions** for Python development
 - **Code formatting** with Black, isort, and flake8
 - **Port forwarding** for API (8000), PostgreSQL (5432), and Redis (6379)
@@ -43,3 +43,4 @@ If you encounter issues:
 1. **Rebuild container**: Command Palette → "Dev Containers: Rebuild Container"
 2. **Check Docker**: Ensure Docker Desktop is running on your host
 3. **Verify ports**: Check if ports 8000, 5432, 6379 are available
+4. **Clear cache**: Delete `.devcontainer` folder and recreate if needed
