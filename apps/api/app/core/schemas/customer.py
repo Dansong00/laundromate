@@ -1,7 +1,10 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
 from uuid import UUID
+
+from pydantic import BaseModel
+
+from .address import AddressRead
 from .user import UserRead
 
 
@@ -39,7 +42,7 @@ class CustomerRead(CustomerBase):
 
 
 class CustomerWithAddresses(CustomerRead):
-    addresses: List['AddressRead'] = []
+    addresses: List[AddressRead] = []
 
     class Config:
         from_attributes = True
