@@ -7,8 +7,6 @@
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "astral-sh.uv",
-        "ms-python.poetry",
         "ms-python.black-formatter",
         "ms-python.isort",
         "ms-python.flake8",
@@ -52,5 +50,5 @@
     "PYTHONPATH": "/workspace/apps/api"
   },
 
-  "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && echo 'export PATH=\"$HOME/.cargo/bin:$PATH\"' >> ~/.bashrc && export PATH=\"$HOME/.cargo/bin:$PATH\" && cd /workspace/apps/api && (uv sync || pip install -r requirements.txt)"
+  "postCreateCommand": "cd /workspace/apps/api && pip install -r requirements.txt && pip install -e .[dev]"
 }
