@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "vercel --prod",
+    "deploy:staging": "vercel",
+    "deploy:preview": "vercel --preview",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "react": "19.1.0",
