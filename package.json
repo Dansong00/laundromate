@@ -8,13 +8,19 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "pnpm --filter=web dev",
-    "dev:api": "pnpm --filter=api dev",
-    "dev:web": "pnpm --filter=web dev",
-    "build": "pnpm -r build",
-    "lint": "pnpm -r lint",
-    "type-check": "pnpm -r type-check",
-    "clean": "pnpm -r clean"
+    "dev": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run dev",
+    "build": "npm run build:web",
+    "build:web": "cd apps/web && npm run build",
+    "lint": "npm run lint:web && npm run lint:api",
+    "lint:web": "cd apps/web && npm run lint",
+    "lint:api": "cd apps/api && npm run lint",
+    "type-check": "npm run type-check:web && npm run type-check:api",
+    "type-check:web": "cd apps/web && npm run type-check",
+    "type-check:api": "cd apps/api && npm run type-check",
+    "clean": "npm run clean:web && npm run clean:api",
+    "clean:web": "cd apps/web && rm -rf node_modules .next",
+    "clean:api": "cd apps/api && rm -rf node_modules __pycache__ .pytest_cache"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -23,7 +29,6 @@
     "eslint": "^8.0.0"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "node": ">=18.0.0"
   }
 }
