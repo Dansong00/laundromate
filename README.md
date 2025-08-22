@@ -38,6 +38,19 @@
 - Summarization of daily ops
 - Staff alerts & workflow automation
 
+### Integrations & Analytics (Post‑MVP)
+
+- Business analytics dashboards (orders, AOV, retention, route efficiency)
+- Accounting integrations (QuickBooks, Xero) for revenue and reconciliation
+- POS/e‑commerce integrations (Square, Shopify) for unified catalog and payments
+- Webhooks + Zapier/Make for workflow automation
+
+### AI Voice Assistant (Post‑MVP)
+
+- Voice‑powered customer service (status, scheduling, FAQs)
+- Intelligent call summaries and follow‑ups
+- Agent escalation and issue classification
+
 ---
 
 ## 🧱 Tech Stack
