@@ -24,7 +24,7 @@ export function NavBar() {
               <Link href="/portal" className="text-sm">Portal</Link>
               <button
                 onClick={handleLogout}
-                className="text-sm rounded bg-black text-white px-3 py-1"
+                className="text-sm rounded bg-blue-600 hover:bg-blue-700 text-white px-3 py-1"
               >
                 Logout
               </button>
@@ -34,7 +34,7 @@ export function NavBar() {
               <Link href="/auth/login" className="text-sm">Login</Link>
               <Link
                 href="/auth/register"
-                className="text-sm rounded bg-black text-white px-3 py-1"
+                className="text-sm rounded bg-blue-600 hover:bg-blue-700 text-white px-3 py-1"
               >
                 Get Started
               </Link>
