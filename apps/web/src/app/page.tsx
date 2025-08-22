@@ -16,7 +16,6 @@ export default function Home() {
               <a href="/auth/register" className="rounded bg-blue-600 hover:bg-blue-700 text-white px-5 py-2">Get started</a>
               <a href="/learn-more" className="rounded border border-blue-200 text-blue-800 hover:bg-blue-50 px-5 py-2">Learn more</a>
               <a href="/schedule-demo" className="rounded bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2">Schedule a demo</a>
-              <a href="/auth/login" className="text-sm text-gray-600 underline">Log in</a>
             </div>
           </div>
           <div className="border rounded-lg p-6 bg-white/80 backdrop-blur">
@@ -46,9 +45,6 @@ export default function Home() {
               <h3 className="font-medium">Customer messaging</h3>
               <p className="text-gray-600 mt-2">Proactive updates and replies across SMS and email.</p>
             </div>
-          </div>
-          <div className="mt-8">
-            <a href="/schedule-demo" className="inline-flex rounded bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2">Schedule a demo</a>
           </div>
         </div>
       </section>
