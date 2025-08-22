@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+from uuid import UUID as UUIDType
 
 from app.core.config.settings import settings
 from app.core.database.session import get_db
@@ -21,17 +22,28 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_access_token(subject: str, expires_minutes: Optional[int] = None) -> str:
-    expire_minutes = expires_minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES
+def create_access_token(
+    subject: str, expires_minutes: Optional[int] = None
+) -> str:
+    expire_minutes = (
+        expires_minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     expire = datetime.now(timezone.utc) + timedelta(minutes=expire_minutes)
     to_encode = {"sub": subject, "exp": expire}
-    token = jwt.encode(to_encode, settings.SECRET_KEY,
-                       algorithm=settings.ALGORITHM)
+    token = jwt.encode(
+        to_encode,
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
     return token
 
 
 def decode_access_token(token: str) -> dict:
-    return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    return jwt.decode(
+        token,
+        settings.SECRET_KEY,
+        algorithms=[settings.ALGORITHM],
+    )
 
 
 # OAuth2 scheme for token authentication
@@ -52,14 +64,16 @@ async def get_current_user(
     try:
         # Decode the JWT token
         payload = decode_access_token(credentials.credentials)
-        email: str = payload.get("sub")
-        if email is None:
+        subject = payload.get("sub")
+        if subject is None:
             raise credentials_exception
-    except JWTError as exc:
+        # Treat subject as user ID (UUID)
+        user_id = UUIDType(str(subject))
+    except (JWTError, ValueError) as exc:
         raise credentials_exception from exc
 
-    # Get user from database
-    user = db.query(User).filter(User.email == email).first()
+    # Get user from database by ID
+    user = db.query(User).filter(User.id == user_id).first()
     if user is None:
         raise credentials_exception
 
