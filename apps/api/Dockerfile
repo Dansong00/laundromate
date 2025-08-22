@@ -1,33 +1,26 @@
 FROM python:3.11-slim
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Install system dependencies
+# System deps (gcc for some wheels)
 RUN apt-get update && apt-get install -y \
     gcc \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
-
-# Add Poetry to PATH
-ENV PATH="/root/.local/bin:$PATH"
-
-# Copy Poetry configuration files first for better caching
-COPY pyproject.toml poetry.lock* ./
-
-# Configure Poetry to not create virtual environments in Docker
-RUN poetry config virtualenvs.create false
-
-# Install dependencies
-RUN poetry install --no-dev --no-interaction --no-ansi
+# Install Python deps via pip
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
 
-# Expose port (Railway will set PORT environment variable)
+# Expose port (Railway provides PORT)
 EXPOSE 8000
 
-# Run the application with Railway's PORT
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Start
+CMD [sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

@@ -21,11 +21,26 @@ export interface UserRead {
   phone?: string | null;
 }
 
+function getAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return sessionStorage.getItem("access_token");
+}
+
+export function getAuthHeader(): Record<string, string> {
+  const token = getAccessToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_URL}${path.startsWith('/') ? path : `/${path}`}`;
   const headers = new Headers(options.headers || {});
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
+  }
+  // Attach bearer token on the client when available
+  const authHeader = getAuthHeader();
+  if (authHeader.Authorization && !headers.has("Authorization")) {
+    headers.set("Authorization", authHeader.Authorization);
   }
   const res = await fetch(url, { ...options, headers });
   if (!res.ok) {
