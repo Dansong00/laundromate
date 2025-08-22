@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/components/AuthProvider";
+import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google"; // Use Inter instead
@@ -24,6 +25,7 @@ export default function RootLayout({
         <AuthProvider>
           <NavBar />
           {children}
+          <Footer />
         </AuthProvider>
       </body>
     </html>
