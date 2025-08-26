@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -17,7 +18,7 @@ export function NavBar() {
     <header className="w-full border-b">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold text-lg" aria-label="LaundroMate home">
-          <img src="/logo-mark.svg" alt="LaundroMate logo" width={24} height={24} />
+          <Image src="/logo-mark.svg" alt="LaundroMate logo" width={24} height={24} />
           <span>LaundroMate</span>
         </Link>
         <nav className="flex items-center gap-4">

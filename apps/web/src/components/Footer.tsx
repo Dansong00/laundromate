@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function Footer() {
@@ -7,7 +8,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-8 grid gap-6 md:grid-cols-3 items-start">
         <div className="flex items-start gap-3">
           <Link href="/" className="shrink-0" aria-label="LaundroMate home">
-            <img src="/logo-mark.svg" alt="LaundroMate logo" width={28} height={28} />
+            <Image src="/logo-mark.svg" alt="LaundroMate logo" width={28} height={28} />
           </Link>
           <div>
             <Link href="/" className="font-semibold text-lg">LaundroMate</Link>
