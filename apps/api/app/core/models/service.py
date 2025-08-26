@@ -54,8 +54,8 @@ class Service(Base):
     min_order_amount = Column(Float, default=0.0)
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now)
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
     order_items = relationship("OrderItem", back_populates="service")
