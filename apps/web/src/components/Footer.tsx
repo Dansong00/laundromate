@@ -5,9 +5,14 @@ export function Footer() {
   return (
     <footer className="border-t mt-12">
       <div className="mx-auto max-w-6xl px-4 py-8 grid gap-6 md:grid-cols-3 items-start">
-        <div>
-          <Link href="/" className="font-semibold text-lg">LaundroMate</Link>
-          <p className="mt-2 text-sm text-gray-600">Modern operations for pickup & delivery and in‑store wash & fold.</p>
+        <div className="flex items-start gap-3">
+          <Link href="/" className="shrink-0" aria-label="LaundroMate home">
+            <img src="/logo-mark.svg" alt="LaundroMate logo" width={28} height={28} />
+          </Link>
+          <div>
+            <Link href="/" className="font-semibold text-lg">LaundroMate</Link>
+            <p className="mt-2 text-sm text-gray-600">Modern operations for pickup & delivery and in‑store wash & fold.</p>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>

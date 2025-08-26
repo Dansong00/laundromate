@@ -48,6 +48,12 @@ export default function PortalPage() {
       ) : (
         <p className="text-gray-600 mt-2">Loading your account...</p>
       )}
+
+      <div className="mt-6 grid sm:grid-cols-2 gap-3">
+        <a href="/portal/customer/new" className="rounded border px-4 py-3 hover:bg-gray-50">Create customer profile</a>
+        <a href="/portal/orders/new" className="rounded border px-4 py-3 hover:bg-gray-50">Create order</a>
+        <a href="/portal/orders" className="rounded border px-4 py-3 hover:bg-gray-50">View orders</a>
+      </div>
     </div>
   );
 }

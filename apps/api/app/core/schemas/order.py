@@ -1,9 +1,11 @@
-from pydantic import BaseModel, validator
-from typing import Optional, List
 from datetime import datetime
-from .customer import CustomerRead
+from typing import List, Optional
+
+from pydantic import BaseModel, validator
+
 from .address import AddressRead
-from .order_item import OrderItemRead
+from .customer import CustomerRead
+from .order_item import OrderItemCreate, OrderItemRead
 
 
 class OrderBase(BaseModel):
@@ -34,7 +36,7 @@ class OrderCreate(OrderBase):
     customer_id: int
     pickup_address_id: int
     delivery_address_id: int
-    items: List['OrderItemCreate']
+    items: List[OrderItemCreate]
 
 
 class OrderUpdate(BaseModel):

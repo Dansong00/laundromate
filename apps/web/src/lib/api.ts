@@ -21,6 +21,54 @@ export interface UserRead {
   phone?: string | null;
 }
 
+export interface CustomerCreatePayload {
+  user_id: string;
+  preferred_pickup_time?: string;
+  special_instructions?: string;
+  email_notifications?: boolean;
+  sms_notifications?: boolean;
+}
+
+export interface CustomerRead extends Record<string, unknown> {
+  id: number;
+  user_id: string;
+}
+
+export interface ServiceRead {
+  id: number;
+  name: string;
+  base_price: number;
+  price_per_pound?: number | null;
+  price_per_item?: number | null;
+}
+
+export interface OrderItemCreatePayload {
+  service_id: number;
+  item_name: string;
+  item_type: string;
+  quantity: number;
+  unit_price: number;
+}
+
+export interface OrderCreatePayload {
+  customer_id: number;
+  pickup_address_id: number;
+  delivery_address_id: number;
+  pickup_date: string;
+  pickup_time_slot: string;
+  delivery_date: string;
+  delivery_time_slot: string;
+  items: OrderItemCreatePayload[];
+}
+
+export interface OrderRead {
+  id: number;
+  order_number: string;
+  status: string;
+  total_amount: number;
+  created_at: string;
+}
+
 function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
   return sessionStorage.getItem("access_token");
@@ -74,6 +122,32 @@ export async function register(payload: RegisterPayload): Promise<UserRead> {
 
 export function getApiBaseUrl(): string {
   return API_URL;
+}
+
+export async function getMe(): Promise<UserRead> {
+  return apiFetch<UserRead>("/auth/me", { method: "GET" });
+}
+
+export async function createCustomer(payload: CustomerCreatePayload): Promise<CustomerRead> {
+  return apiFetch<CustomerRead>("/customers", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function listServices(): Promise<ServiceRead[]> {
+  return apiFetch<ServiceRead[]>("/services", { method: "GET" });
+}
+
+export async function createOrder(payload: OrderCreatePayload) {
+  return apiFetch("/orders", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function listOrders(): Promise<OrderRead[]> {
+  return apiFetch<OrderRead[]>("/orders", { method: "GET" });
 }
 
 

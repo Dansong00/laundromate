@@ -16,7 +16,10 @@ export function NavBar() {
   return (
     <header className="w-full border-b">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="font-semibold text-lg">LaundroMate</Link>
+        <Link href="/" className="flex items-center gap-2 font-semibold text-lg" aria-label="LaundroMate home">
+          <img src="/logo-mark.svg" alt="LaundroMate logo" width={24} height={24} />
+          <span>LaundroMate</span>
+        </Link>
         <nav className="flex items-center gap-4">
           <Link href="/" className="text-sm">Home</Link>
           {isAuthenticated ? (
