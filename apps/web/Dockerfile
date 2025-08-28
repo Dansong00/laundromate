@@ -6,14 +6,14 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install all dependencies (including dev) for build step
-COPY package.json package-lock.json* ./
+COPY apps/web/package.json apps/web/package-lock.json* ./
 RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY apps/web/ .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -32,11 +32,11 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY public ./public
-COPY package.json ./package.json
+COPY apps/web/public ./public
+COPY apps/web/package.json ./package.json
 
 # Install only production deps in runner
-COPY package-lock.json* ./
+COPY apps/web/package-lock.json* ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Set the correct permission for prerender cache
