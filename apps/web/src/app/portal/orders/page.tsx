@@ -76,7 +76,9 @@ export default function OrdersListPage() {
             {orders.map((o) => (
               <tr key={o.id} className="hover:bg-gray-50">
                 <td className="p-2 border-b">
-                  <a className="underline" href={`/portal/orders/${o.id}`}>{o.order_number}</a>
+                  <a className="underline" href={`/portal/orders/${o.id}`}>
+                    {o.order_number}
+                  </a>
                 </td>
                 <td className="p-2 border-b">{o.status}</td>
                 <td className="p-2 border-b">${o.total_amount.toFixed(2)}</td>

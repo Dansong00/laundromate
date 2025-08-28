@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function OrderDetailPage({ params }: { params: { id: string } }) {
+export default function OrderDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [order, setOrder] = useState<any | null>(null);
@@ -17,7 +21,9 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
     }
     (async () => {
       try {
-        const res = await fetch(`/api/orders/${params.id}/detail`, { cache: "no-store" });
+        const res = await fetch(`/api/orders/${params.id}/detail`, {
+          cache: "no-store",
+        });
         if (!res.ok) throw new Error("Failed to load order");
         const data = await res.json();
         setOrder(data);
@@ -38,12 +44,17 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
           <div className="rounded border p-4">
             <div className="font-medium">{order.order_number}</div>
             <div className="text-sm text-gray-600">
-              Status: {order.status} • Total: ${order.total_amount?.toFixed?.(2)}
+              Status: {order.status} • Total: $
+              {order.total_amount?.toFixed?.(2)}
             </div>
             <div className="text-sm text-gray-600">
-              Pickup: {new Date(order.pickup_date).toLocaleString()} at {order.pickup_time_slot}
+              Pickup: {new Date(order.pickup_date).toLocaleString()} at{" "}
+              {order.pickup_time_slot}
             </div>
-            <div className="text-sm text-gray-600">Delivery: {new Date(order.delivery_date).toLocaleString()} at {order.delivery_time_slot}</div>
+            <div className="text-sm text-gray-600">
+              Delivery: {new Date(order.delivery_date).toLocaleString()} at{" "}
+              {order.delivery_time_slot}
+            </div>
           </div>
           <div className="rounded border p-4">
             <div className="font-medium mb-2">Items</div>
@@ -75,5 +86,3 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
     </main>
   );
 }
-
-
