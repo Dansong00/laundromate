@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useToast } from "@/components/ToastProvider";
 import { register } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { notifySuccess, notifyError } = useToast();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -26,9 +28,12 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form);
+      notifySuccess("Account created. Please sign in.");
       router.push("/auth/login");
     } catch (err) {
-      setError((err as Error).message);
+      const msg = (err as Error).message;
+      setError(msg);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }
@@ -96,5 +101,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-

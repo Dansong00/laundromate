@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { getAuthHeader } from "@/lib/api";
+import { getAuthHeader, getMyCustomer } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -9,6 +9,7 @@ export default function PortalPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [me, setMe] = useState<any | null>(null);
+  const [customer, setCustomer] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,6 +28,12 @@ export default function PortalPage() {
         if (!res.ok) throw new Error("Failed to fetch profile");
         const data = await res.json();
         setMe(data);
+        try {
+          const c = await getMyCustomer();
+          setCustomer(c);
+        } catch (_) {
+          // ignore if customer not found
+        }
       } catch (e) {
         setError((e as Error).message);
       }
@@ -44,6 +51,15 @@ export default function PortalPage() {
           <p>
             Signed in as <span className="font-medium">{me.email}</span>
           </p>
+          {customer ? (
+            <p className="text-sm text-gray-600 mt-1">
+              Customer ID: {customer.id}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-600 mt-1">
+              No customer profile yet.
+            </p>
+          )}
         </div>
       ) : (
         <p className="text-gray-600 mt-2">Loading your account...</p>
@@ -57,22 +73,30 @@ export default function PortalPage() {
           Create customer profile
         </a>
         <a
-          href="/portal/orders/new"
-          className="rounded border px-4 py-3 hover:bg-gray-50"
-        >
-          Create order
-        </a>
-        <a
-          href="/portal/addresses"
+          href={
+            customer
+              ? `/portal/addresses?customer_id=${customer.id}`
+              : "/portal/addresses"
+          }
           className="rounded border px-4 py-3 hover:bg-gray-50"
         >
           View addresses
         </a>
         <a
-          href="/portal/addresses/new"
+          href={
+            customer
+              ? `/portal/addresses/new?customer_id=${customer.id}`
+              : "/portal/addresses/new"
+          }
           className="rounded border px-4 py-3 hover:bg-gray-50"
         >
           Add address
+        </a>
+        <a
+          href="/portal/orders/new"
+          className="rounded border px-4 py-3 hover:bg-gray-50"
+        >
+          Create order
         </a>
         <a
           href="/portal/orders"

@@ -1,6 +1,7 @@
 import { AuthProvider } from "@/components/AuthProvider";
 import { Footer } from "@/components/Footer";
 import { NavBar } from "@/components/NavBar";
+import { ToastProvider } from "@/components/ToastProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google"; // Use Inter instead
 import "./globals.css";
@@ -23,9 +24,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <AuthProvider>
-          <NavBar />
-          {children}
-          <Footer />
+          <ToastProvider>
+            <NavBar />
+            {children}
+            <Footer />
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

@@ -1,11 +1,13 @@
 "use client";
 
+import { useToast } from "@/components/ToastProvider";
 import { createAddress } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function NewAddressPage() {
   const router = useRouter();
+  const { notifySuccess, notifyError } = useToast();
   const params = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
   );
@@ -38,9 +40,12 @@ export default function NewAddressPage() {
       const payload = { ...form } as any;
       payload.customer_id = Number(payload.customer_id);
       await createAddress(payload);
+      notifySuccess("Address added");
       router.push(`/portal/addresses?customer_id=${payload.customer_id}`);
     } catch (e) {
-      setError((e as Error).message);
+      const msg = (e as Error).message;
+      setError(msg);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }
@@ -147,5 +152,3 @@ export default function NewAddressPage() {
     </main>
   );
 }
-
-

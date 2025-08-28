@@ -9,7 +9,13 @@ export function NavBar() {
   const { isAuthenticated, logout } = useAuth();
   const router = useRouter();
 
-  function handleLogout() {
+  async function handleLogout() {
+    try {
+      await fetch("/api/session/logout", { method: "POST" });
+    } catch {
+      // ignore
+    }
+    sessionStorage.removeItem("access_token");
     logout();
     router.push("/");
   }
@@ -17,15 +23,28 @@ export function NavBar() {
   return (
     <header className="w-full border-b">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-semibold text-lg" aria-label="LaundroMate home">
-          <Image src="/logo-mark.svg" alt="LaundroMate logo" width={24} height={24} />
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-semibold text-lg"
+          aria-label="LaundroMate home"
+        >
+          <Image
+            src="/logo-mark.svg"
+            alt="LaundroMate logo"
+            width={24}
+            height={24}
+          />
           <span>LaundroMate</span>
         </Link>
         <nav className="flex items-center gap-4">
-          <Link href="/" className="text-sm">Home</Link>
+          <Link href="/" className="text-sm">
+            Home
+          </Link>
           {isAuthenticated ? (
             <>
-              <Link href="/portal" className="text-sm">Portal</Link>
+              <Link href="/portal" className="text-sm">
+                Portal
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-sm rounded bg-blue-600 hover:bg-blue-700 text-white px-3 py-1"
@@ -35,7 +54,9 @@ export function NavBar() {
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="text-sm">Login</Link>
+              <Link href="/auth/login" className="text-sm">
+                Login
+              </Link>
               <Link
                 href="/auth/register"
                 className="text-sm rounded bg-blue-600 hover:bg-blue-700 text-white px-3 py-1"
@@ -49,5 +70,3 @@ export function NavBar() {
     </header>
   );
 }
-
-

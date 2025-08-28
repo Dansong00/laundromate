@@ -197,3 +197,7 @@ export async function createAddress(
     body: JSON.stringify(payload),
   });
 }
+
+export async function getMyCustomer(): Promise<any> {
+  return apiFetch("/customers/me", { method: "GET" });
+}

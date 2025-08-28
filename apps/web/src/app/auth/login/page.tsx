@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { login } from "@/lib/api";
+import { useToast } from "@/components/ToastProvider";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { notifySuccess, notifyError } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,12 +17,26 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const resp = await login(email, password);
-      // Store token in memory for now (later: httpOnly cookie via route handler)
-      sessionStorage.setItem("access_token", resp.access_token);
+      const res = await fetch("/api/session/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        try {
+          const j = t ? JSON.parse(t) : {};
+          throw new Error(j.detail || j.message || "Login failed");
+        } catch (_) {
+          throw new Error("Login failed");
+        }
+      }
+      notifySuccess("Signed in successfully");
       router.push("/");
     } catch (err) {
-      setError((err as Error).message);
+      const msg = (err as Error).message;
+      setError(msg);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }
@@ -63,5 +78,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-

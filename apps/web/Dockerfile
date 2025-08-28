@@ -16,6 +16,8 @@ RUN npm ci
 FROM base AS builder
 WORKDIR /app
 ARG APP_DIR=.
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY ${APP_DIR}/ .
 
@@ -30,6 +32,8 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 ARG APP_DIR=.
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1

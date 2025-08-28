@@ -5,7 +5,7 @@ from app.auth.security import get_current_user
 from app.core.database.session import get_db
 from app.core.models.order import Order
 from app.core.models.user import User
-from app.core.schemas.order import OrderCreate, OrderRead, OrderUpdate
+from app.core.schemas.order import OrderCreate, OrderRead, OrderUpdate, OrderWithDetails
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -18,7 +18,7 @@ async def list_orders(
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    _current_user: User = Depends(get_current_user),
 ):
     orders = db.query(Order).offset(skip).limit(limit).all()
     return orders
@@ -29,7 +29,7 @@ async def list_orders(
 async def get_order(
     order_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    _current_user: User = Depends(get_current_user),
 ):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
@@ -40,12 +40,29 @@ async def get_order(
     return order
 
 
+@router.get("/{order_id}/detail", response_model=OrderWithDetails)
+@require_auth
+async def get_order_detail(
+    order_id: int,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found",
+        )
+    # relationships will load lazily when accessed if configured; return as is
+    return order
+
+
 @router.post("", response_model=OrderRead, status_code=status.HTTP_201_CREATED)
 @require_auth
 async def create_order(
     payload: OrderCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    _current_user: User = Depends(get_current_user),
 ):
     # Basic validation: addresses belong to the customer
     from app.core.models.address import Address
@@ -125,13 +142,33 @@ async def create_order(
     return order
 
 
+@router.put("/{order_id}/status", response_model=OrderRead)
+@require_auth
+async def update_order_status(
+    order_id: int,
+    status_value: str,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found",
+        )
+    order.status = status_value
+    db.commit()
+    db.refresh(order)
+    return order
+
+
 @router.put("/{order_id}", response_model=OrderRead)
 @require_auth
 async def update_order(
     order_id: int,
     payload: OrderUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    _current_user: User = Depends(get_current_user),
 ):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:

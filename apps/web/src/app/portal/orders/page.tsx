@@ -9,9 +9,16 @@ export default function OrdersListPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<
-    { id: number; order_number: string; status: string; total_amount: number; created_at: string }[]
+    {
+      id: number;
+      order_number: string;
+      status: string;
+      total_amount: number;
+      created_at: string;
+    }[]
   >([]);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,6 +35,28 @@ export default function OrdersListPage() {
     })();
   }, [isAuthenticated, router]);
 
+  async function updateStatus(orderId: number, status: string) {
+    try {
+      setSaving(orderId);
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+      const updated = await res.json();
+      setOrders((arr) =>
+        arr.map((o) =>
+          o.id === orderId ? { ...o, status: updated.status } : o
+        )
+      );
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSaving(null);
+    }
+  }
+
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="text-2xl font-semibold">Orders</h1>
@@ -40,20 +69,50 @@ export default function OrdersListPage() {
               <th className="text-left p-2 border-b">Status</th>
               <th className="text-left p-2 border-b">Total</th>
               <th className="text-left p-2 border-b">Created</th>
+              <th className="text-left p-2 border-b">Actions</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((o) => (
               <tr key={o.id} className="hover:bg-gray-50">
-                <td className="p-2 border-b">{o.order_number}</td>
+                <td className="p-2 border-b">
+                  <a className="underline" href={`/portal/orders/${o.id}`}>{o.order_number}</a>
+                </td>
                 <td className="p-2 border-b">{o.status}</td>
                 <td className="p-2 border-b">${o.total_amount.toFixed(2)}</td>
-                <td className="p-2 border-b">{new Date(o.created_at).toLocaleString()}</td>
+                <td className="p-2 border-b">
+                  {new Date(o.created_at).toLocaleString()}
+                </td>
+                <td className="p-2 border-b">
+                  <select
+                    className="rounded border px-2 py-1 text-sm"
+                    value={o.status}
+                    onChange={(e) => updateStatus(o.id, e.target.value)}
+                    disabled={saving === o.id}
+                  >
+                    {[
+                      "pending",
+                      "confirmed",
+                      "picked_up",
+                      "in_progress",
+                      "ready",
+                      "out_for_delivery",
+                      "delivered",
+                      "cancelled",
+                    ].map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </td>
               </tr>
             ))}
             {orders.length === 0 && (
               <tr>
-                <td className="p-2" colSpan={4}>No orders yet.</td>
+                <td className="p-2" colSpan={5}>
+                  No orders yet.
+                </td>
               </tr>
             )}
           </tbody>
@@ -62,9 +121,3 @@ export default function OrdersListPage() {
     </main>
   );
 }
-
-
-
-
-
-

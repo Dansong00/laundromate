@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
+import { useToast } from "@/components/ToastProvider";
 import {
   createOrder,
   getAuthHeader,
@@ -13,6 +14,7 @@ import { useEffect, useState } from "react";
 export default function NewOrderPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const { notifySuccess, notifyError } = useToast();
   const [services, setServices] = useState<
     { id: number; name: string; base_price: number }[]
   >([]);
@@ -104,9 +106,12 @@ export default function NewOrderPage() {
         ...form,
         items,
       } as any);
+      notifySuccess("Order created");
       router.push("/portal/orders");
     } catch (e) {
-      setError((e as Error).message);
+      const msg = (e as Error).message;
+      setError(msg);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }

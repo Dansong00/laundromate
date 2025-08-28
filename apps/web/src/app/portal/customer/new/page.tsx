@@ -1,12 +1,14 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
+import { useToast } from "@/components/ToastProvider";
 import { createCustomer, getAuthHeader } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function NewCustomerPage() {
   const { isAuthenticated } = useAuth();
+  const { notifySuccess, notifyError } = useToast();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [preferred_pickup_time, setPreferredPickupTime] = useState("");
@@ -45,9 +47,12 @@ export default function NewCustomerPage() {
         preferred_pickup_time,
         special_instructions,
       });
+      notifySuccess("Profile created");
       router.push("/portal");
     } catch (e) {
-      setError((e as Error).message);
+      const msg = (e as Error).message;
+      setError(msg);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }
@@ -59,7 +64,9 @@ export default function NewCustomerPage() {
       {error && <p className="text-red-600 mt-2">{error}</p>}
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Preferred pickup time</label>
+          <label className="block text-sm font-medium mb-1">
+            Preferred pickup time
+          </label>
           <input
             className="w-full rounded border px-3 py-2"
             value={preferred_pickup_time}
@@ -68,7 +75,9 @@ export default function NewCustomerPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Special instructions</label>
+          <label className="block text-sm font-medium mb-1">
+            Special instructions
+          </label>
           <textarea
             className="w-full rounded border px-3 py-2"
             value={special_instructions}
@@ -86,6 +95,3 @@ export default function NewCustomerPage() {
     </main>
   );
 }
-
-
-
