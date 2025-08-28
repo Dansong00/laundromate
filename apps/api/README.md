@@ -1,10 +1,22 @@
-# LaundroMate API
+# 🧺 LaundroMate API
 
-FastAPI backend for the LaundroMate SaaS platform - a modern solution for full-service laundromats.
+FastAPI backend for LaundroMate laundry service management system.
 
-## 🚀 Quick Start
+## ⚡ Quick Start
+
+For the fastest setup, use our automated script:
+
+```bash
+cd apps/api
+./setup-dev.sh
+```
+
+This will install dependencies, start services, and set up the database automatically.
+
+## 🚀 Manual Setup
 
 ### Prerequisites
+
 - Python 3.11+
 - Docker & Docker Compose
 - Poetry (recommended) or pip
@@ -12,29 +24,34 @@ FastAPI backend for the LaundroMate SaaS platform - a modern solution for full-s
 ### Setup Steps
 
 1. **Install dependencies**
+
    ```bash
-   poetry install
+   pip install -e .[dev]
    # or
-   pip install -r requirements.txt
+   pip install .
    ```
 
 2. **Start database services**
+
    ```bash
    docker compose up -d postgres redis
    ```
 
 3. **Create environment file**
+
    ```bash
    cp .env.example .env
    # Edit .env with your local settings
    ```
 
 4. **Create database**
+
    ```bash
    docker compose exec postgres psql -U laundromate -c "CREATE DATABASE laundromate;"
    ```
 
 5. **Run migrations**
+
    ```bash
    alembic upgrade head
    ```
@@ -49,6 +66,7 @@ FastAPI backend for the LaundroMate SaaS platform - a modern solution for full-s
 ## 🗄️ Database Management
 
 ### Running Migrations
+
 ```bash
 # Apply all pending migrations
 alembic upgrade head
@@ -67,6 +85,7 @@ alembic history
 ```
 
 ### Development vs Production
+
 - **Development**: Use `alembic upgrade head` to get latest schema
 - **Production**: Run migrations as part of deployment process
 
@@ -84,31 +103,36 @@ app/
 ## 🔧 Development
 
 ### Running Tests
+
 ```bash
-poetry run pytest
-# or
 pytest
+# or
+python -m pytest
 ```
 
 ### Code Formatting
+
 ```bash
-poetry run black .
-poetry run isort .
+black .
+isort .
 ```
 
 ### Linting
+
 ```bash
-poetry run flake8
+flake8
 ```
 
 ## 🐳 Docker Development
 
 ### Start all services
+
 ```bash
 docker compose up -d
 ```
 
 ### View logs
+
 ```bash
 docker compose logs -f api
 docker compose logs -f postgres
@@ -116,6 +140,7 @@ docker compose logs -f redis
 ```
 
 ### Rebuild API
+
 ```bash
 docker compose build api
 docker compose up -d api
@@ -126,21 +151,24 @@ docker compose up -d api
 ### Common Issues
 
 1. **Database connection failed**
+
    - Ensure PostgreSQL is running: `docker compose ps postgres`
    - Check DATABASE_URL in .env file
    - Verify database exists: `docker compose exec postgres psql -U laundromate -l`
 
 2. **Port already in use**
+
    - Stop local PostgreSQL/Redis: `brew services stop postgresql` (macOS)
    - Or change ports in docker-compose.yml
 
 3. **Migration errors**
+
    - Check alembic/env.py configuration
-   - Ensure all models are imported in app/core/models/__init__.py
+   - Ensure all models are imported in app/core/models/**init**.py
 
 4. **Import errors**
    - Verify Python path includes app directory
-   - Check __init__.py files exist in all packages
+   - Check **init**.py files exist in all packages
 
 ### Getting Help
 
@@ -151,19 +179,20 @@ docker compose up -d api
 ## 📚 API Documentation
 
 Once running, visit:
+
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 - **OpenAPI JSON**: http://localhost:8000/openapi.json
 
 ## 🔐 Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://laundromate:laundromate@localhost:5432/laundromate` |
-| `REDIS_URL` | Redis connection string | `redis://localhost:6379` |
-| `SECRET_KEY` | JWT secret key | `your-secret-key-here` |
-| `ENV` | Environment (development/production) | `development` |
-| `DEBUG` | Enable debug mode | `true` |
+| Variable       | Description                          | Default                                                           |
+| -------------- | ------------------------------------ | ----------------------------------------------------------------- |
+| `DATABASE_URL` | PostgreSQL connection string         | `postgresql://laundromate:laundromate@localhost:5432/laundromate` |
+| `REDIS_URL`    | Redis connection string              | `redis://localhost:6379`                                          |
+| `SECRET_KEY`   | JWT secret key                       | `your-secret-key-here`                                            |
+| `ENV`          | Environment (development/production) | `development`                                                     |
+| `DEBUG`        | Enable debug mode                    | `true`                                                            |
 
 ## 🤝 Contributing
 

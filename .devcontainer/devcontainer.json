@@ -1,6 +1,6 @@
 {
   "name": "LaundroMate Dev Environment",
-      "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
 
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
@@ -56,5 +56,5 @@
     "PYTHONPATH": "/workspace/apps/api"
   },
 
-  "postCreateCommand": "curl -fsSL https://railway.app/install.sh | sh && echo 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.bashrc && export PATH=\"$HOME/.local/bin:$PATH\" && cd /workspace/apps/api && pip install -r requirements.txt && pip install -e .[dev]"
+  "postCreateCommand": "curl -fsSL https://railway.app/install.sh | sh && echo 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.bashrc && export PATH=\"$HOME/.local/bin:$PATH\" && cd /workspace/apps/api && ./setup-dev.sh"
 }

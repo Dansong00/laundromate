@@ -34,6 +34,29 @@ export interface CustomerRead extends Record<string, unknown> {
   user_id: string;
 }
 
+export interface AddressRead {
+  id: number;
+  customer_id: number;
+  address_line_1: string;
+  address_line_2?: string | null;
+  city: string;
+  state: string;
+  zip_code: string;
+  address_type: string;
+  is_default: boolean;
+}
+
+export interface AddressCreatePayload {
+  customer_id: number;
+  address_line_1: string;
+  address_line_2?: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  address_type: string;
+  is_default?: boolean;
+}
+
 export interface ServiceRead {
   id: number;
   name: string;
@@ -79,8 +102,11 @@ export function getAuthHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const url = `${API_URL}${path.startsWith('/') ? path : `/${path}`}`;
+async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
   const headers = new Headers(options.headers || {});
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -106,7 +132,10 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   return text ? (JSON.parse(text) as T) : (undefined as unknown as T);
 }
 
-export async function login(email: string, password: string): Promise<LoginResponse> {
+export async function login(
+  email: string,
+  password: string
+): Promise<LoginResponse> {
   return apiFetch<LoginResponse>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
@@ -128,7 +157,9 @@ export async function getMe(): Promise<UserRead> {
   return apiFetch<UserRead>("/auth/me", { method: "GET" });
 }
 
-export async function createCustomer(payload: CustomerCreatePayload): Promise<CustomerRead> {
+export async function createCustomer(
+  payload: CustomerCreatePayload
+): Promise<CustomerRead> {
   return apiFetch<CustomerRead>("/customers", {
     method: "POST",
     body: JSON.stringify(payload),
@@ -150,4 +181,19 @@ export async function listOrders(): Promise<OrderRead[]> {
   return apiFetch<OrderRead[]>("/orders", { method: "GET" });
 }
 
+export async function listAddresses(
+  customerId: number
+): Promise<AddressRead[]> {
+  return apiFetch<AddressRead[]>(`/addresses?customer_id=${customerId}`, {
+    method: "GET",
+  });
+}
 
+export async function createAddress(
+  payload: AddressCreatePayload
+): Promise<AddressRead> {
+  return apiFetch<AddressRead>("/addresses", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}

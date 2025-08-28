@@ -10,8 +10,8 @@ git clone <your-repo-url>
 cd LaundroMate/apps/api
 
 # 2. Install dependencies
-poetry install
-# or: pip install -r requirements.txt
+pip install -e .[dev]
+# or: pip install .
 
 # 3. Start database
 docker compose up -d postgres redis
@@ -20,12 +20,13 @@ docker compose up -d postgres redis
 ./scripts/init-db.sh
 
 # 5. Start API
-poetry run uvicorn app.main:app --reload
+uvicorn app.main:app --reload
 ```
 
 ## 🎯 What Just Happened?
 
 The `init-db.sh` script automatically:
+
 - ✅ Starts PostgreSQL if needed
 - ✅ Creates the database if it doesn't exist
 - ✅ Runs all pending migrations

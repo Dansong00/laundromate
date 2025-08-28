@@ -50,12 +50,37 @@ export default function PortalPage() {
       )}
 
       <div className="mt-6 grid sm:grid-cols-2 gap-3">
-        <a href="/portal/customer/new" className="rounded border px-4 py-3 hover:bg-gray-50">Create customer profile</a>
-        <a href="/portal/orders/new" className="rounded border px-4 py-3 hover:bg-gray-50">Create order</a>
-        <a href="/portal/orders" className="rounded border px-4 py-3 hover:bg-gray-50">View orders</a>
+        <a
+          href="/portal/customer/new"
+          className="rounded border px-4 py-3 hover:bg-gray-50"
+        >
+          Create customer profile
+        </a>
+        <a
+          href="/portal/orders/new"
+          className="rounded border px-4 py-3 hover:bg-gray-50"
+        >
+          Create order
+        </a>
+        <a
+          href="/portal/addresses"
+          className="rounded border px-4 py-3 hover:bg-gray-50"
+        >
+          View addresses
+        </a>
+        <a
+          href="/portal/addresses/new"
+          className="rounded border px-4 py-3 hover:bg-gray-50"
+        >
+          Add address
+        </a>
+        <a
+          href="/portal/orders"
+          className="rounded border px-4 py-3 hover:bg-gray-50"
+        >
+          View orders
+        </a>
       </div>
     </div>
   );
 }
-
-

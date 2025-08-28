@@ -3,7 +3,7 @@
 echo "🚀 Initializing LaundroMate database..."
 
 # Check if we're in the right directory
-if [ ! -f "pyproject.toml" ] && [ ! -f "requirements.txt" ]; then
+if [ ! -f "pyproject.toml" ]; then
     echo "❌ Error: Please run this script from the apps/api directory"
     exit 1
 fi
@@ -48,33 +48,20 @@ fi
 # Run migrations
 echo "🔧 Running database migrations..."
 
-# Try to run with Poetry first, then with pip
-if command -v poetry >/dev/null 2>&1; then
-    echo "📦 Using Poetry to run migrations..."
-    poetry run alembic upgrade head
-    MIGRATION_SUCCESS=$?
-else
-    echo "📦 Poetry not found, trying direct alembic..."
-    alembic upgrade head
-    MIGRATION_SUCCESS=$?
-fi
+# Run migrations with pip
+echo "📦 Running migrations with pip..."
+alembic upgrade head
+MIGRATION_SUCCESS=$?
 
 if [ $MIGRATION_SUCCESS -eq 0 ]; then
     echo "✅ Database setup complete!"
     echo ""
     echo "🎉 You can now start the API with:"
-    if command -v poetry >/dev/null 2>&1; then
-        echo "   poetry run uvicorn app.main:app --reload"
-    fi
     echo "   uvicorn app.main:app --reload"
 else
     echo "❌ Migration failed. Please check the error messages above."
     echo ""
     echo "💡 Try running manually:"
-    if command -v poetry >/dev/null 2>&1; then
-        echo "   poetry run alembic upgrade head"
-    else
-        echo "   alembic upgrade head"
-    fi
+    echo "   alembic upgrade head"
     exit 1
 fi
