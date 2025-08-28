@@ -6,7 +6,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Allow building from monorepo root or app dir
-ARG APP_DIR=apps/web
+ARG APP_DIR=.
 
 # Install all dependencies (including dev) for build step
 COPY ${APP_DIR}/package.json ${APP_DIR}/package-lock.json* ./
@@ -15,7 +15,7 @@ RUN npm ci
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-ARG APP_DIR=apps/web
+ARG APP_DIR=.
 COPY --from=deps /app/node_modules ./node_modules
 COPY ${APP_DIR}/ .
 
@@ -29,7 +29,7 @@ RUN npm run build
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
-ARG APP_DIR=apps/web
+ARG APP_DIR=.
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
