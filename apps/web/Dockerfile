@@ -5,15 +5,19 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Allow building from monorepo root or app dir
+ARG APP_DIR=apps/web
+
 # Install all dependencies (including dev) for build step
-COPY apps/web/package.json apps/web/package-lock.json* ./
+COPY ${APP_DIR}/package.json ${APP_DIR}/package-lock.json* ./
 RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+ARG APP_DIR=apps/web
 COPY --from=deps /app/node_modules ./node_modules
-COPY apps/web/ .
+COPY ${APP_DIR}/ .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -25,6 +29,7 @@ RUN npm run build
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
+ARG APP_DIR=apps/web
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
@@ -32,11 +37,11 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY apps/web/public ./public
-COPY apps/web/package.json ./package.json
+COPY ${APP_DIR}/public ./public
+COPY ${APP_DIR}/package.json ./package.json
 
 # Install only production deps in runner
-COPY apps/web/package-lock.json* ./
+COPY ${APP_DIR}/package-lock.json* ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Set the correct permission for prerender cache
