@@ -6,11 +6,13 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Allow building from monorepo root or app dir
-ARG APP_DIR=.
+ARG APP_DIR=apps/web
 
 # Install all dependencies (including dev) for build step
 COPY ${APP_DIR}/package.json ${APP_DIR}/package-lock.json* ./
+COPY packages/ui ./packages/ui
 RUN npm ci
+RUN cd packages/ui && npm run build
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -46,6 +48,7 @@ COPY ${APP_DIR}/package.json ./package.json
 
 # Install only production deps in runner
 COPY ${APP_DIR}/package-lock.json* ./
+COPY packages/ui ./packages/ui
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Set the correct permission for prerender cache
@@ -54,6 +57,7 @@ RUN chown nextjs:nodejs .next
 
 # Copy the built Next.js app
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/packages/ui/dist ./packages/ui/dist
 
 USER nextjs
 
