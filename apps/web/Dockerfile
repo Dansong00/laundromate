@@ -45,7 +45,7 @@ COPY public ./public
 COPY package.json ./package.json
 
 # Install only production deps in runner
-COPY package-lock.json ./
+COPY --from=deps /app/package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Set the correct permission for prerender cache
