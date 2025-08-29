@@ -45,8 +45,8 @@ services:
   # Next.js Frontend
   web:
     build:
-      context: .
-      dockerfile: ./apps/web/Dockerfile
+      context: ./apps/web
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
