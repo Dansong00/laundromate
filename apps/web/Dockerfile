@@ -9,7 +9,7 @@ WORKDIR /app
 ARG APP_DIR=.
 
 # Install all dependencies (including dev) for build step
-COPY ${APP_DIR}/package.json ${APP_DIR}/package-lock.json* ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
 # Rebuild the source code only when needed
@@ -19,7 +19,7 @@ ARG APP_DIR=.
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
-COPY ${APP_DIR}/ .
+COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -41,11 +41,11 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY ${APP_DIR}/public ./public
-COPY ${APP_DIR}/package.json ./package.json
+COPY public ./public
+COPY package.json ./package.json
 
 # Install only production deps in runner
-COPY ${APP_DIR}/package-lock.json* ./
+COPY package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Set the correct permission for prerender cache
