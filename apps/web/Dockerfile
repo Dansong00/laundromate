@@ -10,7 +10,7 @@ ARG APP_DIR=.
 
 # Install all dependencies (including dev) for build step
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -46,7 +46,7 @@ COPY package.json ./package.json
 
 # Install only production deps in runner
 COPY --from=deps /app/package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm cache clean --force
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
