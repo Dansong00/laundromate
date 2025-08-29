@@ -50,10 +50,14 @@
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
 
-  "forwardPorts": [8000, 5432, 6379],
+  "forwardPorts": [8000, 5432, 6379, 5433],
 
   "environmentVariables": {
     "PYTHONPATH": "/workspace/apps/api"
+  },
+  "runArgs": ["--add-host=host.docker.internal:host-gateway"],
+  "containerEnv": {
+    "DATABASE_URL": "postgresql://laundromate:laundromate@host.docker.internal:5433/laundromate"
   },
 
   "postCreateCommand": "curl -fsSL https://railway.app/install.sh | sh && echo 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.bashrc && export PATH=\"$HOME/.local/bin:$PATH\" && cd /workspace/apps/api && ./setup-dev.sh"
