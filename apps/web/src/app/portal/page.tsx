@@ -2,6 +2,16 @@
 
 import { useAuth } from "@/components/AuthProvider";
 import { getAuthHeader, getMyCustomer } from "@/lib/api";
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  LoadingSpinner,
+} from "@laundromate/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -43,68 +53,145 @@ export default function PortalPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold">Customer Portal</h1>
-      {error && <p className="text-red-600 mt-2">{error}</p>}
-      {me ? (
-        <div className="mt-3 text-gray-700">
-          <p>
-            Signed in as <span className="font-medium">{me.email}</span>
-          </p>
-          {customer ? (
-            <p className="text-sm text-gray-600 mt-1">
-              Customer ID: {customer.id}
-            </p>
-          ) : (
-            <p className="text-sm text-gray-600 mt-1">
-              No customer profile yet.
-            </p>
+    <main className="mx-auto max-w-6xl px-4 py-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-3xl">Customer Portal</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
-        </div>
-      ) : (
-        <p className="text-gray-600 mt-2">Loading your account...</p>
-      )}
 
-      <div className="mt-6 grid sm:grid-cols-2 gap-3">
-        <a
-          href="/portal/customer/new"
-          className="rounded border px-4 py-3 hover:bg-gray-50"
-        >
-          Create customer profile
-        </a>
-        <a
-          href={
-            customer
-              ? `/portal/addresses?customer_id=${customer.id}`
-              : "/portal/addresses"
-          }
-          className="rounded border px-4 py-3 hover:bg-gray-50"
-        >
-          View addresses
-        </a>
-        <a
-          href={
-            customer
-              ? `/portal/addresses/new?customer_id=${customer.id}`
-              : "/portal/addresses/new"
-          }
-          className="rounded border px-4 py-3 hover:bg-gray-50"
-        >
-          Add address
-        </a>
-        <a
-          href="/portal/orders/new"
-          className="rounded border px-4 py-3 hover:bg-gray-50"
-        >
-          Create order
-        </a>
-        <a
-          href="/portal/orders"
-          className="rounded border px-4 py-3 hover:bg-gray-50"
-        >
-          View orders
-        </a>
-      </div>
-    </div>
+          {!me ? (
+            <div className="flex items-center justify-center py-8">
+              <LoadingSpinner size="lg" text="Loading your account..." />
+            </div>
+          ) : (
+            <>
+              <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+                <h2 className="text-lg font-semibold text-blue-900 mb-2">
+                  Account Information
+                </h2>
+                <p className="text-blue-800">
+                  Signed in as <span className="font-medium">{me.email}</span>
+                </p>
+                {customer ? (
+                  <p className="text-sm text-blue-700 mt-1">
+                    Customer ID:{" "}
+                    <span className="font-mono bg-blue-100 px-2 py-1 rounded">
+                      {customer.id}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="text-sm text-blue-700 mt-1">
+                    No customer profile yet. Create one to get started!
+                  </p>
+                )}
+              </div>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card
+                  variant="outlined"
+                  className="hover:shadow-md transition-shadow"
+                >
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-lg mb-2">
+                      Customer Profile
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {customer
+                        ? "Manage your profile and preferences"
+                        : "Create your customer profile to get started"}
+                    </p>
+                    <Button
+                      variant={customer ? "outline" : "default"}
+                      className="w-full"
+                      onClick={() => router.push("/portal/customer/new")}
+                    >
+                      {customer ? "Edit Profile" : "Create Profile"}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card
+                  variant="outlined"
+                  className="hover:shadow-md transition-shadow"
+                >
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-lg mb-2">Addresses</h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      Manage pickup and delivery addresses
+                    </p>
+                    <div className="space-y-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() =>
+                          router.push(
+                            customer
+                              ? `/portal/addresses?customer_id=${customer.id}`
+                              : "/portal/addresses"
+                          )
+                        }
+                      >
+                        View Addresses
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() =>
+                          router.push(
+                            customer
+                              ? `/portal/addresses/new?customer_id=${customer.id}`
+                              : "/portal/addresses/new"
+                          )
+                        }
+                      >
+                        Add Address
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card
+                  variant="outlined"
+                  className="hover:shadow-md transition-shadow"
+                >
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-lg mb-2">Orders</h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      Create and track your laundry orders
+                    </p>
+                    <div className="space-y-2">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => router.push("/portal/orders/new")}
+                      >
+                        Create Order
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => router.push("/portal/orders")}
+                      >
+                        View Orders
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </main>
   );
 }

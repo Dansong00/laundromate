@@ -3,6 +3,18 @@
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
 import { createCustomer, getAuthHeader } from "@/lib/api";
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  LoadingSpinner,
+  Textarea,
+} from "@laundromate/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -60,38 +72,47 @@ export default function NewCustomerPage() {
 
   return (
     <main className="mx-auto max-w-xl px-4 py-8">
-      <h1 className="text-2xl font-semibold">Create your customer profile</h1>
-      {error && <p className="text-red-600 mt-2">{error}</p>}
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Preferred pickup time
-          </label>
-          <input
-            className="w-full rounded border px-3 py-2"
-            value={preferred_pickup_time}
-            onChange={(e) => setPreferredPickupTime(e.target.value)}
-            placeholder="morning / afternoon / evening"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Special instructions
-          </label>
-          <textarea
-            className="w-full rounded border px-3 py-2"
-            value={special_instructions}
-            onChange={(e) => setSpecialInstructions(e.target.value)}
-          />
-        </div>
-        <button
-          type="submit"
-          className="rounded bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 disabled:opacity-50"
-          disabled={loading || !userId}
-        >
-          {loading ? "Saving..." : "Save profile"}
-        </button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Your Customer Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <Input
+              label="Preferred Pickup Time"
+              value={preferred_pickup_time}
+              onChange={(e) => setPreferredPickupTime(e.target.value)}
+              placeholder="morning / afternoon / evening"
+            />
+            <Textarea
+              label="Special Instructions"
+              value={special_instructions}
+              onChange={(e) => setSpecialInstructions(e.target.value)}
+              placeholder="Any special handling requirements..."
+            />
+            <Button
+              type="submit"
+              disabled={loading || !userId}
+              className="w-full"
+            >
+              {loading ? (
+                <>
+                  <LoadingSpinner size="sm" className="mr-2" />
+                  Saving...
+                </>
+              ) : (
+                "Save Profile"
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 }

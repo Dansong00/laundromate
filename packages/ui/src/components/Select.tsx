@@ -31,7 +31,10 @@ export interface SelectOption {
 }
 
 export interface SelectProps
-  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "onChange">,
+  extends Omit<
+      React.SelectHTMLAttributes<HTMLSelectElement>,
+      "onChange" | "size"
+    >,
     VariantProps<typeof selectVariants> {
   label?: string;
   error?: string;

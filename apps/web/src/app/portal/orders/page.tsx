@@ -2,6 +2,22 @@
 
 import { useAuth } from "@/components/AuthProvider";
 import { listOrders } from "@/lib/api";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  LoadingSpinner,
+  Select,
+  StatusBadge,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@laundromate/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -58,68 +74,85 @@ export default function OrdersListPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="text-2xl font-semibold">Orders</h1>
-      {error && <p className="text-red-600 mt-2">{error}</p>}
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full text-sm border">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="text-left p-2 border-b">Order #</th>
-              <th className="text-left p-2 border-b">Status</th>
-              <th className="text-left p-2 border-b">Total</th>
-              <th className="text-left p-2 border-b">Created</th>
-              <th className="text-left p-2 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((o) => (
-              <tr key={o.id} className="hover:bg-gray-50">
-                <td className="p-2 border-b">
-                  <a className="underline" href={`/portal/orders/${o.id}`}>
-                    {o.order_number}
-                  </a>
-                </td>
-                <td className="p-2 border-b">{o.status}</td>
-                <td className="p-2 border-b">${o.total_amount.toFixed(2)}</td>
-                <td className="p-2 border-b">
-                  {new Date(o.created_at).toLocaleString()}
-                </td>
-                <td className="p-2 border-b">
-                  <select
-                    className="rounded border px-2 py-1 text-sm"
-                    value={o.status}
-                    onChange={(e) => updateStatus(o.id, e.target.value)}
-                    disabled={saving === o.id}
-                  >
-                    {[
-                      "pending",
-                      "confirmed",
-                      "picked_up",
-                      "in_progress",
-                      "ready",
-                      "out_for_delivery",
-                      "delivered",
-                      "cancelled",
-                    ].map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-            ))}
-            {orders.length === 0 && (
-              <tr>
-                <td className="p-2" colSpan={5}>
-                  No orders yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+    <main className="mx-auto max-w-6xl px-4 py-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Orders</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+              {error}
+            </div>
+          )}
+
+          {orders.length === 0 ? (
+            <EmptyState
+              title="No Orders Yet"
+              description="Orders you create will appear here."
+              icon="📦"
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order #</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.map((o) => (
+                  <TableRow key={o.id}>
+                    <TableCell>
+                      <a
+                        className="text-blue-600 hover:text-blue-800 underline font-medium"
+                        href={`/portal/orders/${o.id}`}
+                      >
+                        {o.order_number}
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={o.status as any} showIcon />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      ${o.total_amount.toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(o.created_at).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={o.status}
+                        onChange={(value) => updateStatus(o.id, value)}
+                        disabled={saving === o.id}
+                        options={[
+                          { value: "pending", label: "Pending" },
+                          { value: "confirmed", label: "Confirmed" },
+                          { value: "picked_up", label: "Picked Up" },
+                          { value: "in_progress", label: "In Progress" },
+                          { value: "ready", label: "Ready" },
+                          {
+                            value: "out_for_delivery",
+                            label: "Out for Delivery",
+                          },
+                          { value: "delivered", label: "Delivered" },
+                          { value: "cancelled", label: "Cancelled" },
+                        ]}
+                      />
+                      {saving === o.id && (
+                        <LoadingSpinner size="sm" className="ml-2" />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </main>
   );
 }

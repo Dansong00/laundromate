@@ -1,4 +1,5 @@
 // Export all UI components
+export { Alert, AlertDescription, AlertTitle } from "./components/Alert";
 export { Badge } from "./components/Badge";
 export { Button } from "./components/Button";
 export {
@@ -25,3 +26,4 @@ export {
   TableHeader,
   TableRow,
 } from "./components/Table";
+export { Textarea } from "./components/Textarea";
