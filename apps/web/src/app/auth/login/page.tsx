@@ -1,12 +1,14 @@
 "use client";
 
 import { useToast } from "@/components/ToastProvider";
+import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
   const { notifySuccess, notifyError } = useToast();
+  const { setToken } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,8 +33,18 @@ export default function LoginPage() {
           throw new Error("Login failed");
         }
       }
+
+      // Parse the response to get the access token
+      const responseData = await res.json();
+
+      // Store the token in sessionStorage and update AuthProvider state
+      if (responseData.access_token) {
+        sessionStorage.setItem("access_token", responseData.access_token);
+        setToken(responseData.access_token);
+      }
+
       notifySuccess("Signed in successfully");
-      router.push("/");
+      router.push("/portal");
     } catch (err) {
       const msg = (err as Error).message;
       setError(msg);
