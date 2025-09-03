@@ -19,6 +19,7 @@ export interface UserRead {
   first_name?: string | null;
   last_name?: string | null;
   phone?: string | null;
+  role?: string | null; // Add role field for admin detection
 }
 
 export interface CustomerCreatePayload {
@@ -200,4 +201,13 @@ export async function createAddress(
 
 export async function getMyCustomer(): Promise<any> {
   return apiFetch("/customers/me", { method: "GET" });
+}
+
+// Role-based access control utilities
+export function isAdminUser(user: any): boolean {
+  return user?.role === "admin" || user?.role === "staff";
+}
+
+export function isCustomerUser(user: any): boolean {
+  return !isAdminUser(user);
 }

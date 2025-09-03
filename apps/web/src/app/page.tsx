@@ -10,7 +10,35 @@ export default function Home() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/portal");
+      // Check if user is admin and redirect accordingly
+      const checkUserRole = async () => {
+        try {
+          const res = await fetch("/api/me", {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+            },
+          });
+
+          if (res.ok) {
+            const user = await res.json();
+            // Check for admin role from database
+            const isAdminUser = user.role === "admin" || user.role === "staff";
+
+            if (isAdminUser) {
+              router.replace("/admin");
+            } else {
+              router.replace("/portal");
+            }
+          } else {
+            router.replace("/portal");
+          }
+        } catch (error) {
+          console.error("Error checking user role:", error);
+          router.replace("/portal");
+        }
+      };
+
+      checkUserRole();
     }
   }, [isAuthenticated, router]);
 
