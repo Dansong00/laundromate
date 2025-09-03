@@ -3,6 +3,7 @@
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { isAdminUser } from "@/lib/api";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -22,9 +23,9 @@ export default function Home() {
           if (res.ok) {
             const user = await res.json();
             // Check for admin role from database
-            const isAdminUser = user.role === "admin" || user.role === "staff";
+            const isAdmin = isAdminUser(user);
 
-            if (isAdminUser) {
+            if (isAdmin) {
               router.replace("/admin");
             } else {
               router.replace("/portal");

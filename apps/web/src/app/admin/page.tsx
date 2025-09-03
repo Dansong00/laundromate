@@ -4,6 +4,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminPortal } from "@/components/admin/AdminPortal";
+import { isAdminUser } from "@/lib/api";
 
 export default function AdminPage() {
   const { isAuthenticated } = useAuth();
@@ -29,10 +30,10 @@ export default function AdminPage() {
         if (res.ok) {
           const user = await res.json();
           // Check for admin role from database
-          const isAdminUser = user.role === "admin" || user.role === "staff";
-          setIsAdmin(isAdminUser);
+          const isAdmin = isAdminUser(user);
+          setIsAdmin(isAdmin);
 
-          if (!isAdminUser) {
+          if (!isAdmin) {
             router.replace("/portal"); // Redirect non-admin users to customer portal
           }
         }
