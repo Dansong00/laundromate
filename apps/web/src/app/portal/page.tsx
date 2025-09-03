@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/AuthProvider";
 import { getAuthHeader, getMyCustomer } from "@/lib/api";
-import { Button, ProgressBar, StatusBadge } from "@/lib/ui";
+import { Button, StatusBadge } from "@/lib/ui";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -131,13 +131,18 @@ function HomeTab({ customer }: { customer: any }) {
 
             {/* Progress Bar */}
             <div className="space-y-2">
-              <ProgressBar progress={35} showIndicator>
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span className="text-blue-600 font-medium">In Progress</span>
-                  <span>Out for Delivery</span>
-                  <span>Delivered</span>
-                </div>
-              </ProgressBar>
+              <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="absolute top-0 left-0 h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: "35%" }}
+                />
+                <div className="absolute top-0 left-0 w-4 h-4 bg-blue-600 rounded-full -mt-1 ml-2 animate-pulse" />
+              </div>
+              <div className="flex justify-between text-xs text-gray-500">
+                <span className="text-blue-600 font-medium">In Progress</span>
+                <span>Out for Delivery</span>
+                <span>Delivered</span>
+              </div>
             </div>
           </div>
         </div>
@@ -228,9 +233,19 @@ function OrdersTab() {
                   </div>
                   <p className="text-sm text-gray-600">{order.date}</p>
                 </div>
-                <StatusBadge variant={order.status}>
+                <div
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                    order.status === "in-progress"
+                      ? "bg-blue-100 text-blue-800"
+                      : order.status === "out-for-delivery"
+                      ? "bg-purple-100 text-purple-800"
+                      : order.status === "completed"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
                   {order.statusLabel}
-                </StatusBadge>
+                </div>
               </div>
             </div>
           ))}
