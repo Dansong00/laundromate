@@ -17,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@laundromate/ui";
+} from "@/lib/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

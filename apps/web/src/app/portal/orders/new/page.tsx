@@ -19,7 +19,7 @@ import {
   Input,
   LoadingSpinner,
   Select,
-} from "@laundromate/ui";
+} from "@/lib/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

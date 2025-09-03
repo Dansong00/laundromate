@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
   Input,
-} from "@laundromate/ui";
+} from "@/lib/ui";
 import { useState } from "react";
 
 export default function ScheduleDemoPage() {
