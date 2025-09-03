@@ -51,6 +51,19 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL_DEV=http://localhost:8000
+      - NEXT_PUBLIC_API_URL_STAGING=http://localhost:8000
+      - NEXT_PUBLIC_API_URL_PRODUCTION=http://localhost:8000
+      - NEXT_PUBLIC_AUTH_DOMAIN=localhost
+      - NEXT_PUBLIC_AUTH_CLIENT_ID=local-dev
+      - NEXT_PUBLIC_AUTH_AUDIENCE=local-api
+      - NEXT_PUBLIC_ENABLE_ANALYTICS=false
+      - NEXT_PUBLIC_ENABLE_DEBUG_MODE=true
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_local
+      - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=local-key
+      - NEXT_PUBLIC_APP_NAME=LaundroMate
+      - NEXT_PUBLIC_APP_VERSION=0.1.0
+      - NEXT_PUBLIC_APP_ENVIRONMENT=development
     volumes:
       - ./apps/web:/app
       - /app/node_modules

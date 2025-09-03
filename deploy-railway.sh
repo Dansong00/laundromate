@@ -42,3 +42,4 @@ echo "🔴 Redis: Managed by Railway"
 echo ""
 echo "To view logs: railway logs"
 echo "To open dashboard: railway open"
+

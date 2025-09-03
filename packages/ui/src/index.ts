@@ -14,8 +14,9 @@ export { EmptyState } from "./components/EmptyState";
 export { Input } from "./components/Input";
 export { LoadingSpinner } from "./components/LoadingSpinner";
 export { Modal } from "./components/Modal";
+export { ProgressBar } from "./components/ProgressBar";
 export { Select, type SelectOption } from "./components/Select";
-export { StatusBadge, type OrderStatus } from "./components/StatusBadge";
+export { StatusBadge } from "./components/StatusBadge";
 export {
   Table,
   TableBody,
