@@ -13,7 +13,9 @@ import pytest
 from app.auth.security import create_access_token, get_password_hash
 from app.core.database.session import get_db
 from app.core.models import Base
+from app.core.models.address import Address
 from app.core.models.customer import Customer
+from app.core.models.order import Order
 from app.core.models.service import Service, ServiceCategory
 from app.core.models.user import User
 from app.main import app
@@ -21,6 +23,16 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
+
+# Import factories
+from tests.factories import (
+    UserFactory, AdminUserFactory, InactiveUserFactory,
+    CustomerFactory, VIPCustomerFactory,
+    ServiceFactory, WashFoldServiceFactory, DryCleanServiceFactory,
+    AddressFactory, DefaultAddressFactory,
+    OrderFactory, OrderItemFactory, RushOrderFactory,
+    NotificationFactory
+)
 
 # Test database URL - using SQLite for tests
 TEST_DATABASE_URL = "sqlite:///./test_laundromate.db"
@@ -162,14 +174,14 @@ def test_service(db_session: Session) -> Service:
 @pytest.fixture
 def auth_headers(test_user: User) -> dict:
     """Create authentication headers for test requests."""
-    access_token = create_access_token(data={"sub": str(test_user.id)})
+    access_token = create_access_token(subject=str(test_user.id))
     return {"Authorization": f"Bearer {access_token}"}
 
 
 @pytest.fixture
 def admin_auth_headers(admin_user: User) -> dict:
     """Create authentication headers for admin test requests."""
-    access_token = create_access_token(data={"sub": str(admin_user.id)})
+    access_token = create_access_token(subject=str(admin_user.id))
     return {"Authorization": f"Bearer {access_token}"}
 
 
@@ -210,3 +222,84 @@ def sample_login_data() -> dict:
         "email": "test@example.com",
         "password": "testpassword123"
     }
+
+
+# Factory-based fixtures for more flexible test data
+@pytest.fixture
+def factory_user(db_session: Session) -> User:
+    """Create a user using factory."""
+    user = UserFactory()
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def factory_admin_user(db_session: Session) -> User:
+    """Create an admin user using factory."""
+    user = AdminUserFactory()
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def factory_customer(db_session: Session) -> Customer:
+    """Create a customer using factory."""
+    customer = CustomerFactory()
+    db_session.add(customer)
+    db_session.commit()
+    db_session.refresh(customer)
+    return customer
+
+
+@pytest.fixture
+def factory_service(db_session: Session) -> Service:
+    """Create a service using factory."""
+    service = ServiceFactory()
+    db_session.add(service)
+    db_session.commit()
+    db_session.refresh(service)
+    return service
+
+
+@pytest.fixture
+def factory_wash_fold_service(db_session: Session) -> Service:
+    """Create a wash & fold service using factory."""
+    service = WashFoldServiceFactory()
+    db_session.add(service)
+    db_session.commit()
+    db_session.refresh(service)
+    return service
+
+
+@pytest.fixture
+def factory_address(db_session: Session) -> Address:
+    """Create an address using factory."""
+    address = AddressFactory()
+    db_session.add(address)
+    db_session.commit()
+    db_session.refresh(address)
+    return address
+
+
+@pytest.fixture
+def factory_order(db_session: Session) -> Order:
+    """Create an order using factory."""
+    order = OrderFactory()
+    db_session.add(order)
+    db_session.commit()
+    db_session.refresh(order)
+    return order
+
+
+@pytest.fixture
+def factory_rush_order(db_session: Session) -> Order:
+    """Create a rush order using factory."""
+    order = RushOrderFactory()
+    db_session.add(order)
+    db_session.commit()
+    db_session.refresh(order)
+    return order
