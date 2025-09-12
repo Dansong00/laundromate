@@ -1,0 +1,30 @@
+{
+  "name": "laundromate-monorepo",
+  "version": "1.0.0",
+  "description": "LaundroMate - Full-stack laundry service management platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm run build --recursive",
+    "dev": "pnpm run dev --recursive",
+    "lint": "pnpm run lint --recursive",
+    "type-check": "pnpm run type-check --recursive",
+    "test": "pnpm run test --recursive",
+    "clean": "pnpm run clean --recursive",
+    "format": "pnpm run format --recursive",
+    "format:check": "pnpm run format:check --recursive",
+    "ci": "pnpm run lint && pnpm run type-check && pnpm run test && pnpm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "prettier": "^3.0.0",
+    "eslint": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
