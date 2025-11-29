@@ -19,6 +19,15 @@ COPY packages/ui/package.json ./packages/ui/package.json
 # We use --no-frozen-lockfile because we might not have a pnpm-lock.yaml yet
 RUN pnpm install --no-frozen-lockfile
 
+# Development image, copy all the files and run next
+FROM base AS dev
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
+COPY . .
+CMD ["pnpm", "--filter", "@laundromate/web", "dev"]
+
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
@@ -30,6 +39,9 @@ COPY . .
 # Build the web app
 # We assume the build script is "build"
 RUN pnpm --filter @laundromate/web build
+
+# Deploy the app to a separate directory with prod deps to get a clean node_modules
+RUN pnpm --filter @laundromate/web deploy --prod --legacy /app/deploy
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -52,6 +64,10 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+# Copy production dependencies from pnpm deploy to fix symlink issues
+COPY --from=builder --chown=nextjs:nodejs /app/deploy/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/deploy/package.json ./package.json
 
 USER nextjs
 
