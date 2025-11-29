@@ -1,39 +1,39 @@
 FROM node:18-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
 # Install dependencies only when needed
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Allow building from monorepo root or app dir
-ARG APP_DIR=.
+# Copy workspace config files
+COPY pnpm-workspace.yaml package.json ./
 
-# Install all dependencies (including dev) for build step
-COPY package.json package-lock.json ./
-RUN npm install
+# Copy package.json for all workspaces to install dependencies
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages/ui/package.json ./packages/ui/package.json
+
+# Install dependencies
+# We use --no-frozen-lockfile because we might not have a pnpm-lock.yaml yet
+RUN pnpm install --no-frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-ARG APP_DIR=.
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-ENV NEXT_TELEMETRY_DISABLED 1
-
-RUN npm run build
+# Build the web app
+# We assume the build script is "build"
+RUN pnpm --filter @laundromate/web build
 
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
-ARG APP_DIR=.
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
@@ -41,23 +41,23 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY public ./public
-COPY package.json ./package.json
-
-# Install only production deps in runner
-COPY --from=deps /app/package-lock.json ./
-RUN npm install --omit=dev && npm cache clean --force
+# Copy public folder
+COPY --from=builder /app/apps/web/public ./apps/web/public
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
-# Copy the built Next.js app
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
 USER nextjs
+
+EXPOSE 3000
 
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["sh", "-c", "npm start -- -p $PORT"]
+CMD ["node", "server.js"]

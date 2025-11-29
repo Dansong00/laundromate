@@ -1,0 +1,12 @@
+{
+    "name": "laundromate-monorepo",
+    "private": true,
+    "scripts": {
+        "build": "pnpm -r build",
+        "dev": "pnpm -r dev",
+        "lint": "pnpm -r lint"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}

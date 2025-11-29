@@ -1,28 +1,24 @@
 services:
-  # PostgreSQL Database
   postgres:
     ports:
-      - "5433:5432" # Host port 5433 -> Container port 5432
+      - "5433:5432"
     image: postgres:15
     environment:
       POSTGRES_DB: laundromate
       POSTGRES_USER: laundromate
-      POSTGRES_PASSWORD: laundromate
+      POSTGRES_PASSWORD: landromate
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U laundromate -d laundromate"]
+      test: [ "CMD-SHELL", "pg_isready -U laundromate -d laundromate" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Redis for Celery (no host port mapping needed)
   redis:
     image: redis:7-alpine
     volumes:
       - redis_data:/data
-
-  # FastAPI Backend
   api:
     build:
       context: ./apps/api
@@ -32,7 +28,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://laundromate:laundromate@postgres:5432/laundromate
       - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=your-secret-key-here
+      - SECRET_KEY=secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,11 +38,10 @@ services:
       - ./apps/api:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Next.js Frontend
   web:
     build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/web/Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -65,8 +60,8 @@ services:
       - NEXT_PUBLIC_APP_VERSION=0.1.0
       - NEXT_PUBLIC_APP_ENVIRONMENT=development
     volumes:
-      - ./apps/web:/app
-      - /app/node_modules
+      - ./apps/web:/app/apps/web
+      - /app/apps/web/node_modules
     depends_on:
       - api
 

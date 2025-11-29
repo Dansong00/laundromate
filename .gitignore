@@ -162,7 +162,7 @@ venv.bak/
 dmypy.json
 
 # Docker
-.dockerignore
+
 
 # Database
 *.db

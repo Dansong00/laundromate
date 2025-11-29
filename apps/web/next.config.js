@@ -2,7 +2,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable server-side rendering for Railway
-  // output: 'export', // Removed - causes issues with Railway
+  // Enable standalone output for Docker builds
+  output: 'standalone',
 
   // Enable image optimization
   images: {
