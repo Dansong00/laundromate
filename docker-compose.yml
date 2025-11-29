@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: laundromate
       POSTGRES_USER: laundromate
-      POSTGRES_PASSWORD: landromate
+      POSTGRES_PASSWORD: laundromate
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -42,6 +42,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      target: dev
     ports:
       - "3000:3000"
     environment:
@@ -61,6 +62,7 @@ services:
       - NEXT_PUBLIC_APP_ENVIRONMENT=development
     volumes:
       - ./apps/web:/app/apps/web
+      - ./packages/ui:/app/packages/ui
       - /app/apps/web/node_modules
     depends_on:
       - api

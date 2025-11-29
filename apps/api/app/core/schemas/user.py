@@ -5,19 +5,23 @@ from typing import Optional
 
 
 class UserBase(BaseModel):
-    email: EmailStr
+    email: EmailStr | None = None
     first_name: str | None = None
     last_name: str | None = None
     phone: str | None = None
 
 
 class UserCreate(UserBase):
-    password: str = Field(min_length=8)
+    phone: str
 
 
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
+class OTPRequest(BaseModel):
+    phone: str
+
+
+class OTPVerify(BaseModel):
+    phone: str
+    code: str
 
 
 class UserRead(UserBase):

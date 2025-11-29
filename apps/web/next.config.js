@@ -5,6 +5,8 @@ const nextConfig = {
   // Enable standalone output for Docker builds
   output: 'standalone',
 
+  transpilePackages: ['@laundromate/ui'],
+
   // Enable image optimization
   images: {
     unoptimized: false,
