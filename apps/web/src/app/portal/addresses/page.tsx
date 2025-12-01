@@ -21,7 +21,7 @@ export default function AddressesListPage() {
       try {
         // For now, ask user to input customer ID if unknown
         const cid = Number(
-          new URLSearchParams(window.location.search).get("customer_id")
+          new URLSearchParams(window.location.search).get("customer_id"),
         );
         if (!cid) {
           setError("Provide ?customer_id= in URL to view addresses.");
@@ -65,5 +65,3 @@ export default function AddressesListPage() {
     </main>
   );
 }
-
-

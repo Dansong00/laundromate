@@ -1,17 +1,16 @@
-from logging.config import fileConfig
 import os
 import sys
-
-
+from logging.config import fileConfig
 
 from alembic import context
 
 # Add the app directory to the Python path so we can import our models
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from app.core.database.session import engine  # noqa: E402
+
 # Import your models and Base metadata
 from app.core.models import Base  # noqa: E402
-from app.core.database.session import engine  # noqa: E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -68,9 +67,7 @@ def run_migrations_online() -> None:
     connectable = engine
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

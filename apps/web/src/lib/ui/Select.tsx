@@ -21,7 +21,7 @@ const selectVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface SelectOption {
@@ -59,7 +59,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       onChange,
       ...props
     },
-    ref
+    ref,
   ) => {
     const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -86,7 +86,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               variant: error ? "error" : variant,
               size,
               className,
-            })
+            }),
           )}
           ref={ref}
           onChange={handleChange}
@@ -113,7 +113,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Select.displayName = "Select";

@@ -22,7 +22,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
       closeOnOverlayClick = true,
       ...props
     },
-    ref
+    ref,
   ) => {
     const sizeClasses = {
       sm: "max-w-md",
@@ -75,7 +75,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
           className={cn(
             "relative bg-white rounded-lg shadow-xl w-full mx-4",
             sizeClasses[size],
-            className
+            className,
           )}
           {...props}
         >
@@ -110,7 +110,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 Modal.displayName = "Modal";

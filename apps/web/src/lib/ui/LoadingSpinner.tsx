@@ -23,7 +23,7 @@ const spinnerVariants = cva(
       size: "default",
       color: "default",
     },
-  }
+  },
 );
 
 export interface LoadingSpinnerProps
@@ -55,7 +55,7 @@ const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>(
     }
 
     return content;
-  }
+  },
 );
 
 LoadingSpinner.displayName = "LoadingSpinner";

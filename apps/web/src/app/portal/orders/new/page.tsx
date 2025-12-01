@@ -89,10 +89,10 @@ export default function NewOrderPage() {
   function updateItem(
     index: number,
     key: keyof (typeof items)[number],
-    value: string | number
+    value: string | number,
   ) {
     setItems((arr) =>
-      arr.map((it, i) => (i === index ? { ...it, [key]: value } : it))
+      arr.map((it, i) => (i === index ? { ...it, [key]: value } : it)),
     );
   }
 

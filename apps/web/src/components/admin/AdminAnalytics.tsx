@@ -1,39 +1,58 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Button } from '../ui/button'
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Button } from "../ui/button";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+} from "recharts";
 
 const turnaroundData = [
-  { name: 'Mon', value: 12 },
-  { name: 'Tue', value: 19 },
-  { name: 'Wed', value: 15 },
-  { name: 'Thu', value: 25 },
-  { name: 'Fri', value: 22 },
-  { name: 'Sat', value: 30 },
-  { name: 'Sun', value: 18 }
-]
+  { name: "Mon", value: 12 },
+  { name: "Tue", value: 19 },
+  { name: "Wed", value: 15 },
+  { name: "Thu", value: 25 },
+  { name: "Fri", value: 22 },
+  { name: "Sat", value: 30 },
+  { name: "Sun", value: 18 },
+];
 
 const orderStatusData = [
-  { name: 'Completed', value: 70, color: '#10B981' },
-  { name: 'Pending', value: 24, color: '#F59E0B' },
-  { name: 'Cancelled', value: 6, color: '#EF4444' }
-]
+  { name: "Completed", value: 70, color: "#10B981" },
+  { name: "Pending", value: 24, color: "#F59E0B" },
+  { name: "Cancelled", value: 6, color: "#EF4444" },
+];
 
 const monthlyOrdersData = [
-  { name: 'Jan', orders: 150 },
-  { name: 'Feb', orders: 180 },
-  { name: 'Mar', orders: 200 },
-  { name: 'Apr', orders: 170 },
-  { name: 'May', orders: 220 },
-  { name: 'Jun', orders: 350 }
-]
+  { name: "Jan", orders: 150 },
+  { name: "Feb", orders: 180 },
+  { name: "Mar", orders: 200 },
+  { name: "Apr", orders: 170 },
+  { name: "May", orders: 220 },
+  { name: "Jun", orders: 350 },
+];
 
 export function AdminAnalytics() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Order Analytics</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Order Analytics
+        </h1>
         <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
           Click Here
         </Button>
@@ -85,22 +104,18 @@ export function AdminAnalytics() {
                 <div className="text-sm text-gray-600">Average Order Value</div>
               </div>
             </div>
-            
+
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyOrdersData}>
-                  <XAxis 
-                    dataKey="name" 
+                  <XAxis
+                    dataKey="name"
                     axisLine={false}
                     tickLine={false}
                     className="text-xs"
                   />
                   <YAxis hide />
-                  <Bar 
-                    dataKey="orders" 
-                    fill="#3B82F6" 
-                    radius={[4, 4, 0, 0]}
-                  />
+                  <Bar dataKey="orders" fill="#3B82F6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -138,13 +153,16 @@ export function AdminAnalytics() {
                 </div>
               </div>
             </div>
-            
+
             <div className="space-y-3">
               {orderStatusData.map((item) => (
-                <div key={item.name} className="flex items-center justify-between">
+                <div
+                  key={item.name}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center space-x-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
+                    <div
+                      className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
                     <span className="text-sm">{item.name}</span>
@@ -166,19 +184,19 @@ export function AdminAnalytics() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={turnaroundData}>
-                <XAxis 
-                  dataKey="name" 
+                <XAxis
+                  dataKey="name"
                   axisLine={false}
                   tickLine={false}
                   className="text-xs"
                 />
                 <YAxis hide />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#3B82F6" 
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#3B82F6"
                   strokeWidth={2}
-                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                  dot={{ fill: "#3B82F6", strokeWidth: 2, r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -186,5 +204,5 @@ export function AdminAnalytics() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

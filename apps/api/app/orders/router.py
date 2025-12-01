@@ -1,13 +1,14 @@
 from typing import List
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
 from app.auth.decorators import require_auth
 from app.auth.security import get_current_user
 from app.core.database.session import get_db
 from app.core.models.order import Order
 from app.core.models.user import User
 from app.core.schemas.order import OrderCreate, OrderRead, OrderUpdate, OrderWithDetails
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -67,14 +68,22 @@ async def create_order(
     # Basic validation: addresses belong to the customer
     from app.core.models.address import Address
 
-    pickup_addr = db.query(Address).filter(
-        Address.id == payload.pickup_address_id,
-        Address.customer_id == payload.customer_id,
-    ).first()
-    delivery_addr = db.query(Address).filter(
-        Address.id == payload.delivery_address_id,
-        Address.customer_id == payload.customer_id,
-    ).first()
+    pickup_addr = (
+        db.query(Address)
+        .filter(
+            Address.id == payload.pickup_address_id,
+            Address.customer_id == payload.customer_id,
+        )
+        .first()
+    )
+    delivery_addr = (
+        db.query(Address)
+        .filter(
+            Address.id == payload.delivery_address_id,
+            Address.customer_id == payload.customer_id,
+        )
+        .first()
+    )
     if not pickup_addr or not delivery_addr:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -133,9 +142,7 @@ async def create_order(
         )
 
     order.total_amount = total
-    order.final_amount = (
-        total + (order.tax_amount or 0.0) + (order.rush_fee or 0.0)
-    )
+    order.final_amount = total + (order.tax_amount or 0.0) + (order.rush_fee or 0.0)
 
     db.commit()
     db.refresh(order)

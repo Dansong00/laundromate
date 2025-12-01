@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
+} from "../ui/dialog";
 import {
   Table,
   TableBody,
@@ -21,10 +21,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
-import { Label } from '../ui/label';
-import { Checkbox } from '../ui/checkbox';
-import { Search, Plus, Edit, Trash2, UserCheck, UserX, Shield, ShieldCheck } from 'lucide-react';
+} from "../ui/table";
+import { Label } from "../ui/label";
+import { Checkbox } from "../ui/checkbox";
+import {
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  UserCheck,
+  UserX,
+  Shield,
+  ShieldCheck,
+} from "lucide-react";
 import {
   listUsers,
   createUser,
@@ -34,21 +43,21 @@ import {
   UserRead,
   UserCreatePayload,
   UserUpdatePayload,
-} from '@/lib/api';
+} from "@/lib/api";
 
 export function AdminUsers() {
   const [users, setUsers] = useState<UserRead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserRead | null>(null);
   const [formData, setFormData] = useState<UserCreatePayload>({
-    phone: '',
-    email: '',
-    first_name: '',
-    last_name: '',
+    phone: "",
+    email: "",
+    first_name: "",
+    last_name: "",
     is_admin: false,
     is_super_admin: false,
     is_active: true,
@@ -64,7 +73,7 @@ export function AdminUsers() {
       const data = await listUsers();
       setUsers(data);
     } catch (error) {
-      console.error('Failed to load users:', error);
+      console.error("Failed to load users:", error);
     } finally {
       setLoading(false);
     }
@@ -77,18 +86,18 @@ export function AdminUsers() {
       resetForm();
       loadUsers();
     } catch (error) {
-      console.error('Failed to create user:', error);
-      alert('Failed to create user. Please try again.');
+      console.error("Failed to create user:", error);
+      alert("Failed to create user. Please try again.");
     }
   };
 
   const handleEdit = (user: UserRead) => {
     setSelectedUser(user);
     setFormData({
-      phone: user.phone || '',
-      email: user.email || '',
-      first_name: user.first_name || '',
-      last_name: user.last_name || '',
+      phone: user.phone || "",
+      email: user.email || "",
+      first_name: user.first_name || "",
+      last_name: user.last_name || "",
       is_admin: user.is_admin,
       is_super_admin: user.is_super_admin,
       is_active: user.is_active,
@@ -114,8 +123,8 @@ export function AdminUsers() {
       setSelectedUser(null);
       loadUsers();
     } catch (error) {
-      console.error('Failed to update user:', error);
-      alert('Failed to update user. Please try again.');
+      console.error("Failed to update user:", error);
+      alert("Failed to update user. Please try again.");
     }
   };
 
@@ -127,8 +136,8 @@ export function AdminUsers() {
       setSelectedUser(null);
       loadUsers();
     } catch (error) {
-      console.error('Failed to delete user:', error);
-      alert('Failed to delete user. Please try again.');
+      console.error("Failed to delete user:", error);
+      alert("Failed to delete user. Please try again.");
     }
   };
 
@@ -137,17 +146,17 @@ export function AdminUsers() {
       await toggleUserActive(user.id, !user.is_active);
       loadUsers();
     } catch (error) {
-      console.error('Failed to toggle user active status:', error);
-      alert('Failed to update user status. Please try again.');
+      console.error("Failed to toggle user active status:", error);
+      alert("Failed to update user status. Please try again.");
     }
   };
 
   const resetForm = () => {
     setFormData({
-      phone: '',
-      email: '',
-      first_name: '',
-      last_name: '',
+      phone: "",
+      email: "",
+      first_name: "",
+      last_name: "",
       is_admin: false,
       is_super_admin: false,
       is_active: true,
@@ -166,25 +175,37 @@ export function AdminUsers() {
 
   const getRoleBadge = (user: UserRead) => {
     if (user.is_super_admin) {
-      return <Badge variant="default" className="bg-purple-600">Super Admin</Badge>;
+      return (
+        <Badge variant="default" className="bg-purple-600">
+          Super Admin
+        </Badge>
+      );
     }
     if (user.is_admin) {
-      return <Badge variant="default" className="bg-blue-600">Admin</Badge>;
+      return (
+        <Badge variant="default" className="bg-blue-600">
+          Admin
+        </Badge>
+      );
     }
     return <Badge variant="secondary">Customer</Badge>;
   };
 
   const getInitials = (user: UserRead) => {
-    const first = user.first_name?.charAt(0) || '';
-    const last = user.last_name?.charAt(0) || '';
-    return (first + last).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U';
+    const first = user.first_name?.charAt(0) || "";
+    const last = user.last_name?.charAt(0) || "";
+    return (
+      (first + last).toUpperCase() || user.email?.charAt(0).toUpperCase() || "U"
+    );
   };
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">User Management</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          User Management
+        </h1>
         <div className="flex items-center space-x-3">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -195,7 +216,10 @@ export function AdminUsers() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button
                 className="bg-blue-600 hover:bg-blue-700"
@@ -210,7 +234,8 @@ export function AdminUsers() {
               <DialogHeader>
                 <DialogTitle>Create New User</DialogTitle>
                 <DialogDescription>
-                  Create a new user account. You can set their role and permissions.
+                  Create a new user account. You can set their role and
+                  permissions.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -219,7 +244,9 @@ export function AdminUsers() {
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
                     placeholder="+1234567890"
                     required
                   />
@@ -230,7 +257,9 @@ export function AdminUsers() {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     placeholder="user@example.com"
                   />
                 </div>
@@ -240,7 +269,9 @@ export function AdminUsers() {
                     <Input
                       id="first_name"
                       value={formData.first_name}
-                      onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, first_name: e.target.value })
+                      }
                       placeholder="John"
                     />
                   </div>
@@ -249,7 +280,9 @@ export function AdminUsers() {
                     <Input
                       id="last_name"
                       value={formData.last_name}
-                      onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, last_name: e.target.value })
+                      }
                       placeholder="Doe"
                     />
                   </div>
@@ -260,7 +293,10 @@ export function AdminUsers() {
                       id="is_admin"
                       checked={formData.is_admin}
                       onCheckedChange={(checked) =>
-                        setFormData({ ...formData, is_admin: checked as boolean })
+                        setFormData({
+                          ...formData,
+                          is_admin: checked as boolean,
+                        })
                       }
                     />
                     <Label htmlFor="is_admin" className="cursor-pointer">
@@ -272,7 +308,10 @@ export function AdminUsers() {
                       id="is_super_admin"
                       checked={formData.is_super_admin}
                       onCheckedChange={(checked) =>
-                        setFormData({ ...formData, is_super_admin: checked as boolean })
+                        setFormData({
+                          ...formData,
+                          is_super_admin: checked as boolean,
+                        })
                       }
                     />
                     <Label htmlFor="is_super_admin" className="cursor-pointer">
@@ -284,7 +323,10 @@ export function AdminUsers() {
                       id="is_active"
                       checked={formData.is_active}
                       onCheckedChange={(checked) =>
-                        setFormData({ ...formData, is_active: checked as boolean })
+                        setFormData({
+                          ...formData,
+                          is_active: checked as boolean,
+                        })
                       }
                     />
                     <Label htmlFor="is_active" className="cursor-pointer">
@@ -294,10 +336,16 @@ export function AdminUsers() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
+                <Button
+                  onClick={handleCreate}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
                   Create User
                 </Button>
               </DialogFooter>
@@ -313,7 +361,9 @@ export function AdminUsers() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Loading users...</div>
+            <div className="text-center py-8 text-gray-500">
+              Loading users...
+            </div>
           ) : filteredUsers.length === 0 ? (
             <div className="text-center py-8 text-gray-500">No users found</div>
           ) : (
@@ -339,8 +389,10 @@ export function AdminUsers() {
                         <div>
                           <div className="font-medium">
                             {user.first_name || user.last_name
-                              ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
-                              : 'No Name'}
+                              ? `${user.first_name || ""} ${
+                                  user.last_name || ""
+                                }`.trim()
+                              : "No Name"}
                           </div>
                         </div>
                       </div>
@@ -348,20 +400,26 @@ export function AdminUsers() {
                     <TableCell>
                       <div className="space-y-1">
                         {user.email && (
-                          <div className="text-sm text-gray-600">{user.email}</div>
+                          <div className="text-sm text-gray-600">
+                            {user.email}
+                          </div>
                         )}
                         {user.phone && (
-                          <div className="text-sm text-gray-500">{user.phone}</div>
+                          <div className="text-sm text-gray-500">
+                            {user.phone}
+                          </div>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>{getRoleBadge(user)}</TableCell>
                     <TableCell>
                       <Badge
-                        variant={user.is_active ? 'default' : 'secondary'}
-                        className={user.is_active ? 'bg-green-600' : 'bg-gray-400'}
+                        variant={user.is_active ? "default" : "secondary"}
+                        className={
+                          user.is_active ? "bg-green-600" : "bg-gray-400"
+                        }
                       >
-                        {user.is_active ? 'Active' : 'Inactive'}
+                        {user.is_active ? "Active" : "Inactive"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
@@ -373,7 +431,7 @@ export function AdminUsers() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleToggleActive(user)}
-                          title={user.is_active ? 'Deactivate' : 'Activate'}
+                          title={user.is_active ? "Deactivate" : "Activate"}
                         >
                           {user.is_active ? (
                             <UserX className="w-4 h-4 text-gray-600" />
@@ -425,7 +483,9 @@ export function AdminUsers() {
               <Input
                 id="edit-phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
                 placeholder="+1234567890"
                 required
               />
@@ -436,7 +496,9 @@ export function AdminUsers() {
                 id="edit-email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 placeholder="user@example.com"
               />
             </div>
@@ -446,7 +508,9 @@ export function AdminUsers() {
                 <Input
                   id="edit-first_name"
                   value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, first_name: e.target.value })
+                  }
                   placeholder="John"
                 />
               </div>
@@ -455,7 +519,9 @@ export function AdminUsers() {
                 <Input
                   id="edit-last_name"
                   value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, last_name: e.target.value })
+                  }
                   placeholder="Doe"
                 />
               </div>
@@ -478,7 +544,10 @@ export function AdminUsers() {
                   id="edit-is_super_admin"
                   checked={formData.is_super_admin}
                   onCheckedChange={(checked) =>
-                    setFormData({ ...formData, is_super_admin: checked as boolean })
+                    setFormData({
+                      ...formData,
+                      is_super_admin: checked as boolean,
+                    })
                   }
                 />
                 <Label htmlFor="edit-is_super_admin" className="cursor-pointer">
@@ -500,10 +569,16 @@ export function AdminUsers() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleUpdate} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={handleUpdate}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               Update User
             </Button>
           </DialogFooter>
@@ -516,18 +591,24 @@ export function AdminUsers() {
           <DialogHeader>
             <DialogTitle>Delete User</DialogTitle>
             <DialogDescription>
-              Are you sure you want to deactivate this user? This action will set the user as inactive.
+              Are you sure you want to deactivate this user? This action will
+              set the user as inactive.
               {selectedUser && (
                 <div className="mt-2 font-medium">
                   {selectedUser.first_name || selectedUser.last_name
-                    ? `${selectedUser.first_name || ''} ${selectedUser.last_name || ''}`.trim()
+                    ? `${selectedUser.first_name || ""} ${
+                        selectedUser.last_name || ""
+                      }`.trim()
                     : selectedUser.email || selectedUser.phone}
                 </div>
               )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
@@ -539,4 +620,3 @@ export function AdminUsers() {
     </div>
   );
 }
-

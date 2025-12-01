@@ -10,5 +10,3 @@ export function middleware(_req: NextRequest) {
 export const config = {
   matcher: ["/portal/:path*"],
 };
-
-

@@ -1,8 +1,6 @@
 # apps/api/cli.py
-import os
 import subprocess
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -12,8 +10,7 @@ app = typer.Typer(help="🧺 LaundroMate Database Migration CLI")
 def check_alembic():
     """Check if alembic is available"""
     if not Path("alembic.ini").exists():
-        typer.echo(
-            "❌ Error: alembic.ini not found. Run 'alembic init alembic' first.")
+        typer.echo("❌ Error: alembic.ini not found. Run 'alembic init alembic' first.")
         raise typer.Exit(1)
 
 
@@ -25,8 +22,7 @@ def status():
     typer.echo("==================")
 
     # Get current version
-    result = subprocess.run(["alembic", "current"],
-                            capture_output=True, text=True)
+    result = subprocess.run(["alembic", "current"], capture_output=True, text=True)
     if result.returncode == 0:
         typer.echo(f"✅ Current: {result.stdout.strip()}")
     else:
@@ -43,8 +39,7 @@ def create(message: str):
     check_alembic()
     typer.echo(f"�� Creating migration: {message}")
 
-    result = subprocess.run(
-        ["alembic", "revision", "--autogenerate", "-m", message])
+    result = subprocess.run(["alembic", "revision", "--autogenerate", "-m", message])
     if result.returncode == 0:
         typer.echo("✅ Migration created successfully!")
         typer.echo("\n💡 Next steps:")
@@ -100,7 +95,8 @@ def reset():
                 typer.echo("✅ Database reset successfully!")
                 typer.echo("\n💡 Next steps:")
                 typer.echo(
-                    "  1. Create new migration: migrate create 'Initial migration'")
+                    "  1. Create new migration: migrate create 'Initial migration'"
+                )
                 typer.echo("  2. Apply migration: migrate up")
             else:
                 typer.echo("❌ Failed to reset database")
@@ -113,7 +109,9 @@ def fresh():
     check_alembic()
     typer.echo("�� Fresh start: Reset + Recreate + Apply")
 
-    if typer.confirm("This will reset everything and start fresh. Continue?", default=False):
+    if typer.confirm(
+        "This will reset everything and start fresh. Continue?", default=False
+    ):
         # Reset to base
         typer.echo("🔄 Resetting to base...")
         subprocess.run(["alembic", "downgrade", "base"])
@@ -128,7 +126,8 @@ def fresh():
         # Create new initial migration
         typer.echo("📝 Creating initial migration...")
         subprocess.run(
-            ["alembic", "revision", "--autogenerate", "-m", "Initial migration"])
+            ["alembic", "revision", "--autogenerate", "-m", "Initial migration"]
+        )
 
         # Apply the migration
         typer.echo("🚀 Applying initial migration...")

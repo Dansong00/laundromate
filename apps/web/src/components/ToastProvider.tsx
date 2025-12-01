@@ -28,7 +28,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       notifySuccess: (m) => push("success", m),
       notifyError: (m) => push("error", m),
     }),
-    []
+    [],
   );
 
   return (

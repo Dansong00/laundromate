@@ -58,7 +58,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminPortal 
+      <AdminPortal
         onBackToMobile={() => router.push("/portal")}
         currentUser={currentUser}
       />

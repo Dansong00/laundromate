@@ -50,6 +50,7 @@ dev = [
     "httpx>=0.25.2",
     "pytest-httpx>=0.21.0",
     "factory-boy>=3.3.1",
+    "pre-commit>=3.5.0",
 ]
 
 [project.urls]
@@ -75,4 +76,3 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 exclude = ["alembic"]
-

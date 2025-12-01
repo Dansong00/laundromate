@@ -1,40 +1,52 @@
-import { LayoutDashboard, Package, Truck, Users, BarChart3, MapPin, UserCog } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Package,
+  Truck,
+  Users,
+  BarChart3,
+  MapPin,
+  UserCog,
+} from "lucide-react";
 
 interface AdminSidebarProps {
-  activeSection: string
-  setActiveSection: (section: string) => void
-  showUsers?: boolean
+  activeSection: string;
+  setActiveSection: (section: string) => void;
+  showUsers?: boolean;
 }
 
-export function AdminSidebar({ activeSection, setActiveSection, showUsers = false }: AdminSidebarProps) {
+export function AdminSidebar({
+  activeSection,
+  setActiveSection,
+  showUsers = false,
+}: AdminSidebarProps) {
   const adminMenuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'orders', label: 'Orders', icon: Package },
-    { id: 'delivery', label: 'Delivery', icon: Truck },
-    { id: 'customers', label: 'Customers', icon: Users },
-    ...(showUsers ? [{ id: 'users', label: 'Users', icon: UserCog }] : [])
-  ]
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "orders", label: "Orders", icon: Package },
+    { id: "delivery", label: "Delivery", icon: Truck },
+    { id: "customers", label: "Customers", icon: Users },
+    ...(showUsers ? [{ id: "users", label: "Users", icon: UserCog }] : []),
+  ];
 
   const analyticsMenuItems = [
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 }
-  ]
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
+  ];
 
-  const MenuItem = ({ item, isActive }: { item: any, isActive: boolean }) => {
-    const Icon = item.icon
+  const MenuItem = ({ item, isActive }: { item: any; isActive: boolean }) => {
+    const Icon = item.icon;
     return (
       <button
         onClick={() => setActiveSection(item.id)}
         className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
-          isActive 
-            ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-700' 
-            : 'text-gray-700 hover:bg-gray-100'
+          isActive
+            ? "bg-blue-100 text-blue-700 border-r-2 border-blue-700"
+            : "text-gray-700 hover:bg-gray-100"
         }`}
       >
         <Icon className="w-5 h-5" />
         <span>{item.label}</span>
       </button>
-    )
-  }
+    );
+  };
 
   return (
     <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
@@ -60,10 +72,10 @@ export function AdminSidebar({ activeSection, setActiveSection, showUsers = fals
           </div>
           <div className="space-y-1">
             {adminMenuItems.map((item) => (
-              <MenuItem 
-                key={item.id} 
-                item={item} 
-                isActive={activeSection === item.id} 
+              <MenuItem
+                key={item.id}
+                item={item}
+                isActive={activeSection === item.id}
               />
             ))}
           </div>
@@ -76,15 +88,15 @@ export function AdminSidebar({ activeSection, setActiveSection, showUsers = fals
           </div>
           <div className="space-y-1">
             {analyticsMenuItems.map((item) => (
-              <MenuItem 
-                key={item.id} 
-                item={item} 
-                isActive={activeSection === item.id} 
+              <MenuItem
+                key={item.id}
+                item={item}
+                isActive={activeSection === item.id}
               />
             ))}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

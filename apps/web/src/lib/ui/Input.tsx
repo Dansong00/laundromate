@@ -21,7 +21,7 @@ const inputVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface InputProps
@@ -35,7 +35,7 @@ export interface InputProps
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     { className, variant, size, label, error, helperText, id, ...props },
-    ref
+    ref,
   ) => {
     const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -56,7 +56,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               variant: error ? "error" : variant,
               size,
               className,
-            })
+            }),
           )}
           ref={ref}
           {...props}
@@ -67,7 +67,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

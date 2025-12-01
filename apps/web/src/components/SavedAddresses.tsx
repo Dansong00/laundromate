@@ -1,29 +1,29 @@
-import { Header } from './Header'
-import { NavigationHeader } from './NavigationHeader'
-import { Button } from './ui/button'
-import { Plus } from 'lucide-react'
+import { Header } from "./Header";
+import { NavigationHeader } from "./NavigationHeader";
+import { Button } from "./ui/button";
+import { Plus } from "lucide-react";
 
 const addresses = [
   {
     id: 1,
-    name: 'Dee',
-    address: '123 Main St',
-    city: 'Anytown, NY 12345'
+    name: "Dee",
+    address: "123 Main St",
+    city: "Anytown, NY 12345",
   },
   {
     id: 2,
-    name: '',
-    address: '456 Elm St',
-    city: 'Anytown, NY 12345'
-  }
-]
+    name: "",
+    address: "456 Elm St",
+    city: "Anytown, NY 12345",
+  },
+];
 
 export function SavedAddresses() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <Header />
       <NavigationHeader title="Saved Addresses" />
-      
+
       <div className="px-4 py-4">
         <div className="space-y-4 mb-6">
           {addresses.map((address) => (
@@ -39,12 +39,12 @@ export function SavedAddresses() {
             </div>
           ))}
         </div>
-        
+
         <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg">
           <Plus className="w-4 h-4 mr-2" />
           Add Address
         </Button>
       </div>
     </div>
-  )
+  );
 }

@@ -129,7 +129,7 @@ export function getAuthHeader(): Record<string, string> {
 
 async function apiFetch<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
   const headers = new Headers(options.headers || {});
@@ -159,7 +159,7 @@ async function apiFetch<T>(
 
 export async function login(
   email: string,
-  password: string
+  password: string,
 ): Promise<LoginResponse> {
   return apiFetch<LoginResponse>("/auth/login", {
     method: "POST",
@@ -183,7 +183,7 @@ export async function getMe(): Promise<UserRead> {
 }
 
 export async function createCustomer(
-  payload: CustomerCreatePayload
+  payload: CustomerCreatePayload,
 ): Promise<CustomerRead> {
   return apiFetch<CustomerRead>("/customers", {
     method: "POST",
@@ -207,7 +207,7 @@ export async function listOrders(): Promise<OrderRead[]> {
 }
 
 export async function listAddresses(
-  customerId: number
+  customerId: number,
 ): Promise<AddressRead[]> {
   return apiFetch<AddressRead[]>(`/addresses?customer_id=${customerId}`, {
     method: "GET",
@@ -215,7 +215,7 @@ export async function listAddresses(
 }
 
 export async function createAddress(
-  payload: AddressCreatePayload
+  payload: AddressCreatePayload,
 ): Promise<AddressRead> {
   return apiFetch<AddressRead>("/addresses", {
     method: "POST",
@@ -228,22 +228,32 @@ export async function getMyCustomer(): Promise<any> {
 }
 
 // User Management API functions
-export async function listUsers(skip: number = 0, limit: number = 100): Promise<UserRead[]> {
-  return apiFetch<UserRead[]>(`/users?skip=${skip}&limit=${limit}`, { method: "GET" });
+export async function listUsers(
+  skip: number = 0,
+  limit: number = 100,
+): Promise<UserRead[]> {
+  return apiFetch<UserRead[]>(`/users?skip=${skip}&limit=${limit}`, {
+    method: "GET",
+  });
 }
 
 export async function getUser(userId: string): Promise<UserRead> {
   return apiFetch<UserRead>(`/users/${userId}`, { method: "GET" });
 }
 
-export async function createUser(payload: UserCreatePayload): Promise<UserRead> {
+export async function createUser(
+  payload: UserCreatePayload,
+): Promise<UserRead> {
   return apiFetch<UserRead>("/users", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
-export async function updateUser(userId: string, payload: UserUpdatePayload): Promise<UserRead> {
+export async function updateUser(
+  userId: string,
+  payload: UserUpdatePayload,
+): Promise<UserRead> {
   return apiFetch<UserRead>(`/users/${userId}`, {
     method: "PUT",
     body: JSON.stringify(payload),
@@ -254,7 +264,10 @@ export async function deleteUser(userId: string): Promise<void> {
   return apiFetch<void>(`/users/${userId}`, { method: "DELETE" });
 }
 
-export async function toggleUserActive(userId: string, isActive: boolean): Promise<UserRead> {
+export async function toggleUserActive(
+  userId: string,
+  isActive: boolean,
+): Promise<UserRead> {
   return apiFetch<UserRead>(`/users/${userId}/activate`, {
     method: "PATCH",
     body: JSON.stringify({ is_active: isActive }),
@@ -263,7 +276,12 @@ export async function toggleUserActive(userId: string, isActive: boolean): Promi
 
 // Role-based access control utilities
 export function isAdminUser(user: any): boolean {
-  return user?.is_admin === true || user?.is_super_admin === true || user?.role === "admin" || user?.role === "staff";
+  return (
+    user?.is_admin === true ||
+    user?.is_super_admin === true ||
+    user?.role === "admin" ||
+    user?.role === "staff"
+  );
 }
 
 export function isSuperAdminUser(user: any): boolean {

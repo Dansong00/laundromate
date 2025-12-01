@@ -2,7 +2,9 @@ export default function LearnMorePage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="text-3xl font-bold">Learn more</h1>
-      <p className="mt-2 text-gray-700">A closer look at LaundroMate’s features.</p>
+      <p className="mt-2 text-gray-700">
+        A closer look at LaundroMate’s features.
+      </p>
 
       <section className="mt-8 grid md:grid-cols-2 gap-6">
         <div className="rounded-lg border p-5">
@@ -42,29 +44,44 @@ export default function LearnMorePage() {
       <section className="mt-10 grid md:grid-cols-2 gap-6">
         <div className="rounded-lg border p-6 bg-white">
           <h2 className="text-xl font-semibold">Analytics (Coming soon)</h2>
-          <p className="text-gray-700 mt-2">Dashboards for orders, revenue, retention, and route efficiency.</p>
+          <p className="text-gray-700 mt-2">
+            Dashboards for orders, revenue, retention, and route efficiency.
+          </p>
         </div>
         <div className="rounded-lg border p-6 bg-white">
           <h2 className="text-xl font-semibold">Accounting (Coming soon)</h2>
-          <p className="text-gray-700 mt-2">Integrations with QuickBooks and Xero for reconciliation.</p>
+          <p className="text-gray-700 mt-2">
+            Integrations with QuickBooks and Xero for reconciliation.
+          </p>
         </div>
         <div className="rounded-lg border p-6 bg-white">
           <h2 className="text-xl font-semibold">Integrations (Coming soon)</h2>
-          <p className="text-gray-700 mt-2">Square and Shopify to unify catalog, POS, and online orders.</p>
+          <p className="text-gray-700 mt-2">
+            Square and Shopify to unify catalog, POS, and online orders.
+          </p>
         </div>
         <div className="rounded-lg border p-6 bg-white">
-          <h2 className="text-xl font-semibold">AI Voice Assistant (Coming soon)</h2>
-          <p className="text-gray-700 mt-2">Voice‑powered customer service and call summaries.</p>
+          <h2 className="text-xl font-semibold">
+            AI Voice Assistant (Coming soon)
+          </h2>
+          <p className="text-gray-700 mt-2">
+            Voice‑powered customer service and call summaries.
+          </p>
         </div>
       </section>
 
       <section className="mt-10 rounded-lg border p-6 bg-white">
         <h2 className="text-xl font-semibold">Ready to see it in action?</h2>
-        <p className="text-gray-700 mt-2">Schedule a 30‑minute walkthrough tailored to your store.</p>
-        <a href="/schedule-demo" className="inline-flex mt-4 rounded bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2">Schedule a demo</a>
+        <p className="text-gray-700 mt-2">
+          Schedule a 30‑minute walkthrough tailored to your store.
+        </p>
+        <a
+          href="/schedule-demo"
+          className="inline-flex mt-4 rounded bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2"
+        >
+          Schedule a demo
+        </a>
       </section>
     </main>
   );
 }
-
-

@@ -2,10 +2,9 @@
 Integration tests for authentication routes.
 """
 
-import pytest
-from app.core.models.user import User
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+
+from app.core.models.user import User
 
 
 class TestAuthRoutes:
@@ -22,7 +21,9 @@ class TestAuthRoutes:
         assert "id" in data
         assert "hashed_password" not in data  # Should not expose password
 
-    def test_register_user_duplicate_email(self, client: TestClient, test_user: User, sample_user_data: dict):
+    def test_register_user_duplicate_email(
+        self, client: TestClient, test_user: User, sample_user_data: dict
+    ):
         """Test registration with duplicate email fails."""
         sample_user_data["email"] = test_user.email
 
@@ -33,10 +34,7 @@ class TestAuthRoutes:
 
     def test_login_success(self, client: TestClient, test_user: User):
         """Test successful user login."""
-        login_data = {
-            "email": test_user.email,
-            "password": "testpassword123"
-        }
+        login_data = {"email": test_user.email, "password": "testpassword123"}
 
         response = client.post("/auth/login", json=login_data)
 
@@ -47,10 +45,7 @@ class TestAuthRoutes:
 
     def test_login_invalid_credentials(self, client: TestClient, test_user: User):
         """Test login with invalid credentials fails."""
-        login_data = {
-            "email": test_user.email,
-            "password": "wrongpassword"
-        }
+        login_data = {"email": test_user.email, "password": "wrongpassword"}
 
         response = client.post("/auth/login", json=login_data)
 

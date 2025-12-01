@@ -1,8 +1,20 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float, Text, Enum
+import enum
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.core.models import Base
-import enum
 
 
 class OrderStatus(str, enum.Enum):
@@ -56,7 +68,11 @@ class Order(Base):
 
     # Relationships
     customer = relationship("Customer", back_populates="orders")
-    pickup_address = relationship("Address", foreign_keys=[pickup_address_id], back_populates="pickup_orders")
-    delivery_address = relationship("Address", foreign_keys=[delivery_address_id], back_populates="delivery_orders")
+    pickup_address = relationship(
+        "Address", foreign_keys=[pickup_address_id], back_populates="pickup_orders"
+    )
+    delivery_address = relationship(
+        "Address", foreign_keys=[delivery_address_id], back_populates="delivery_orders"
+    )
     items = relationship("OrderItem", back_populates="order")
     notifications = relationship("Notification", back_populates="order")

@@ -1,5 +1,8 @@
 from typing import List
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
 from app.auth.decorators import require_admin, require_auth, require_owner_or_admin
 from app.auth.security import get_current_user
 from app.core.database.session import get_db
@@ -11,8 +14,6 @@ from app.core.schemas.customer import (
     CustomerUpdate,
     CustomerWithAddresses,
 )
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ async def list_customers(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """List all customers with pagination"""
 
@@ -35,16 +36,13 @@ async def list_customers(
 @router.get("/me", response_model=CustomerWithAddresses)
 @require_auth
 async def get_current_customer(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     """Get current user's customer profile"""
-    customer = db.query(Customer).filter(
-        Customer.user_id == current_user.id).first()
+    customer = db.query(Customer).filter(Customer.user_id == current_user.id).first()
     if not customer:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer profile not found"
         )
     return customer
 
@@ -55,15 +53,14 @@ async def get_current_customer(
 async def get_customer(
     customer_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Get a specific customer by ID"""
 
     customer = db.query(Customer).filter(Customer.id == customer_id).first()
     if not customer:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
         )
     return customer
 
@@ -74,24 +71,24 @@ async def get_customer(
 async def create_customer(
     customer_data: CustomerCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Create a new customer profile"""
     # Check if customer already exists for this user
-    existing_customer = db.query(Customer).filter(
-        Customer.user_id == customer_data.user_id).first()
+    existing_customer = (
+        db.query(Customer).filter(Customer.user_id == customer_data.user_id).first()
+    )
     if existing_customer:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Customer profile already exists for this user"
+            detail="Customer profile already exists for this user",
         )
 
     # Verify user exists
     user = db.query(User).filter(User.id == customer_data.user_id).first()
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
     # Create customer
@@ -110,14 +107,13 @@ async def update_customer(
     customer_id: int,
     customer_data: CustomerUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Update a customer profile"""
     customer = db.query(Customer).filter(Customer.id == customer_id).first()
     if not customer:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
         )
 
     # Update fields
@@ -136,15 +132,14 @@ async def update_customer(
 async def delete_customer(
     customer_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Delete a customer profile (admin only)"""
 
     customer = db.query(Customer).filter(Customer.id == customer_id).first()
     if not customer:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
         )
 
     db.delete(customer)

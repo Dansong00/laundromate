@@ -6,10 +6,14 @@ and test data creation across all test modules.
 """
 
 import asyncio
-import os
 from typing import Generator
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
+
 from app.auth.security import create_access_token, get_password_hash
 from app.core.database.session import get_db
 from app.core.models import Base
@@ -17,10 +21,6 @@ from app.core.models.customer import Customer
 from app.core.models.service import Service, ServiceCategory
 from app.core.models.user import User
 from app.main import app
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import StaticPool
 
 # Test database URL - using SQLite for tests
 TEST_DATABASE_URL = "sqlite:///./test_laundromate.db"
@@ -33,8 +33,7 @@ engine = create_engine(
 )
 
 # Create test session factory
-TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture(scope="session")
@@ -70,6 +69,7 @@ def client(db_session: Session) -> TestClient:
     """
     Create a test client with overridden database dependency.
     """
+
     def override_get_db():
         try:
             yield db_session
@@ -95,7 +95,7 @@ def test_user(db_session: Session) -> User:
         last_name="User",
         phone="+1234567890",
         is_active=True,
-        is_admin=False
+        is_admin=False,
     )
     db_session.add(user)
     db_session.commit()
@@ -113,7 +113,7 @@ def admin_user(db_session: Session) -> User:
         last_name="User",
         phone="+1234567891",
         is_active=True,
-        is_admin=True
+        is_admin=True,
     )
     db_session.add(user)
     db_session.commit()
@@ -131,7 +131,7 @@ def test_customer(db_session: Session, test_user: User) -> Customer:
         loyalty_points=100,
         is_vip=False,
         email_notifications=True,
-        sms_notifications=True
+        sms_notifications=True,
     )
     db_session.add(customer)
     db_session.commit()
@@ -151,7 +151,7 @@ def test_service(db_session: Session) -> Service:
         is_active=True,
         requires_special_handling=False,
         turnaround_hours=24,
-        min_order_amount=10.00
+        min_order_amount=10.00,
     )
     db_session.add(service)
     db_session.commit()
@@ -182,7 +182,7 @@ def sample_user_data() -> dict:
         "password": "newpassword123",
         "first_name": "New",
         "last_name": "User",
-        "phone": "+1234567892"
+        "phone": "+1234567892",
     }
 
 
@@ -199,14 +199,11 @@ def sample_service_data() -> dict:
         "requires_special_handling": True,
         "turnaround_hours": 48,
         "special_instructions": "Handle with care",
-        "min_order_amount": 20.00
+        "min_order_amount": 20.00,
     }
 
 
 @pytest.fixture
 def sample_login_data() -> dict:
     """Sample login data."""
-    return {
-        "email": "test@example.com",
-        "password": "testpassword123"
-    }
+    return {"email": "test@example.com", "password": "testpassword123"}

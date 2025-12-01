@@ -63,8 +63,8 @@ export default function OrdersListPage() {
       const updated = await res.json();
       setOrders((arr) =>
         arr.map((o) =>
-          o.id === orderId ? { ...o, status: updated.status } : o
-        )
+          o.id === orderId ? { ...o, status: updated.status } : o,
+        ),
       );
     } catch (e) {
       setError((e as Error).message);
@@ -116,7 +116,9 @@ export default function OrdersListPage() {
                     </TableCell>
                     <TableCell>
                       <StatusBadge variant={o.status as any}>
-                        {o.status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                        {o.status
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
                       </StatusBadge>
                     </TableCell>
                     <TableCell className="font-medium">

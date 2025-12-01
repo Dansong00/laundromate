@@ -1,19 +1,15 @@
 from datetime import datetime, timedelta, timezone
-from app.core.models.verification_code import VerificationCode
-from app.core.schemas.user import OTPRequest, OTPVerify, UserRead
-from app.auth.security import generate_otp
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth.security import (
-    create_access_token,
-    get_current_user,
-)
+from app.auth.security import create_access_token, generate_otp, get_current_user
 from app.core.database.session import get_db
 from app.core.models.user import User
+from app.core.models.verification_code import VerificationCode
+from app.core.schemas.user import OTPRequest, OTPVerify, UserRead
 
 router = APIRouter()
-
-
 
 
 @router.post("/otp/request")
@@ -29,17 +25,17 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
     # Invalidate old codes for this phone
     db.query(VerificationCode).filter(
         VerificationCode.phone == payload.phone,
-        VerificationCode.is_used == False  # noqa: E712
+        VerificationCode.is_used == False,  # noqa: E712
     ).update({"is_used": True})
 
     otp_entry = VerificationCode(
         phone=payload.phone,
         code=code,
-        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10)
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
     )
     db.add(otp_entry)
     db.commit()
-    
+
     # 3. Send SMS (Mock for now)
     print(f"🔐 OTP for {payload.phone}: {code}")
 
@@ -53,19 +49,22 @@ def verify_otp(payload: OTPVerify, db: Session = Depends(get_db)):
     Creates a new user if one doesn't exist.
     """
     # 1. Find valid OTP
-    otp_record = db.query(VerificationCode).filter(
-        VerificationCode.phone == payload.phone,
-        VerificationCode.code == payload.code,
-        VerificationCode.is_used == False,  # noqa: E712
-        VerificationCode.expires_at > datetime.now(timezone.utc)
-    ).first()
+    otp_record = (
+        db.query(VerificationCode)
+        .filter(
+            VerificationCode.phone == payload.phone,
+            VerificationCode.code == payload.code,
+            VerificationCode.is_used == False,  # noqa: E712
+            VerificationCode.expires_at > datetime.now(timezone.utc),
+        )
+        .first()
+    )
 
     if not otp_record:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired OTP"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired OTP"
         )
-        
+
     # 2. Mark as used
     otp_record.is_used = True
     db.commit()

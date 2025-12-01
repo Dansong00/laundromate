@@ -1,51 +1,57 @@
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Search, Filter } from 'lucide-react'
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Search, Filter } from "lucide-react";
 
 const orders = [
   {
-    id: '#1005',
-    customer: 'Emily Dorn',
-    service: 'Wash & Fold',
-    status: 'Delivered',
-    statusColor: 'bg-green-100 text-green-800'
+    id: "#1005",
+    customer: "Emily Dorn",
+    service: "Wash & Fold",
+    status: "Delivered",
+    statusColor: "bg-green-100 text-green-800",
   },
   {
-    id: '#1006',
-    customer: 'Michael Wilson',
-    service: 'Dry Cleaning',
-    status: 'Delivered',
-    statusColor: 'bg-green-100 text-green-800'
+    id: "#1006",
+    customer: "Michael Wilson",
+    service: "Dry Cleaning",
+    status: "Delivered",
+    statusColor: "bg-green-100 text-green-800",
   },
   {
-    id: '#1007',
-    customer: 'Sarah Lee',
-    service: 'Pressing',
-    status: 'Delivered',
-    statusColor: 'bg-green-100 text-green-800'
+    id: "#1007",
+    customer: "Sarah Lee",
+    service: "Pressing",
+    status: "Delivered",
+    statusColor: "bg-green-100 text-green-800",
   },
   {
-    id: '#1008',
-    customer: 'John Davis',
-    service: 'Wash & Fold',
-    status: 'Delivered',
-    statusColor: 'bg-green-100 text-green-800'
+    id: "#1008",
+    customer: "John Davis",
+    service: "Wash & Fold",
+    status: "Delivered",
+    statusColor: "bg-green-100 text-green-800",
   },
   {
-    id: '#1009',
-    customer: 'Alex Cox',
-    service: 'Mending',
-    status: 'In Progress',
-    statusColor: 'bg-blue-100 text-blue-800'
-  }
-]
+    id: "#1009",
+    customer: "Alex Cox",
+    service: "Mending",
+    status: "In Progress",
+    statusColor: "bg-blue-100 text-blue-800",
+  },
+];
 
 export function AdminServices() {
-  const [selectedOrder, setSelectedOrder] = useState(orders[0])
+  const [selectedOrder, setSelectedOrder] = useState(orders[0]);
 
   return (
     <div className="p-6 space-y-6">
@@ -66,10 +72,7 @@ export function AdminServices() {
               <div className="flex items-center space-x-3">
                 <div className="relative">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input 
-                    placeholder="Filter" 
-                    className="pl-9 w-32"
-                  />
+                  <Input placeholder="Filter" className="pl-9 w-32" />
                 </div>
                 <Button variant="outline" size="sm">
                   <Filter className="w-4 h-4 mr-2" />
@@ -86,13 +89,15 @@ export function AdminServices() {
                 <span>Service</span>
                 <span>Status</span>
               </div>
-              
+
               {orders.map((order) => (
-                <div 
+                <div
                   key={order.id}
                   onClick={() => setSelectedOrder(order)}
                   className={`grid grid-cols-4 gap-4 items-center p-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedOrder.id === order.id ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'
+                    selectedOrder.id === order.id
+                      ? "bg-blue-50 border border-blue-200"
+                      : "hover:bg-gray-50"
                   }`}
                 >
                   <span className="font-medium text-blue-600">{order.id}</span>
@@ -130,7 +135,9 @@ export function AdminServices() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
-                  <Badge className={`${selectedOrder.statusColor} border-0 text-xs`}>
+                  <Badge
+                    className={`${selectedOrder.statusColor} border-0 text-xs`}
+                  >
                     {selectedOrder.status}
                   </Badge>
                 </div>
@@ -146,16 +153,12 @@ export function AdminServices() {
 
             <div>
               <h3 className="font-medium mb-2">Address</h3>
-              <div className="text-sm text-gray-600">
-                56/5612, Southford
-              </div>
+              <div className="text-sm text-gray-600">56/5612, Southford</div>
             </div>
 
             <div>
               <h3 className="font-medium mb-2">Email</h3>
-              <div className="text-sm text-gray-600">
-                customer@example.com
-              </div>
+              <div className="text-sm text-gray-600">customer@example.com</div>
             </div>
 
             <div className="space-y-3">
@@ -176,5 +179,5 @@ export function AdminServices() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

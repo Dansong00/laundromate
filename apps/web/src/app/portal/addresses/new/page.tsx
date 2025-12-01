@@ -21,7 +21,7 @@ export default function NewAddressPage() {
   const router = useRouter();
   const { notifySuccess, notifyError } = useToast();
   const params = new URLSearchParams(
-    typeof window !== "undefined" ? window.location.search : ""
+    typeof window !== "undefined" ? window.location.search : "",
   );
   const defaultCustomerId = Number(params.get("customer_id") || 0);
   const [form, setForm] = useState({
@@ -39,7 +39,7 @@ export default function NewAddressPage() {
 
   function update<K extends keyof typeof form>(
     k: K,
-    v: string | number | boolean
+    v: string | number | boolean,
   ) {
     setForm((f) => ({ ...f, [k]: v }));
   }

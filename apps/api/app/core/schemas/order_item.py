@@ -1,6 +1,8 @@
-from pydantic import BaseModel, validator
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, validator
+
 from .service import ServiceRead
 
 
@@ -14,22 +16,22 @@ class OrderItemBase(BaseModel):
     fabric_type: Optional[str] = None
     color: Optional[str] = None
 
-    @validator('quantity')
+    @validator("quantity")
     def validate_quantity(cls, v):
         if v <= 0:
-            raise ValueError('quantity must be positive')
+            raise ValueError("quantity must be positive")
         return v
 
-    @validator('unit_price')
+    @validator("unit_price")
     def validate_unit_price(cls, v):
         if v <= 0:
-            raise ValueError('unit_price must be positive')
+            raise ValueError("unit_price must be positive")
         return v
 
-    @validator('weight')
+    @validator("weight")
     def validate_weight(cls, v):
         if v is not None and v <= 0:
-            raise ValueError('weight must be positive')
+            raise ValueError("weight must be positive")
         return v
 
 
