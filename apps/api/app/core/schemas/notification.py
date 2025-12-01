@@ -11,7 +11,7 @@ class NotificationBase(BaseModel):
     delivery_method: str
 
     @validator("type")
-    def validate_type(cls, v):
+    def validate_type(cls, v: str) -> str:
         valid_types = [
             "order_confirmation",
             "pickup_reminder",
@@ -26,7 +26,7 @@ class NotificationBase(BaseModel):
         return v
 
     @validator("delivery_method")
-    def validate_delivery_method(cls, v):
+    def validate_delivery_method(cls, v: str) -> str:
         valid_methods = ["email", "sms", "push", "in_app"]
         if v not in valid_methods:
             raise ValueError(f"delivery_method must be one of {valid_methods}")
@@ -66,7 +66,7 @@ class NotificationStatusUpdate(BaseModel):
     status: str
 
     @validator("status")
-    def validate_status(cls, v):
+    def validate_status(cls, v: str) -> str:
         valid_statuses = ["pending", "sent", "delivered", "failed", "read"]
         if v not in valid_statuses:
             raise ValueError(f"status must be one of {valid_statuses}")

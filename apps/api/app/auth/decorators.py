@@ -1,7 +1,7 @@
 """Authentication and authorization decorators for API endpoints."""
 
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable
 
 from fastapi import HTTPException, status
 
@@ -13,7 +13,7 @@ def require_auth(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs) -> Any:
         current_user = kwargs.get("current_user")
 
         if not current_user:
@@ -34,7 +34,7 @@ def require_admin(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs) -> Any:
         current_user = kwargs.get("current_user")
 
         if not current_user or (
@@ -57,7 +57,7 @@ def require_super_admin(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs) -> Any:
         current_user = kwargs.get("current_user")
 
         if not current_user or not current_user.is_super_admin:
@@ -79,7 +79,7 @@ def require_owner_or_admin(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs) -> Any:
         current_user = kwargs.get("current_user")
         resource_user_id = kwargs.get("user_id") or kwargs.get("customer_id")
 

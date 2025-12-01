@@ -26,7 +26,7 @@ async def list_customers(
     limit: int = 100,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> List[CustomerRead]:
     """List all customers with pagination"""
 
     customers = db.query(Customer).offset(skip).limit(limit).all()
@@ -37,7 +37,7 @@ async def list_customers(
 @require_auth
 async def get_current_customer(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
-):
+) -> CustomerWithAddresses:
     """Get current user's customer profile"""
     customer = db.query(Customer).filter(Customer.user_id == current_user.id).first()
     if not customer:
@@ -54,7 +54,7 @@ async def get_customer(
     customer_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> CustomerRead:
     """Get a specific customer by ID"""
 
     customer = db.query(Customer).filter(Customer.id == customer_id).first()
@@ -72,7 +72,7 @@ async def create_customer(
     customer_data: CustomerCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> CustomerRead:
     """Create a new customer profile"""
     # Check if customer already exists for this user
     existing_customer = (
@@ -108,7 +108,7 @@ async def update_customer(
     customer_data: CustomerUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> CustomerRead:
     """Update a customer profile"""
     customer = db.query(Customer).filter(Customer.id == customer_id).first()
     if not customer:
@@ -133,7 +133,7 @@ async def delete_customer(
     customer_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> None:
     """Delete a customer profile (admin only)"""
 
     customer = db.query(Customer).filter(Customer.id == customer_id).first()

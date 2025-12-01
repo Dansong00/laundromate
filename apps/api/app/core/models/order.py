@@ -36,7 +36,9 @@ class Order(Base):
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
 
     # Order details
-    status = Column(Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False)
+    status: Column[OrderStatus] = Column(
+        Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False
+    )
     total_amount = Column(Float, nullable=False)
     tax_amount = Column(Float, default=0.0)
     tip_amount = Column(Float, default=0.0)

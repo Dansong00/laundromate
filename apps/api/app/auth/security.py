@@ -7,11 +7,14 @@ from uuid import UUID as UUIDType
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from app.core.config.settings import settings
 from app.core.database.session import get_db
 from app.core.models.user import User
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def generate_otp(length: int = 6) -> str:
@@ -28,14 +31,16 @@ def create_access_token(subject: str, expires_minutes: Optional[int] = None) -> 
         settings.SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
-    return token
+    return str(token)
 
 
 def decode_access_token(token: str) -> dict:
-    return jwt.decode(
-        token,
-        settings.SECRET_KEY,
-        algorithms=[settings.ALGORITHM],
+    return dict(
+        jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
     )
 
 
@@ -75,9 +80,17 @@ async def get_current_user(
 
 def is_super_admin(user: User) -> bool:
     """Check if user is a super admin."""
-    return user.is_super_admin
+    return bool(user.is_super_admin)
 
 
 def is_admin_or_super_admin(user: User) -> bool:
     """Check if user is an admin or super admin."""
-    return user.is_admin or user.is_super_admin
+    return bool(user.is_admin or user.is_super_admin)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)

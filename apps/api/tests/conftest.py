@@ -162,14 +162,14 @@ def test_service(db_session: Session) -> Service:
 @pytest.fixture
 def auth_headers(test_user: User) -> dict:
     """Create authentication headers for test requests."""
-    access_token = create_access_token(data={"sub": str(test_user.id)})
+    access_token = create_access_token(subject=str(test_user.id))
     return {"Authorization": f"Bearer {access_token}"}
 
 
 @pytest.fixture
 def admin_auth_headers(admin_user: User) -> dict:
     """Create authentication headers for admin test requests."""
-    access_token = create_access_token(data={"sub": str(admin_user.id)})
+    access_token = create_access_token(subject=str(admin_user.id))
     return {"Authorization": f"Bearer {access_token}"}
 
 

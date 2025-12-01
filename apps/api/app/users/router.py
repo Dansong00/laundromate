@@ -26,7 +26,7 @@ async def list_users(
     limit: int = 100,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> List[UserRead]:
     """List all users with pagination (super admin only)"""
     users = db.query(User).offset(skip).limit(limit).all()
     return users
@@ -39,7 +39,7 @@ async def get_user(
     user_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> UserRead:
     """Get a specific user by ID (super admin only)"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -56,7 +56,7 @@ async def create_user(
     user_data: UserCreateByAdmin,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> UserRead:
     """Create a new user (super admin only)"""
     # Check if user with phone already exists
     existing_user = db.query(User).filter(User.phone == user_data.phone).first()
@@ -94,7 +94,7 @@ async def update_user(
     user_data: UserUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> UserRead:
     """Update a user (super admin only)"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -148,7 +148,7 @@ async def delete_user(
     user_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> None:
     """
     Delete/deactivate a user (super admin only) - soft delete by setting is_active=False
     """
@@ -178,7 +178,7 @@ async def toggle_user_active(
     request: UserActivateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> UserRead:
     """Activate or deactivate a user (super admin only)"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

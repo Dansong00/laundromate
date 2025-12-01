@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("/otp/request")
-def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
+def request_otp(payload: OTPRequest, db: Session = Depends(get_db)) -> dict:
     """
     Request an OTP for the given phone number.
     If user doesn't exist, they will be created upon verification.
@@ -43,7 +43,7 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/otp/verify")
-def verify_otp(payload: OTPVerify, db: Session = Depends(get_db)):
+def verify_otp(payload: OTPVerify, db: Session = Depends(get_db)) -> dict:
     """
     Verify the OTP and return an access token.
     Creates a new user if one doesn't exist.
@@ -83,5 +83,5 @@ def verify_otp(payload: OTPVerify, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserRead)
-def read_me(current_user: User = Depends(get_current_user)):
+def read_me(current_user: User = Depends(get_current_user)) -> UserRead:
     return current_user

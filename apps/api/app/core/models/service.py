@@ -39,7 +39,7 @@ class Service(Base):
     # Service details
     name = Column(String(100), nullable=False, unique=True)
     description = Column(Text, nullable=True)
-    category = Column(SQLEnum(ServiceCategory), nullable=False)
+    category: Column[ServiceCategory] = Column(SQLEnum(ServiceCategory), nullable=False)
 
     # Pricing
     base_price = Column(Float, nullable=False)

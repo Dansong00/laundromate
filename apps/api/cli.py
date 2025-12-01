@@ -7,7 +7,7 @@ import typer
 app = typer.Typer(help="🧺 LaundroMate Database Migration CLI")
 
 
-def check_alembic():
+def check_alembic() -> None:
     """Check if alembic is available"""
     if not Path("alembic.ini").exists():
         typer.echo("❌ Error: alembic.ini not found. Run 'alembic init alembic' first.")
@@ -15,7 +15,7 @@ def check_alembic():
 
 
 @app.command()
-def status():
+def status() -> None:
     """Show current migration status"""
     check_alembic()
     typer.echo("📊 Migration Status")
@@ -34,7 +34,7 @@ def status():
 
 
 @app.command()
-def create(message: str):
+def create(message: str) -> None:
     """Create new migration with autogenerate"""
     check_alembic()
     typer.echo(f"�� Creating migration: {message}")
@@ -51,7 +51,7 @@ def create(message: str):
 
 
 @app.command()
-def up(revision: str = "head"):
+def up(revision: str = "head") -> None:
     """Apply migrations (default: all pending)"""
     check_alembic()
     typer.echo(f"🚀 Applying migrations up to: {revision}")
@@ -66,7 +66,7 @@ def up(revision: str = "head"):
 
 
 @app.command()
-def down(revision: str = "-1"):
+def down(revision: str = "-1") -> None:
     """Rollback migrations (default: one step)"""
     check_alembic()
     typer.echo(f"⏪ Rolling back to: {revision}")
@@ -81,7 +81,7 @@ def down(revision: str = "-1"):
 
 
 @app.command()
-def reset():
+def reset() -> None:
     """Reset database to base (WARNING: destructive!)"""
     check_alembic()
     typer.echo("⚠️  WARNING: This will reset your database to base state!")
@@ -104,7 +104,7 @@ def reset():
 
 
 @app.command()
-def fresh():
+def fresh() -> None:
     """Fresh start: reset + recreate + apply"""
     check_alembic()
     typer.echo("�� Fresh start: Reset + Recreate + Apply")

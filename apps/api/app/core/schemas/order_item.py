@@ -17,19 +17,19 @@ class OrderItemBase(BaseModel):
     color: Optional[str] = None
 
     @validator("quantity")
-    def validate_quantity(cls, v):
+    def validate_quantity(cls, v: int) -> int:
         if v <= 0:
             raise ValueError("quantity must be positive")
         return v
 
     @validator("unit_price")
-    def validate_unit_price(cls, v):
+    def validate_unit_price(cls, v: float) -> float:
         if v <= 0:
             raise ValueError("unit_price must be positive")
         return v
 
     @validator("weight")
-    def validate_weight(cls, v):
+    def validate_weight(cls, v: Optional[float]) -> Optional[float]:
         if v is not None and v <= 0:
             raise ValueError("weight must be positive")
         return v

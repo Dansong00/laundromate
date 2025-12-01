@@ -19,14 +19,14 @@ class AddressBase(BaseModel):
     longitude: Optional[str] = None
 
     @validator("address_type")
-    def validate_address_type(cls, v):
+    def validate_address_type(cls, v: str) -> str:
         valid_types = ["home", "work", "pickup", "delivery"]
         if v not in valid_types:
             raise ValueError(f"address_type must be one of {valid_types}")
         return v
 
     @validator("zip_code")
-    def validate_zip_code(cls, v):
+    def validate_zip_code(cls, v: str) -> str:
         if not v.isdigit() or len(v) != 5:
             raise ValueError("zip_code must be 5 digits")
         return v

@@ -35,12 +35,12 @@ class Notification(Base):
     )  # Optional for promotional notifications
 
     # Notification details
-    type = Column(Enum(NotificationType), nullable=False)
+    type: Column[NotificationType] = Column(Enum(NotificationType), nullable=False)
     title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)
 
     # Delivery details
-    status = Column(
+    status: Column[NotificationStatus] = Column(
         Enum(NotificationStatus), default=NotificationStatus.PENDING, nullable=False
     )
     delivery_method = Column(

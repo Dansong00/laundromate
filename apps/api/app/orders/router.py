@@ -20,7 +20,7 @@ async def list_orders(
     limit: int = 50,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> List[OrderRead]:
     orders = db.query(Order).offset(skip).limit(limit).all()
     return orders
 
@@ -31,7 +31,7 @@ async def get_order(
     order_id: int,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderRead:
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(
@@ -47,7 +47,7 @@ async def get_order_detail(
     order_id: int,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderWithDetails:
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(
@@ -64,7 +64,7 @@ async def create_order(
     payload: OrderCreate,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderRead:
     # Basic validation: addresses belong to the customer
     from app.core.models.address import Address
 
@@ -156,7 +156,7 @@ async def update_order_status(
     status_value: str,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderRead:
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(
@@ -176,7 +176,7 @@ async def update_order(
     payload: OrderUpdate,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderRead:
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(

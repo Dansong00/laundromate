@@ -36,6 +36,7 @@ dependencies = [
     "sendgrid==6.10.0",
     "celery==5.3.4",
     "redis==5.0.1",
+    "typer>=0.9.0",
 ]
 
 [project.optional-dependencies]
@@ -51,6 +52,7 @@ dev = [
     "pytest-httpx>=0.21.0",
     "factory-boy>=3.3.1",
     "pre-commit>=3.5.0",
+    "types-python-jose>=3.3.0",
 ]
 
 [project.urls]

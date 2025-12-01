@@ -21,12 +21,12 @@ async def list_services(
     active_only: bool = True,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> List[ServiceRead]:
     """List all services with optional filtering"""
     query = db.query(Service)
 
     if active_only:
-        query = query.filter(Service.is_active is True)
+        query = query.filter(Service.is_active == True)  # noqa: E712
 
     services = query.offset(skip).limit(limit).all()
     return services
@@ -38,7 +38,7 @@ async def get_service(
     service_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> ServiceRead:
     """Get a specific service by ID"""
     service = db.query(Service).filter(Service.id == service_id).first()
     if not service:
@@ -55,7 +55,7 @@ async def create_service(
     service_data: ServiceCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> ServiceRead:
     """Create a new service (admin only)"""
     # Check if service name already exists
     existing_service = (
@@ -84,7 +84,7 @@ async def update_service(
     service_data: ServiceUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> ServiceRead:
     """Update a service (admin only)"""
 
     service = db.query(Service).filter(Service.id == service_id).first()
@@ -121,7 +121,7 @@ async def delete_service(
     service_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> None:
     """Delete a service (admin only)"""
 
     service = db.query(Service).filter(Service.id == service_id).first()
@@ -144,12 +144,12 @@ async def get_services_by_category(
     active_only: bool = True,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> List[ServiceRead]:
     """Get services by category"""
     query = db.query(Service).filter(Service.category == category)
 
     if active_only:
-        query = query.filter(Service.is_active is True)
+        query = query.filter(Service.is_active == True)  # noqa: E712
 
     services = query.all()
     return services
