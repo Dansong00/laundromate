@@ -3,16 +3,20 @@ import { AdminSidebar } from './AdminSidebar'
 import { AdminDashboard } from './AdminDashboard'
 import { AdminServices } from './AdminServices'
 import { AdminCustomers } from './AdminCustomers'
+import { AdminUsers } from './AdminUsers'
 import { AdminAnalytics } from './AdminAnalytics'
 import { Button } from '../ui/button'
 import { ArrowLeft } from 'lucide-react'
+import { UserRead, isSuperAdminUser } from '@/lib/api'
 
 interface AdminPortalProps {
   onBackToMobile: () => void
+  currentUser?: UserRead | null
 }
 
-export function AdminPortal({ onBackToMobile }: AdminPortalProps) {
+export function AdminPortal({ onBackToMobile, currentUser }: AdminPortalProps) {
   const [activeSection, setActiveSection] = useState('dashboard')
+  const showUsers = currentUser ? isSuperAdminUser(currentUser) : false
 
   const renderActiveSection = () => {
     switch (activeSection) {
@@ -22,6 +26,8 @@ export function AdminPortal({ onBackToMobile }: AdminPortalProps) {
         return <AdminServices />
       case 'customers':
         return <AdminCustomers />
+      case 'users':
+        return <AdminUsers />
       case 'analytics':
         return <AdminAnalytics />
       default:
@@ -43,7 +49,11 @@ export function AdminPortal({ onBackToMobile }: AdminPortalProps) {
         </Button>
       </div>
 
-      <AdminSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+      <AdminSidebar 
+        activeSection={activeSection} 
+        setActiveSection={setActiveSection}
+        showUsers={showUsers}
+      />
       
       <div className="flex-1 overflow-auto">
         {renderActiveSection()}

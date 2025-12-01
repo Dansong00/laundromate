@@ -73,3 +73,13 @@ async def get_current_user(
         raise credentials_exception
 
     return user
+
+
+def is_super_admin(user: User) -> bool:
+    """Check if user is a super admin."""
+    return user.is_super_admin
+
+
+def is_admin_or_super_admin(user: User) -> bool:
+    """Check if user is an admin or super admin."""
+    return user.is_admin or user.is_super_admin

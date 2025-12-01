@@ -29,16 +29,36 @@ def require_auth(func: Callable) -> Callable:
 def require_admin(func: Callable) -> Callable:
     """Decorator to require admin privileges for an endpoint.
 
-    This decorator validates that current_user is an admin.
+    This decorator validates that current_user is an admin or super admin.
     """
     @wraps(func)
     async def wrapper(*args, **kwargs):
         current_user = kwargs.get('current_user')
 
-        if not current_user or not current_user.is_admin:
+        if not current_user or (not current_user.is_admin and not current_user.is_super_admin):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Admin privileges required"
+            )
+
+        return await func(*args, **kwargs)
+
+    return wrapper
+
+
+def require_super_admin(func: Callable) -> Callable:
+    """Decorator to require super admin privileges for an endpoint.
+
+    This decorator validates that current_user is a super admin.
+    """
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        current_user = kwargs.get('current_user')
+
+        if not current_user or not current_user.is_super_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Super admin privileges required"
             )
 
         return await func(*args, **kwargs)
@@ -63,7 +83,7 @@ def require_owner_or_admin(func: Callable) -> Callable:
                 detail="Authentication required"
             )
 
-        if not current_user.is_admin and current_user.id != resource_user_id:
+        if not current_user.is_super_admin and not current_user.is_admin and current_user.id != resource_user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not authorized to access this resource"

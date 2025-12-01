@@ -1,16 +1,18 @@
-import { LayoutDashboard, Package, Truck, Users, BarChart3, MapPin } from 'lucide-react'
+import { LayoutDashboard, Package, Truck, Users, BarChart3, MapPin, UserCog } from 'lucide-react'
 
 interface AdminSidebarProps {
   activeSection: string
   setActiveSection: (section: string) => void
+  showUsers?: boolean
 }
 
-export function AdminSidebar({ activeSection, setActiveSection }: AdminSidebarProps) {
+export function AdminSidebar({ activeSection, setActiveSection, showUsers = false }: AdminSidebarProps) {
   const adminMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'orders', label: 'Orders', icon: Package },
     { id: 'delivery', label: 'Delivery', icon: Truck },
-    { id: 'customers', label: 'Customers', icon: Users }
+    { id: 'customers', label: 'Customers', icon: Users },
+    ...(showUsers ? [{ id: 'users', label: 'Users', icon: UserCog }] : [])
   ]
 
   const analyticsMenuItems = [

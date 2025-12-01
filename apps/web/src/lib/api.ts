@@ -15,11 +15,35 @@ export interface RegisterPayload {
 
 export interface UserRead {
   id: string;
-  email: string;
+  email?: string | null;
   first_name?: string | null;
   last_name?: string | null;
   phone?: string | null;
-  role?: string | null; // Add role field for admin detection
+  is_active: boolean;
+  is_admin: boolean;
+  is_super_admin: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserCreatePayload {
+  phone: string;
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  is_admin?: boolean;
+  is_super_admin?: boolean;
+  is_active?: boolean;
+}
+
+export interface UserUpdatePayload {
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  phone?: string | null;
+  is_admin?: boolean | null;
+  is_super_admin?: boolean | null;
+  is_active?: boolean | null;
 }
 
 export interface CustomerCreatePayload {
@@ -203,9 +227,47 @@ export async function getMyCustomer(): Promise<any> {
   return apiFetch("/customers/me", { method: "GET" });
 }
 
+// User Management API functions
+export async function listUsers(skip: number = 0, limit: number = 100): Promise<UserRead[]> {
+  return apiFetch<UserRead[]>(`/users?skip=${skip}&limit=${limit}`, { method: "GET" });
+}
+
+export async function getUser(userId: string): Promise<UserRead> {
+  return apiFetch<UserRead>(`/users/${userId}`, { method: "GET" });
+}
+
+export async function createUser(payload: UserCreatePayload): Promise<UserRead> {
+  return apiFetch<UserRead>("/users", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateUser(userId: string, payload: UserUpdatePayload): Promise<UserRead> {
+  return apiFetch<UserRead>(`/users/${userId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteUser(userId: string): Promise<void> {
+  return apiFetch<void>(`/users/${userId}`, { method: "DELETE" });
+}
+
+export async function toggleUserActive(userId: string, isActive: boolean): Promise<UserRead> {
+  return apiFetch<UserRead>(`/users/${userId}/activate`, {
+    method: "PATCH",
+    body: JSON.stringify({ is_active: isActive }),
+  });
+}
+
 // Role-based access control utilities
 export function isAdminUser(user: any): boolean {
-  return user?.role === "admin" || user?.role === "staff";
+  return user?.is_admin === true || user?.is_super_admin === true || user?.role === "admin" || user?.role === "staff";
+}
+
+export function isSuperAdminUser(user: any): boolean {
+  return user?.is_super_admin === true;
 }
 
 export function isCustomerUser(user: any): boolean {
