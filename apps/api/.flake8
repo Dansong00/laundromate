@@ -10,5 +10,6 @@ exclude =
     .env,
     build,
     dist,
-    *.egg-info
+    *.egg-info,
+    alembic/versions
 max-complexity = 10
