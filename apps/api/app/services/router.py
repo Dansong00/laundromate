@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -21,7 +21,7 @@ async def list_services(
     active_only: bool = True,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> List[ServiceRead]:
+) -> Any:
     """List all services with optional filtering"""
     query = db.query(Service)
 
@@ -131,7 +131,7 @@ async def delete_service(
         )
 
     # Soft delete - just mark as inactive
-    service.is_active = False
+    service.is_active = False  # type: ignore
     db.commit()
 
     return None
@@ -144,7 +144,7 @@ async def get_services_by_category(
     active_only: bool = True,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> List[ServiceRead]:
+) -> Any:
     """Get services by category"""
     query = db.query(Service).filter(Service.category == category)
 

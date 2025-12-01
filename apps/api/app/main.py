@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +15,7 @@ from app.users.router import router as users_router
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> Any:
     # Startup
     print("🚀 Starting LaundroMate API...")
     print("🔒 Database tables must be created via Alembic migrations")
@@ -55,10 +56,10 @@ app.include_router(users_router, prefix="/users", tags=["Users"])
 
 
 @app.get("/")
-async def root():
+async def root() -> dict:
     return {"message": "Welcome to LaundroMate API"}
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict:
     return {"status": "healthy"}

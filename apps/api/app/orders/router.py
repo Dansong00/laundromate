@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -20,7 +20,7 @@ async def list_orders(
     limit: int = 50,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-) -> List[OrderRead]:
+) -> Any:
     orders = db.query(Order).offset(skip).limit(limit).all()
     return orders
 
@@ -141,8 +141,10 @@ async def create_order(
             )
         )
 
-    order.total_amount = total
-    order.final_amount = total + (order.tax_amount or 0.0) + (order.rush_fee or 0.0)
+    order.total_amount = total  # type: ignore
+    order.final_amount = (
+        total + (order.tax_amount or 0.0) + (order.rush_fee or 0.0)
+    )  # type: ignore
 
     db.commit()
     db.refresh(order)
@@ -163,7 +165,7 @@ async def update_order_status(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Order not found",
         )
-    order.status = status_value
+    order.status = status_value  # type: ignore
     db.commit()
     db.refresh(order)
     return order

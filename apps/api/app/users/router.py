@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -26,7 +26,7 @@ async def list_users(
     limit: int = 100,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> List[UserRead]:
+) -> Any:
     """List all users with pagination (super admin only)"""
     users = db.query(User).offset(skip).limit(limit).all()
     return users
@@ -165,7 +165,7 @@ async def delete_user(
         )
 
     # Soft delete - set is_active to False
-    user.is_active = False
+    user.is_active = False  # type: ignore
     db.commit()
     return None
 
@@ -186,7 +186,7 @@ async def toggle_user_active(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
-    user.is_active = request.is_active
+    user.is_active = request.is_active  # type: ignore
     db.commit()
     db.refresh(user)
     return user

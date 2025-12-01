@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -18,7 +18,7 @@ async def list_customer_addresses(
     customer_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> List[AddressRead]:
+) -> Any:
     """List all addresses for a specific customer"""
     # Check if user can access this customer's addresses
     customer = db.query(Customer).filter(Customer.id == customer_id).first()

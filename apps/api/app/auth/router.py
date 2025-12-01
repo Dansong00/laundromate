@@ -66,7 +66,7 @@ def verify_otp(payload: OTPVerify, db: Session = Depends(get_db)) -> dict:
         )
 
     # 2. Mark as used
-    otp_record.is_used = True
+    otp_record.is_used = True  # type: ignore
     db.commit()
 
     # 3. Find or Create User
