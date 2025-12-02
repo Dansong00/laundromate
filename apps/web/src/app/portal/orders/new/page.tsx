@@ -3,10 +3,12 @@
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
 import {
+  AddressRead,
   createOrder,
   getAuthHeader,
   listAddresses,
   listServices,
+  OrderCreatePayload,
 } from "@/lib/api";
 import {
   Alert,
@@ -30,7 +32,7 @@ export default function NewOrderPage() {
   const [services, setServices] = useState<
     { id: number; name: string; base_price: number }[]
   >([]);
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<AddressRead[]>([]);
   const [form, setForm] = useState({
     customer_id: 0,
     pickup_address_id: 0,
@@ -117,7 +119,7 @@ export default function NewOrderPage() {
       await createOrder({
         ...form,
         items,
-      } as any);
+      } as unknown as OrderCreatePayload);
       notifySuccess("Order created");
       router.push("/portal/orders");
     } catch (e) {

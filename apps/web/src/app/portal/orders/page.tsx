@@ -115,7 +115,17 @@ export default function OrdersListPage() {
                       </a>
                     </TableCell>
                     <TableCell>
-                      <StatusBadge variant={o.status as any}>
+                      <StatusBadge
+                        variant={
+                          o.status as
+                            | "default"
+                            | "secondary"
+                            | "destructive"
+                            | "outline"
+                            | null
+                            | undefined
+                        }
+                      >
                         {o.status
                           .replace(/_/g, " ")
                           .replace(/\b\w/g, (l) => l.toUpperCase())}

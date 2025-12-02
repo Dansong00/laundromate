@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       notifySuccess("OTP sent to your phone");
       setStep("otp");
-    } catch (err) {
+    } catch {
       notifyError("Could not send OTP. Please try again.");
     } finally {
       setLoading(false);

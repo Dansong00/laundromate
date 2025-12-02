@@ -1,14 +1,14 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { listAddresses } from "@/lib/api";
+import { AddressRead, listAddresses } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AddressesListPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<AddressRead[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<number | null>(null);
 

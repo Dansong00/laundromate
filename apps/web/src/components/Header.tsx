@@ -1,12 +1,6 @@
-import { ChevronLeft, Wifi, Battery, Signal } from "lucide-react";
+import { Battery, Signal, Wifi } from "lucide-react";
 
-interface HeaderProps {
-  title?: string;
-  showBackButton?: boolean;
-  onBack?: () => void;
-}
-
-export function Header({ title, showBackButton = true, onBack }: HeaderProps) {
+export function Header() {
   return (
     <div className="bg-white px-4 py-3 flex items-center justify-between">
       <div className="flex items-center space-x-3">

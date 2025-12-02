@@ -24,6 +24,7 @@ export interface UserRead {
   is_super_admin: boolean;
   created_at: string;
   updated_at: string;
+  role?: string;
 }
 
 export interface UserCreatePayload {
@@ -117,6 +118,29 @@ export interface OrderRead {
   created_at: string;
 }
 
+export interface OrderItemRead {
+  id: number;
+  service_id: number;
+  item_name: string;
+  item_type: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+}
+
+export interface OrderDetailRead extends OrderRead {
+  pickup_address_id: number;
+  delivery_address_id: number;
+  pickup_date: string;
+  pickup_time_slot: string;
+  delivery_date: string;
+  delivery_time_slot: string;
+  items: OrderItemRead[];
+  tax_amount: number;
+  rush_fee: number;
+  final_amount: number;
+}
+
 function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
   return sessionStorage.getItem("access_token");
@@ -147,7 +171,7 @@ async function apiFetch<T>(
     try {
       const data = await res.json();
       message = (data && (data.detail || data.message)) || message;
-    } catch (_) {
+    } catch {
       // ignore
     }
     throw new Error(message);
@@ -223,8 +247,8 @@ export async function createAddress(
   });
 }
 
-export async function getMyCustomer(): Promise<any> {
-  return apiFetch("/customers/me", { method: "GET" });
+export async function getMyCustomer(): Promise<CustomerRead> {
+  return apiFetch<CustomerRead>("/customers/me", { method: "GET" });
 }
 
 // User Management API functions
@@ -275,7 +299,7 @@ export async function toggleUserActive(
 }
 
 // Role-based access control utilities
-export function isAdminUser(user: any): boolean {
+export function isAdminUser(user: UserRead | null | undefined): boolean {
   return (
     user?.is_admin === true ||
     user?.is_super_admin === true ||
@@ -284,10 +308,10 @@ export function isAdminUser(user: any): boolean {
   );
 }
 
-export function isSuperAdminUser(user: any): boolean {
+export function isSuperAdminUser(user: UserRead | null | undefined): boolean {
   return user?.is_super_admin === true;
 }
 
-export function isCustomerUser(user: any): boolean {
+export function isCustomerUser(user: UserRead | null | undefined): boolean {
   return !isAdminUser(user);
 }

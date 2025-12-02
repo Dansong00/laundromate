@@ -31,7 +31,19 @@ export function AdminSidebar({
     { id: "analytics", label: "Analytics", icon: BarChart3 },
   ];
 
-  const MenuItem = ({ item, isActive }: { item: any; isActive: boolean }) => {
+  interface MenuItemProps {
+    id: string;
+    label: string;
+    icon: React.ElementType;
+  }
+
+  const MenuItem = ({
+    item,
+    isActive,
+  }: {
+    item: MenuItemProps;
+    isActive: boolean;
+  }) => {
     const Icon = item.icon;
     return (
       <button

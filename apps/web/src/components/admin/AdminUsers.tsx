@@ -24,16 +24,7 @@ import {
 } from "../ui/table";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
-import {
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  UserCheck,
-  UserX,
-  Shield,
-  ShieldCheck,
-} from "lucide-react";
+import { Search, Plus, Edit, Trash2, UserCheck, UserX } from "lucide-react";
 import {
   listUsers,
   createUser,
@@ -256,7 +247,7 @@ export function AdminUsers() {
                   <Input
                     id="email"
                     type="email"
-                    value={formData.email}
+                    value={formData.email || ""}
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
@@ -268,7 +259,7 @@ export function AdminUsers() {
                     <Label htmlFor="first_name">First Name</Label>
                     <Input
                       id="first_name"
-                      value={formData.first_name}
+                      value={formData.first_name || ""}
                       onChange={(e) =>
                         setFormData({ ...formData, first_name: e.target.value })
                       }
@@ -279,7 +270,7 @@ export function AdminUsers() {
                     <Label htmlFor="last_name">Last Name</Label>
                     <Input
                       id="last_name"
-                      value={formData.last_name}
+                      value={formData.last_name || ""}
                       onChange={(e) =>
                         setFormData({ ...formData, last_name: e.target.value })
                       }
