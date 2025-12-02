@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@laundromate/ui";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 
 export default function OrdersListPage() {
   const { isAuthenticated } = useAuth();
@@ -117,13 +117,9 @@ export default function OrdersListPage() {
                     <TableCell>
                       <StatusBadge
                         variant={
-                          o.status as
-                            | "default"
-                            | "secondary"
-                            | "destructive"
-                            | "outline"
-                            | null
-                            | undefined
+                          o.status as ComponentProps<
+                            typeof StatusBadge
+                          >["variant"]
                         }
                       >
                         {o.status
