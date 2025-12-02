@@ -155,7 +155,7 @@ async def delete_address(
             status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
         )
 
-        customer = db.query(Customer).filter(Customer.id == address.customer_id).first()
+    customer = db.query(Customer).filter(Customer.id == address.customer_id).first()
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
