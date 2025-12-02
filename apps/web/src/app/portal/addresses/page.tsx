@@ -1,14 +1,14 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { listAddresses } from "@/lib/api";
+import { AddressRead, listAddresses } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AddressesListPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<AddressRead[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<number | null>(null);
 
@@ -21,7 +21,7 @@ export default function AddressesListPage() {
       try {
         // For now, ask user to input customer ID if unknown
         const cid = Number(
-          new URLSearchParams(window.location.search).get("customer_id")
+          new URLSearchParams(window.location.search).get("customer_id"),
         );
         if (!cid) {
           setError("Provide ?customer_id= in URL to view addresses.");
@@ -65,5 +65,3 @@ export default function AddressesListPage() {
     </main>
   );
 }
-
-

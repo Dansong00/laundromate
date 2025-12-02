@@ -1,28 +1,29 @@
+import secrets
+import string
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID as UUIDType
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from app.core.config.settings import settings
 from app.core.database.session import get_db
 from app.core.models.user import User
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
-import secrets
-import string
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 def generate_otp(length: int = 6) -> str:
     """Generate a random numeric OTP"""
     return "".join(secrets.choice(string.digits) for _ in range(length))
 
 
-def create_access_token(
-    subject: str, expires_minutes: Optional[int] = None
-) -> str:
-    expire_minutes = (
-        expires_minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+def create_access_token(subject: str, expires_minutes: Optional[int] = None) -> str:
+    expire_minutes = expires_minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES
     expire = datetime.now(timezone.utc) + timedelta(minutes=expire_minutes)
     to_encode = {"sub": subject, "exp": expire}
     token = jwt.encode(
@@ -30,14 +31,16 @@ def create_access_token(
         settings.SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
-    return token
+    return str(token)
 
 
 def decode_access_token(token: str) -> dict:
-    return jwt.decode(
-        token,
-        settings.SECRET_KEY,
-        algorithms=[settings.ALGORITHM],
+    return dict(
+        jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
     )
 
 
@@ -47,7 +50,7 @@ oauth2_scheme = HTTPBearer()
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> User:
     """Get the current authenticated user from JWT token"""
     credentials_exception = HTTPException(
@@ -73,3 +76,21 @@ async def get_current_user(
         raise credentials_exception
 
     return user
+
+
+def is_super_admin(user: User) -> bool:
+    """Check if user is a super admin."""
+    return bool(user.is_super_admin)
+
+
+def is_admin_or_super_admin(user: User) -> bool:
+    """Check if user is an admin or super admin."""
+    return bool(user.is_admin or user.is_super_admin)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bool(pwd_context.verify(plain_password, hashed_password))
+
+
+def get_password_hash(password: str) -> str:
+    return str(pwd_context.hash(password))

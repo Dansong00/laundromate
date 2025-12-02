@@ -15,11 +15,36 @@ export interface RegisterPayload {
 
 export interface UserRead {
   id: string;
-  email: string;
+  email?: string | null;
   first_name?: string | null;
   last_name?: string | null;
   phone?: string | null;
-  role?: string | null; // Add role field for admin detection
+  is_active: boolean;
+  is_admin: boolean;
+  is_super_admin: boolean;
+  created_at: string;
+  updated_at: string;
+  role?: string;
+}
+
+export interface UserCreatePayload {
+  phone: string;
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  is_admin?: boolean;
+  is_super_admin?: boolean;
+  is_active?: boolean;
+}
+
+export interface UserUpdatePayload {
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  phone?: string | null;
+  is_admin?: boolean | null;
+  is_super_admin?: boolean | null;
+  is_active?: boolean | null;
 }
 
 export interface CustomerCreatePayload {
@@ -93,6 +118,29 @@ export interface OrderRead {
   created_at: string;
 }
 
+export interface OrderItemRead {
+  id: number;
+  service_id: number;
+  item_name: string;
+  item_type: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+}
+
+export interface OrderDetailRead extends OrderRead {
+  pickup_address_id: number;
+  delivery_address_id: number;
+  pickup_date: string;
+  pickup_time_slot: string;
+  delivery_date: string;
+  delivery_time_slot: string;
+  items: OrderItemRead[];
+  tax_amount: number;
+  rush_fee: number;
+  final_amount: number;
+}
+
 function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
   return sessionStorage.getItem("access_token");
@@ -105,7 +153,7 @@ export function getAuthHeader(): Record<string, string> {
 
 async function apiFetch<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
   const headers = new Headers(options.headers || {});
@@ -123,7 +171,7 @@ async function apiFetch<T>(
     try {
       const data = await res.json();
       message = (data && (data.detail || data.message)) || message;
-    } catch (_) {
+    } catch {
       // ignore
     }
     throw new Error(message);
@@ -135,7 +183,7 @@ async function apiFetch<T>(
 
 export async function login(
   email: string,
-  password: string
+  password: string,
 ): Promise<LoginResponse> {
   return apiFetch<LoginResponse>("/auth/login", {
     method: "POST",
@@ -159,7 +207,7 @@ export async function getMe(): Promise<UserRead> {
 }
 
 export async function createCustomer(
-  payload: CustomerCreatePayload
+  payload: CustomerCreatePayload,
 ): Promise<CustomerRead> {
   return apiFetch<CustomerRead>("/customers", {
     method: "POST",
@@ -183,7 +231,7 @@ export async function listOrders(): Promise<OrderRead[]> {
 }
 
 export async function listAddresses(
-  customerId: number
+  customerId: number,
 ): Promise<AddressRead[]> {
   return apiFetch<AddressRead[]>(`/addresses?customer_id=${customerId}`, {
     method: "GET",
@@ -191,7 +239,7 @@ export async function listAddresses(
 }
 
 export async function createAddress(
-  payload: AddressCreatePayload
+  payload: AddressCreatePayload,
 ): Promise<AddressRead> {
   return apiFetch<AddressRead>("/addresses", {
     method: "POST",
@@ -199,15 +247,71 @@ export async function createAddress(
   });
 }
 
-export async function getMyCustomer(): Promise<any> {
-  return apiFetch("/customers/me", { method: "GET" });
+export async function getMyCustomer(): Promise<CustomerRead> {
+  return apiFetch<CustomerRead>("/customers/me", { method: "GET" });
+}
+
+// User Management API functions
+export async function listUsers(
+  skip: number = 0,
+  limit: number = 100,
+): Promise<UserRead[]> {
+  return apiFetch<UserRead[]>(`/users?skip=${skip}&limit=${limit}`, {
+    method: "GET",
+  });
+}
+
+export async function getUser(userId: string): Promise<UserRead> {
+  return apiFetch<UserRead>(`/users/${userId}`, { method: "GET" });
+}
+
+export async function createUser(
+  payload: UserCreatePayload,
+): Promise<UserRead> {
+  return apiFetch<UserRead>("/users", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateUser(
+  userId: string,
+  payload: UserUpdatePayload,
+): Promise<UserRead> {
+  return apiFetch<UserRead>(`/users/${userId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteUser(userId: string): Promise<void> {
+  return apiFetch<void>(`/users/${userId}`, { method: "DELETE" });
+}
+
+export async function toggleUserActive(
+  userId: string,
+  isActive: boolean,
+): Promise<UserRead> {
+  return apiFetch<UserRead>(`/users/${userId}/activate`, {
+    method: "PATCH",
+    body: JSON.stringify({ is_active: isActive }),
+  });
 }
 
 // Role-based access control utilities
-export function isAdminUser(user: any): boolean {
-  return user?.role === "admin" || user?.role === "staff";
+export function isAdminUser(user: UserRead | null | undefined): boolean {
+  return (
+    user?.is_admin === true ||
+    user?.is_super_admin === true ||
+    user?.role === "admin" ||
+    user?.role === "staff"
+  );
 }
 
-export function isCustomerUser(user: any): boolean {
+export function isSuperAdminUser(user: UserRead | null | undefined): boolean {
+  return user?.is_super_admin === true;
+}
+
+export function isCustomerUser(user: UserRead | null | undefined): boolean {
   return !isAdminUser(user);
 }

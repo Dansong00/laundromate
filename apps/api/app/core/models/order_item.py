@@ -1,6 +1,16 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float, Text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.core.models import Base
 
 
@@ -13,7 +23,9 @@ class OrderItem(Base):
 
     # Item details
     item_name = Column(String(255), nullable=False)
-    item_type = Column(String(100), nullable=False)  # e.g., "shirt", "pants", "dress", "bedding"
+    item_type = Column(
+        String(100), nullable=False
+    )  # e.g., "shirt", "pants", "dress", "bedding"
     quantity = Column(Integer, nullable=False, default=1)
 
     # Pricing

@@ -60,7 +60,7 @@ const StatusBadge = React.forwardRef<HTMLDivElement, StatusBadgeProps>(
         {config.label}
       </Badge>
     );
-  }
+  },
 );
 
 StatusBadge.displayName = "StatusBadge";

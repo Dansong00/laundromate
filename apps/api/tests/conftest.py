@@ -6,10 +6,14 @@ and test data creation across all test modules.
 """
 
 import asyncio
-import os
 from typing import Generator
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
+
 from app.auth.security import create_access_token, get_password_hash
 from app.core.database.session import get_db
 from app.core.models import Base
@@ -17,10 +21,6 @@ from app.core.models.customer import Customer
 from app.core.models.service import Service, ServiceCategory
 from app.core.models.user import User
 from app.main import app
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import StaticPool
 
 # Test database URL - using SQLite for tests
 TEST_DATABASE_URL = "sqlite:///./test_laundromate.db"
@@ -33,12 +33,11 @@ engine = create_engine(
 )
 
 # Create test session factory
-TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture(scope="session")
-def event_loop():
+def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     """Create an instance of the default event loop for the test session."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
@@ -66,11 +65,12 @@ def db_session() -> Generator[Session, None, None]:
 
 
 @pytest.fixture(scope="function")
-def client(db_session: Session) -> TestClient:
+def client(db_session: Session) -> Generator[TestClient, None, None]:
     """
     Create a test client with overridden database dependency.
     """
-    def override_get_db():
+
+    def override_get_db() -> Generator[Session, None, None]:
         try:
             yield db_session
         finally:
@@ -95,7 +95,7 @@ def test_user(db_session: Session) -> User:
         last_name="User",
         phone="+1234567890",
         is_active=True,
-        is_admin=False
+        is_admin=False,
     )
     db_session.add(user)
     db_session.commit()
@@ -113,7 +113,7 @@ def admin_user(db_session: Session) -> User:
         last_name="User",
         phone="+1234567891",
         is_active=True,
-        is_admin=True
+        is_admin=True,
     )
     db_session.add(user)
     db_session.commit()
@@ -131,7 +131,7 @@ def test_customer(db_session: Session, test_user: User) -> Customer:
         loyalty_points=100,
         is_vip=False,
         email_notifications=True,
-        sms_notifications=True
+        sms_notifications=True,
     )
     db_session.add(customer)
     db_session.commit()
@@ -151,7 +151,7 @@ def test_service(db_session: Session) -> Service:
         is_active=True,
         requires_special_handling=False,
         turnaround_hours=24,
-        min_order_amount=10.00
+        min_order_amount=10.00,
     )
     db_session.add(service)
     db_session.commit()
@@ -162,14 +162,14 @@ def test_service(db_session: Session) -> Service:
 @pytest.fixture
 def auth_headers(test_user: User) -> dict:
     """Create authentication headers for test requests."""
-    access_token = create_access_token(data={"sub": str(test_user.id)})
+    access_token = create_access_token(subject=str(test_user.id))
     return {"Authorization": f"Bearer {access_token}"}
 
 
 @pytest.fixture
 def admin_auth_headers(admin_user: User) -> dict:
     """Create authentication headers for admin test requests."""
-    access_token = create_access_token(data={"sub": str(admin_user.id)})
+    access_token = create_access_token(subject=str(admin_user.id))
     return {"Authorization": f"Bearer {access_token}"}
 
 
@@ -182,7 +182,7 @@ def sample_user_data() -> dict:
         "password": "newpassword123",
         "first_name": "New",
         "last_name": "User",
-        "phone": "+1234567892"
+        "phone": "+1234567892",
     }
 
 
@@ -199,14 +199,11 @@ def sample_service_data() -> dict:
         "requires_special_handling": True,
         "turnaround_hours": 48,
         "special_instructions": "Handle with care",
-        "min_order_amount": 20.00
+        "min_order_amount": 20.00,
     }
 
 
 @pytest.fixture
 def sample_login_data() -> dict:
     """Sample login data."""
-    return {
-        "email": "test@example.com",
-        "password": "testpassword123"
-    }
+    return {"email": "test@example.com", "password": "testpassword123"}

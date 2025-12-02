@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       notifySuccess("OTP sent to your phone");
       setStep("otp");
-    } catch (err) {
+    } catch {
       notifyError("Could not send OTP. Please try again.");
     } finally {
       setLoading(false);
@@ -77,7 +77,9 @@ export default function LoginPage() {
       {step === "phone" ? (
         <form onSubmit={handleRequestOTP} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Phone Number</label>
+            <label className="block text-sm font-medium mb-1">
+              Phone Number
+            </label>
             <input
               type="tel"
               placeholder="+1 (555) 000-0000"
@@ -98,7 +100,9 @@ export default function LoginPage() {
       ) : (
         <form onSubmit={handleVerifyOTP} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Verification Code</label>
+            <label className="block text-sm font-medium mb-1">
+              Verification Code
+            </label>
             <input
               type="text"
               placeholder="123456"

@@ -1,4 +1,7 @@
-from typing import List
+from typing import Any, List
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 from app.auth.decorators import require_auth
 from app.auth.security import get_current_user
@@ -6,8 +9,6 @@ from app.core.database.session import get_db
 from app.core.models.order import Order
 from app.core.models.user import User
 from app.core.schemas.order import OrderCreate, OrderRead, OrderUpdate, OrderWithDetails
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -19,7 +20,7 @@ async def list_orders(
     limit: int = 50,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> Any:
     orders = db.query(Order).offset(skip).limit(limit).all()
     return orders
 
@@ -30,7 +31,7 @@ async def get_order(
     order_id: int,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderRead:
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(
@@ -46,7 +47,7 @@ async def get_order_detail(
     order_id: int,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderWithDetails:
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(
@@ -63,18 +64,26 @@ async def create_order(
     payload: OrderCreate,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderRead:
     # Basic validation: addresses belong to the customer
     from app.core.models.address import Address
 
-    pickup_addr = db.query(Address).filter(
-        Address.id == payload.pickup_address_id,
-        Address.customer_id == payload.customer_id,
-    ).first()
-    delivery_addr = db.query(Address).filter(
-        Address.id == payload.delivery_address_id,
-        Address.customer_id == payload.customer_id,
-    ).first()
+    pickup_addr = (
+        db.query(Address)
+        .filter(
+            Address.id == payload.pickup_address_id,
+            Address.customer_id == payload.customer_id,
+        )
+        .first()
+    )
+    delivery_addr = (
+        db.query(Address)
+        .filter(
+            Address.id == payload.delivery_address_id,
+            Address.customer_id == payload.customer_id,
+        )
+        .first()
+    )
     if not pickup_addr or not delivery_addr:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -132,10 +141,10 @@ async def create_order(
             )
         )
 
-    order.total_amount = total
-    order.final_amount = (
-        total + (order.tax_amount or 0.0) + (order.rush_fee or 0.0)
-    )
+    order.total_amount = total  # type: ignore
+    order.final_amount = float(
+        total + (float(order.tax_amount or 0.0)) + (float(order.rush_fee or 0.0))
+    )  # type: ignore[assignment]
 
     db.commit()
     db.refresh(order)
@@ -149,14 +158,14 @@ async def update_order_status(
     status_value: str,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderRead:
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Order not found",
         )
-    order.status = status_value
+    order.status = status_value  # type: ignore
     db.commit()
     db.refresh(order)
     return order
@@ -169,7 +178,7 @@ async def update_order(
     payload: OrderUpdate,
     db: Session = Depends(get_db),
     _current_user: User = Depends(get_current_user),
-):
+) -> OrderRead:
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(

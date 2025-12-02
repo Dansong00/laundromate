@@ -1,15 +1,17 @@
 from enum import Enum
 
-from app.core.models import Base
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import Float, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from app.core.models import Base
+
 
 class ServiceCategory(str, Enum):
     """Service categories available in the system"""
+
     WASH_FOLD = "wash_fold"
     DRY_CLEAN = "dry_clean"
     PRESS_ONLY = "press_only"
@@ -29,6 +31,7 @@ class Service(Base):
         - Dry cleaning service with flat-rate pricing
         - Press-only service with special handling requirements
     """
+
     __tablename__ = "services"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -36,12 +39,12 @@ class Service(Base):
     # Service details
     name = Column(String(100), nullable=False, unique=True)
     description = Column(Text, nullable=True)
-    category = Column(SQLEnum(ServiceCategory), nullable=False)
+    category: Column[ServiceCategory] = Column(SQLEnum(ServiceCategory), nullable=False)
 
     # Pricing
     base_price = Column(Float, nullable=False)
     price_per_pound = Column(Float, nullable=True)  # For weight-based pricing
-    price_per_item = Column(Float, nullable=True)   # For item-based pricing
+    price_per_item = Column(Float, nullable=True)  # For item-based pricing
 
     # Service options
     is_active = Column(Boolean, default=True)

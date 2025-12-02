@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { orderId: string } }
+  { params }: { params: { orderId: string } },
 ) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const cookieToken = req.cookies.get("access_token")?.value;
@@ -10,7 +10,7 @@ export async function PUT(
 
   const res = await fetch(
     `${apiUrl}/orders/${encodeURIComponent(
-      params.orderId
+      params.orderId,
     )}/status?status_value=${encodeURIComponent(status)}`,
     {
       method: "PUT",
@@ -18,7 +18,7 @@ export async function PUT(
         "Content-Type": "application/json",
         ...(cookieToken ? { Authorization: `Bearer ${cookieToken}` } : {}),
       },
-    }
+    },
   );
 
   const text = await res.text();

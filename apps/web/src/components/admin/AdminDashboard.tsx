@@ -1,24 +1,42 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts'
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
 const revenueData = [
-  { name: 'Jan', value: 2500 },
-  { name: 'Feb', value: 3200 },
-  { name: 'Mar', value: 2800 },
-  { name: 'Apr', value: 4200 },
-  { name: 'May', value: 3800 },
-  { name: 'Jun', value: 5200 },
-  { name: 'Jul', value: 4800 },
-  { name: 'Aug', value: 5500 }
-]
+  { name: "Jan", value: 2500 },
+  { name: "Feb", value: 3200 },
+  { name: "Mar", value: 2800 },
+  { name: "Apr", value: 4200 },
+  { name: "May", value: 3800 },
+  { name: "Jun", value: 5200 },
+  { name: "Jul", value: 4800 },
+  { name: "Aug", value: 5500 },
+];
 
 const recentOrders = [
-  { id: '#006', customer: 'Emily Doe', service: 'Wash & Fold', status: 'Completed', statusColor: 'bg-green-100 text-green-800' },
-  { id: '#007', customer: 'Michael Wilson', service: 'Dry Cleaning', status: 'In Progress', statusColor: 'bg-blue-100 text-blue-800' },
-  { id: '#008', customer: 'Jane Doe', service: 'Pressing', status: 'Pending', statusColor: 'bg-yellow-100 text-yellow-800' }
-]
+  {
+    id: "#006",
+    customer: "Emily Doe",
+    service: "Wash & Fold",
+    status: "Completed",
+    statusColor: "bg-green-100 text-green-800",
+  },
+  {
+    id: "#007",
+    customer: "Michael Wilson",
+    service: "Dry Cleaning",
+    status: "In Progress",
+    statusColor: "bg-blue-100 text-blue-800",
+  },
+  {
+    id: "#008",
+    customer: "Jane Doe",
+    service: "Pressing",
+    status: "Pending",
+    statusColor: "bg-yellow-100 text-yellow-800",
+  },
+];
 
 export function AdminDashboard() {
   return (
@@ -27,8 +45,12 @@ export function AdminDashboard() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">New</Button>
-          <Button className="bg-blue-600 hover:bg-blue-700" size="sm">Dashboard</Button>
+          <Button variant="outline" size="sm">
+            New
+          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
+            Dashboard
+          </Button>
         </div>
       </div>
 
@@ -36,7 +58,9 @@ export function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Orders</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Orders
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">128</div>
@@ -45,7 +69,9 @@ export function AdminDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Service Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Service Revenue
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$5,220</div>
@@ -54,7 +80,9 @@ export function AdminDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">New Customers</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              New Customers
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">32</div>
@@ -63,7 +91,9 @@ export function AdminDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Previous Orders</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Previous Orders
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">5</div>
@@ -86,11 +116,16 @@ export function AdminDashboard() {
                 <span>Status</span>
               </div>
               {recentOrders.map((order) => (
-                <div key={order.id} className="grid grid-cols-4 gap-4 items-center text-sm">
+                <div
+                  key={order.id}
+                  className="grid grid-cols-4 gap-4 items-center text-sm"
+                >
                   <span className="font-medium">{order.id}</span>
                   <span>{order.customer}</span>
                   <span>{order.service}</span>
-                  <Badge className={`${order.statusColor} border-0 justify-center`}>
+                  <Badge
+                    className={`${order.statusColor} border-0 justify-center`}
+                  >
                     {order.status}
                   </Badge>
                 </div>
@@ -108,18 +143,14 @@ export function AdminDashboard() {
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueData}>
-                  <XAxis 
-                    dataKey="name" 
+                  <XAxis
+                    dataKey="name"
                     axisLine={false}
                     tickLine={false}
                     className="text-xs"
                   />
                   <YAxis hide />
-                  <Bar 
-                    dataKey="value" 
-                    fill="#3B82F6" 
-                    radius={[4, 4, 0, 0]}
-                  />
+                  <Bar dataKey="value" fill="#3B82F6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -154,21 +185,27 @@ export function AdminDashboard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Status</CardTitle>
-          <Button variant="link" className="text-blue-600 p-0">Add Service</Button>
+          <Button variant="link" className="text-blue-600 p-0">
+            Add Service
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm">Wash & Fold</span>
-              <Badge className="bg-green-100 text-green-800 border-0">Delivered</Badge>
+              <Badge className="bg-green-100 text-green-800 border-0">
+                Delivered
+              </Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Ironing</span>
-              <Badge className="bg-green-100 text-green-800 border-0">Delivered</Badge>
+              <Badge className="bg-green-100 text-green-800 border-0">
+                Delivered
+              </Badge>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
