@@ -21,7 +21,9 @@ async def list_customer_addresses(
 ) -> Any:
     """List all addresses for a specific customer"""
     # Check if user can access this customer's addresses
-    customer = db.query(Customer).filter(Customer.id == customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == customer_id).first()
+    )
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
@@ -51,7 +53,9 @@ async def get_address(
         )
 
     # Check authorization
-    customer = db.query(Customer).filter(Customer.id == address.customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == address.customer_id).first()
+    )
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
@@ -73,7 +77,7 @@ async def create_address(
 ) -> AddressRead:
     """Create a new address for a customer"""
     # Check if user can create addresses for this customer
-    customer = (
+    customer: Customer | None = (
         db.query(Customer).filter(Customer.id == address_data.customer_id).first()
     )
     if not customer:
@@ -115,7 +119,9 @@ async def update_address(
             status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
         )
 
-    customer = db.query(Customer).filter(Customer.id == address.customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == address.customer_id).first()
+    )
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
@@ -155,7 +161,9 @@ async def delete_address(
             status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
         )
 
-    customer = db.query(Customer).filter(Customer.id == address.customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == address.customer_id).first()
+    )
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"

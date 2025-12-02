@@ -144,7 +144,7 @@ async def create_order(
     order.total_amount = total  # type: ignore
     order.final_amount = float(
         total + (float(order.tax_amount or 0.0)) + (float(order.rush_fee or 0.0))
-    )  # type: ignore
+    )  # type: ignore[assignment]
 
     db.commit()
     db.refresh(order)
