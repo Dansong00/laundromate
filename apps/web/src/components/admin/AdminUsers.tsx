@@ -486,7 +486,7 @@ export function AdminUsers() {
               <Input
                 id="edit-email"
                 type="email"
-                value={formData.email}
+                value={formData.email || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
@@ -498,7 +498,7 @@ export function AdminUsers() {
                 <Label htmlFor="edit-first_name">First Name</Label>
                 <Input
                   id="edit-first_name"
-                  value={formData.first_name}
+                  value={formData.first_name || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, first_name: e.target.value })
                   }
@@ -509,7 +509,7 @@ export function AdminUsers() {
                 <Label htmlFor="edit-last_name">Last Name</Label>
                 <Input
                   id="edit-last_name"
-                  value={formData.last_name}
+                  value={formData.last_name || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, last_name: e.target.value })
                   }
