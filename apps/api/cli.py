@@ -1,32 +1,28 @@
 # apps/api/cli.py
-import os
 import subprocess
 from pathlib import Path
-from typing import Optional
 
 import typer
 
 app = typer.Typer(help="🧺 LaundroMate Database Migration CLI")
 
 
-def check_alembic():
+def check_alembic() -> None:
     """Check if alembic is available"""
     if not Path("alembic.ini").exists():
-        typer.echo(
-            "❌ Error: alembic.ini not found. Run 'alembic init alembic' first.")
+        typer.echo("❌ Error: alembic.ini not found. Run 'alembic init alembic' first.")
         raise typer.Exit(1)
 
 
 @app.command()
-def status():
+def status() -> None:
     """Show current migration status"""
     check_alembic()
     typer.echo("📊 Migration Status")
     typer.echo("==================")
 
     # Get current version
-    result = subprocess.run(["alembic", "current"],
-                            capture_output=True, text=True)
+    result = subprocess.run(["alembic", "current"], capture_output=True, text=True)
     if result.returncode == 0:
         typer.echo(f"✅ Current: {result.stdout.strip()}")
     else:
@@ -38,13 +34,12 @@ def status():
 
 
 @app.command()
-def create(message: str):
+def create(message: str) -> None:
     """Create new migration with autogenerate"""
     check_alembic()
     typer.echo(f"�� Creating migration: {message}")
 
-    result = subprocess.run(
-        ["alembic", "revision", "--autogenerate", "-m", message])
+    result = subprocess.run(["alembic", "revision", "--autogenerate", "-m", message])
     if result.returncode == 0:
         typer.echo("✅ Migration created successfully!")
         typer.echo("\n💡 Next steps:")
@@ -56,7 +51,7 @@ def create(message: str):
 
 
 @app.command()
-def up(revision: str = "head"):
+def up(revision: str = "head") -> None:
     """Apply migrations (default: all pending)"""
     check_alembic()
     typer.echo(f"🚀 Applying migrations up to: {revision}")
@@ -71,7 +66,7 @@ def up(revision: str = "head"):
 
 
 @app.command()
-def down(revision: str = "-1"):
+def down(revision: str = "-1") -> None:
     """Rollback migrations (default: one step)"""
     check_alembic()
     typer.echo(f"⏪ Rolling back to: {revision}")
@@ -86,7 +81,7 @@ def down(revision: str = "-1"):
 
 
 @app.command()
-def reset():
+def reset() -> None:
     """Reset database to base (WARNING: destructive!)"""
     check_alembic()
     typer.echo("⚠️  WARNING: This will reset your database to base state!")
@@ -100,7 +95,8 @@ def reset():
                 typer.echo("✅ Database reset successfully!")
                 typer.echo("\n💡 Next steps:")
                 typer.echo(
-                    "  1. Create new migration: migrate create 'Initial migration'")
+                    "  1. Create new migration: migrate create 'Initial migration'"
+                )
                 typer.echo("  2. Apply migration: migrate up")
             else:
                 typer.echo("❌ Failed to reset database")
@@ -108,12 +104,14 @@ def reset():
 
 
 @app.command()
-def fresh():
+def fresh() -> None:
     """Fresh start: reset + recreate + apply"""
     check_alembic()
     typer.echo("�� Fresh start: Reset + Recreate + Apply")
 
-    if typer.confirm("This will reset everything and start fresh. Continue?", default=False):
+    if typer.confirm(
+        "This will reset everything and start fresh. Continue?", default=False
+    ):
         # Reset to base
         typer.echo("🔄 Resetting to base...")
         subprocess.run(["alembic", "downgrade", "base"])
@@ -128,7 +126,8 @@ def fresh():
         # Create new initial migration
         typer.echo("📝 Creating initial migration...")
         subprocess.run(
-            ["alembic", "revision", "--autogenerate", "-m", "Initial migration"])
+            ["alembic", "revision", "--autogenerate", "-m", "Initial migration"]
+        )
 
         # Apply the migration
         typer.echo("🚀 Applying initial migration...")

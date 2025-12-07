@@ -1,8 +1,10 @@
+from typing import Any, List
+
 from fastapi import APIRouter
 
 router = APIRouter()
 
 
 @router.get("")
-async def list_notifications():
+async def list_notifications() -> List[Any]:
     return []

@@ -30,7 +30,7 @@ const badgeVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface BadgeProps
@@ -46,7 +46,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
       className={cn(badgeVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  ),
 );
 Badge.displayName = "Badge";
 

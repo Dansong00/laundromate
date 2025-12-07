@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 type AuthContextValue = {
   token: string | null;
@@ -21,7 +27,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = typeof window !== "undefined" ? sessionStorage.getItem("access_token") : null;
+    const stored =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("access_token")
+        : null;
     if (stored) setToken(stored);
   }, []);
 
@@ -32,10 +41,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<AuthContextValue>(
     () => ({ token, isAuthenticated: Boolean(token), setToken, logout }),
-    [token]
+    [token],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-

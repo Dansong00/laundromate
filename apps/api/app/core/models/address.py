@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.core.models import Base
 
 
@@ -19,12 +20,16 @@ class Address(Base):
     country = Column(String(100), default="USA")
 
     # Address type and preferences
-    address_type = Column(String(50), nullable=False)  # "home", "work", "pickup", "delivery"
+    address_type = Column(
+        String(50), nullable=False
+    )  # "home", "work", "pickup", "delivery"
     is_default = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
 
     # Additional details
-    instructions = Column(Text, nullable=True)  # e.g., "Ring doorbell twice", "Leave with doorman"
+    instructions = Column(
+        Text, nullable=True
+    )  # e.g., "Ring doorbell twice", "Leave with doorman"
     latitude = Column(String(20), nullable=True)
     longitude = Column(String(20), nullable=True)
 
@@ -34,5 +39,11 @@ class Address(Base):
 
     # Relationships
     customer = relationship("Customer", back_populates="addresses")
-    pickup_orders = relationship("Order", foreign_keys="Order.pickup_address_id", back_populates="pickup_address")
-    delivery_orders = relationship("Order", foreign_keys="Order.delivery_address_id", back_populates="delivery_address")
+    pickup_orders = relationship(
+        "Order", foreign_keys="Order.pickup_address_id", back_populates="pickup_address"
+    )
+    delivery_orders = relationship(
+        "Order",
+        foreign_keys="Order.delivery_address_id",
+        back_populates="delivery_address",
+    )

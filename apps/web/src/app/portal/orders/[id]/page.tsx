@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
+import { OrderDetailRead } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -11,7 +12,7 @@ export default function OrderDetailPage({
 }) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const [order, setOrder] = useState<any | null>(null);
+  const [order, setOrder] = useState<OrderDetailRead | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function OrderDetailPage({
                 </tr>
               </thead>
               <tbody>
-                {order.items?.map((it: any) => (
+                {order.items?.map((it) => (
                   <tr key={it.id}>
                     <td className="p-1">{it.item_name}</td>
                     <td className="p-1">{it.item_type}</td>

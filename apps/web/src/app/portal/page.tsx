@@ -1,7 +1,12 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { getAuthHeader, getMyCustomer } from "@/lib/api";
+import {
+  CustomerRead,
+  getAuthHeader,
+  getMyCustomer,
+  UserRead,
+} from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -15,8 +20,8 @@ import { BottomNavigation } from "@/components/BottomNavigation";
 export default function PortalPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const [me, setMe] = useState<any | null>(null);
-  const [customer, setCustomer] = useState<any | null>(null);
+  const [me, setMe] = useState<UserRead | null>(null);
+  const [, setCustomer] = useState<CustomerRead | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("home");
 
@@ -39,7 +44,7 @@ export default function PortalPage() {
         try {
           const c = await getMyCustomer();
           setCustomer(c);
-        } catch (_) {
+        } catch {
           // ignore if customer not found
         }
       } catch (e) {

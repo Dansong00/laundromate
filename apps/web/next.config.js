@@ -3,9 +3,9 @@
 const nextConfig = {
   // Enable server-side rendering for Railway
   // Enable standalone output for Docker builds
-  output: 'standalone',
+  output: "standalone",
 
-  transpilePackages: ['@laundromate/ui'],
+  transpilePackages: ["@laundromate/ui"],
 
   // Enable image optimization
   images: {

@@ -1,16 +1,23 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { getAuthHeader, getMyCustomer, listAddresses } from "@/lib/api";
+import {
+  AddressRead,
+  CustomerRead,
+  getAuthHeader,
+  getMyCustomer,
+  listAddresses,
+  UserRead,
+} from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const [me, setMe] = useState<any | null>(null);
-  const [customer, setCustomer] = useState<any | null>(null);
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [me, setMe] = useState<UserRead | null>(null);
+  const [customer, setCustomer] = useState<CustomerRead | null>(null);
+  const [addresses, setAddresses] = useState<AddressRead[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,7 +39,7 @@ export default function ProfilePage() {
           setCustomer(c);
           const addrs = await listAddresses(c.id);
           setAddresses(addrs);
-        } catch (_) {
+        } catch {
           // ignore
         }
       } catch (e) {

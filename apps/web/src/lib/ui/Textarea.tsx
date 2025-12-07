@@ -21,7 +21,7 @@ const textareaVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface TextareaProps
@@ -35,7 +35,7 @@ export interface TextareaProps
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     { className, variant, size, label, error, helperText, id, ...props },
-    ref
+    ref,
   ) => {
     const textareaId =
       id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
@@ -57,7 +57,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
               variant: error ? "error" : variant,
               size,
               className,
-            })
+            }),
           )}
           ref={ref}
           {...props}
@@ -68,7 +68,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";

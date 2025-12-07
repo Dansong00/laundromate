@@ -18,7 +18,7 @@ const alertVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 export interface AlertProps
@@ -38,7 +38,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
       {icon && <div className="absolute left-4 top-4">{icon}</div>}
       <div className={cn(icon && "pl-7")}>{children}</div>
     </div>
-  )
+  ),
 );
 Alert.displayName = "Alert";
 
