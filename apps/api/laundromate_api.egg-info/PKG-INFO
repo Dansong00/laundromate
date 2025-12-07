@@ -30,6 +30,7 @@ Requires-Dist: twilio==8.10.0
 Requires-Dist: sendgrid==6.10.0
 Requires-Dist: celery==5.3.4
 Requires-Dist: redis==5.0.1
+Requires-Dist: typer>=0.9.0
 Provides-Extra: dev
 Requires-Dist: pytest>=7.0.0; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
@@ -38,9 +39,12 @@ Requires-Dist: black>=23.0.0; extra == "dev"
 Requires-Dist: isort>=5.12.0; extra == "dev"
 Requires-Dist: flake8>=6.0.0; extra == "dev"
 Requires-Dist: mypy>=1.0.0; extra == "dev"
-Requires-Dist: httpx>=0.25.2; extra == "dev"
+Requires-Dist: httpx<0.28.0,>=0.25.2; extra == "dev"
 Requires-Dist: pytest-httpx>=0.21.0; extra == "dev"
 Requires-Dist: factory-boy>=3.3.1; extra == "dev"
+Requires-Dist: pre-commit>=3.5.0; extra == "dev"
+Requires-Dist: types-python-jose>=3.3.0; extra == "dev"
+Requires-Dist: types-passlib>=1.7.7; extra == "dev"
 
 # 🧺 LaundroMate API
 

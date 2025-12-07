@@ -20,6 +20,7 @@ app/core/models/order.py
 app/core/models/order_item.py
 app/core/models/service.py
 app/core/models/user.py
+app/core/models/verification_code.py
 app/core/schemas/__init__.py
 app/core/schemas/address.py
 app/core/schemas/customer.py
@@ -32,6 +33,8 @@ app/customers/router.py
 app/notifications/router.py
 app/orders/router.py
 app/services/router.py
+app/users/__init__.py
+app/users/router.py
 laundromate_api.egg-info/PKG-INFO
 laundromate_api.egg-info/SOURCES.txt
 laundromate_api.egg-info/dependency_links.txt

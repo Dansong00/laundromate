@@ -2,56 +2,87 @@
 Integration tests for authentication routes.
 """
 
-from fastapi.testclient import TestClient
+from datetime import datetime, timedelta, timezone
 
-from app.core.models.user import User
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+from app.core.models.verification_code import VerificationCode
 
 
 class TestAuthRoutes:
     """Test authentication endpoints."""
 
-    def test_register_user_success(
-        self, client: TestClient, sample_user_data: dict
-    ) -> None:
-        """Test successful user registration."""
-        response = client.post("/auth/register", json=sample_user_data)
+    def test_request_otp_success(self, client: TestClient) -> None:
+        """Test requesting an OTP."""
+        payload = {"phone": "+1234567890"}
+        response = client.post("/auth/otp/request", json=payload)
 
         assert response.status_code == 200
-        data = response.json()
-        assert data["email"] == sample_user_data["email"]
-        assert data["first_name"] == sample_user_data["first_name"]
-        assert "id" in data
-        assert "hashed_password" not in data  # Should not expose password
+        assert response.json()["message"] == "OTP sent successfully"
 
-    def test_register_user_duplicate_email(
-        self, client: TestClient, test_user: User, sample_user_data: dict
-    ) -> None:
-        """Test registration with duplicate email fails."""
-        sample_user_data["email"] = test_user.email
+    def test_verify_otp_success(self, client: TestClient, db_session: Session) -> None:
+        """Test verifying a valid OTP."""
+        phone = "+1234567890"
+        code = "123456"
 
-        response = client.post("/auth/register", json=sample_user_data)
+        # Create a valid OTP in DB
+        otp = VerificationCode(
+            phone=phone,
+            code=code,
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+            is_used=False,
+        )
+        db_session.add(otp)
+        db_session.commit()
 
-        assert response.status_code == 400
-        assert "Email already registered" in response.json()["detail"]
-
-    def test_login_success(self, client: TestClient, test_user: User) -> None:
-        """Test successful user login."""
-        login_data = {"email": test_user.email, "password": "testpassword123"}
-
-        response = client.post("/auth/login", json=login_data)
+        payload = {"phone": phone, "code": code}
+        response = client.post("/auth/otp/verify", json=payload)
 
         assert response.status_code == 200
         data = response.json()
         assert "access_token" in data
         assert data["token_type"] == "bearer"
+        assert data["user"]["phone"] == phone
 
-    def test_login_invalid_credentials(
-        self, client: TestClient, test_user: User
-    ) -> None:
-        """Test login with invalid credentials fails."""
-        login_data = {"email": test_user.email, "password": "wrongpassword"}
+    def test_verify_otp_invalid(self, client: TestClient, db_session: Session) -> None:
+        """Test verifying an invalid OTP."""
+        phone = "+1234567890"
 
-        response = client.post("/auth/login", json=login_data)
+        # Create a valid OTP in DB
+        otp = VerificationCode(
+            phone=phone,
+            code="123456",
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+            is_used=False,
+        )
+        db_session.add(otp)
+        db_session.commit()
 
-        assert response.status_code == 401
-        assert "Invalid credentials" in response.json()["detail"]
+        # Try with wrong code
+        payload = {"phone": phone, "code": "000000"}
+        response = client.post("/auth/otp/verify", json=payload)
+
+        assert response.status_code == 400
+        assert "Invalid or expired OTP" in response.json()["detail"]
+
+    def test_verify_otp_expired(self, client: TestClient, db_session: Session) -> None:
+        """Test verifying an expired OTP."""
+        phone = "+1234567890"
+        code = "123456"
+
+        # Create an expired OTP in DB
+        otp = VerificationCode(
+            phone=phone,
+            code=code,
+            expires_at=datetime.now(timezone.utc) - timedelta(minutes=1),
+            is_used=False,
+        )
+        db_session.add(otp)
+        db_session.commit()
+
+        payload = {"phone": phone, "code": code}
+        response = client.post("/auth/otp/verify", json=payload)
+
+        assert response.status_code == 400
+        assert "Invalid or expired OTP" in response.json()["detail"]

@@ -14,12 +14,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.auth.security import create_access_token, get_password_hash
+from app.auth.security import create_access_token
 from app.core.database.session import get_db
 from app.core.models import Base
+from app.core.models.address import Address  # noqa: F401
 from app.core.models.customer import Customer
+from app.core.models.notification import Notification  # noqa: F401
+from app.core.models.order import Order  # noqa: F401
+from app.core.models.order_item import OrderItem  # noqa: F401
 from app.core.models.service import Service, ServiceCategory
 from app.core.models.user import User
+from app.core.models.verification_code import VerificationCode  # noqa: F401
 from app.main import app
 
 # Test database URL - using SQLite for tests
@@ -90,7 +95,6 @@ def test_user(db_session: Session) -> User:
     """Create a test user in the database."""
     user = User(
         email="test@example.com",
-        hashed_password=get_password_hash("testpassword123"),
         first_name="Test",
         last_name="User",
         phone="+1234567890",
@@ -108,7 +112,6 @@ def admin_user(db_session: Session) -> User:
     """Create a test admin user in the database."""
     user = User(
         email="admin@example.com",
-        hashed_password=get_password_hash("adminpassword123"),
         first_name="Admin",
         last_name="User",
         phone="+1234567891",

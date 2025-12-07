@@ -14,6 +14,7 @@ twilio==8.10.0
 sendgrid==6.10.0
 celery==5.3.4
 redis==5.0.1
+typer>=0.9.0
 
 [dev]
 pytest>=7.0.0
@@ -23,6 +24,9 @@ black>=23.0.0
 isort>=5.12.0
 flake8>=6.0.0
 mypy>=1.0.0
-httpx>=0.25.2
+httpx<0.28.0,>=0.25.2
 pytest-httpx>=0.21.0
 factory-boy>=3.3.1
+pre-commit>=3.5.0
+types-python-jose>=3.3.0
+types-passlib>=1.7.7

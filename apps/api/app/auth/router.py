@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -7,7 +8,7 @@ from app.auth.security import create_access_token, generate_otp, get_current_use
 from app.core.database.session import get_db
 from app.core.models.user import User
 from app.core.models.verification_code import VerificationCode
-from app.core.schemas.user import OTPRequest, OTPVerify, UserRead
+from app.core.schemas.user import OTPRequest, OTPVerify, TokenWithUser, UserRead
 
 router = APIRouter()
 
@@ -42,8 +43,8 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)) -> dict:
     return {"message": "OTP sent successfully"}
 
 
-@router.post("/otp/verify")
-def verify_otp(payload: OTPVerify, db: Session = Depends(get_db)) -> dict:
+@router.post("/otp/verify", response_model=TokenWithUser)
+def verify_otp(payload: OTPVerify, db: Session = Depends(get_db)) -> Any:
     """
     Verify the OTP and return an access token.
     Creates a new user if one doesn't exist.
