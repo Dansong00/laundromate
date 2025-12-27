@@ -25,12 +25,34 @@ export default function LoginPage() {
         body: JSON.stringify({ phone }),
       });
 
-      if (!res.ok) throw new Error("Failed to send OTP");
+      if (!res.ok) {
+        let errorMessage = "Failed to send OTP";
+        try {
+          const data = await res.json();
+          errorMessage = data.detail || data.message || errorMessage;
+        } catch {
+          // If response isn't JSON, use status text
+          errorMessage = res.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Parse response (may or may not have body)
+      try {
+        await res.json();
+      } catch {
+        // Response might be empty, that's ok
+      }
 
       notifySuccess("OTP sent to your phone");
       setStep("otp");
-    } catch {
-      notifyError("Could not send OTP. Please try again.");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Could not send OTP. Please try again.";
+      notifyError(errorMessage);
+      console.error("OTP request error:", err);
     } finally {
       setLoading(false);
     }

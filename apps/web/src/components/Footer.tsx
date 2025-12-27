@@ -4,8 +4,8 @@ import Link from "next/link";
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t mt-12">
-      <div className="mx-auto max-w-6xl px-4 py-8 grid gap-6 md:grid-cols-3 items-start">
+    <footer className="border-t mt-24">
+      <div className="mx-auto max-w-6xl px-4 py-12 grid gap-8 md:grid-cols-3 items-start">
         <div className="flex items-start gap-3">
           <Link href="/" className="shrink-0" aria-label="LaundroMate home">
             <Image
@@ -16,7 +16,7 @@ export function Footer() {
             />
           </Link>
           <div>
-            <Link href="/" className="font-semibold text-lg">
+            <Link href="/" className="font-semibold text-lg text-gray-900">
               LaundroMate
             </Link>
             <p className="mt-2 text-sm text-gray-600">
@@ -24,14 +24,14 @@ export function Footer() {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-6 text-sm">
           <div>
-            <div className="font-medium mb-2">Product</div>
-            <ul className="space-y-1">
+            <div className="font-medium mb-3 text-gray-900">Product</div>
+            <ul className="space-y-2">
               <li>
                 <Link
                   href="/learn-more"
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Learn more
                 </Link>
@@ -39,7 +39,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/schedule-demo"
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Schedule a demo
                 </Link>
@@ -47,7 +47,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/portal"
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Portal
                 </Link>
@@ -55,12 +55,12 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <div className="font-medium mb-2">Company</div>
-            <ul className="space-y-1">
+            <div className="font-medium mb-3 text-gray-900">Company</div>
+            <ul className="space-y-2">
               <li>
                 <Link
                   href="/terms"
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Terms of Service
                 </Link>
@@ -68,7 +68,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -76,7 +76,7 @@ export function Footer() {
               <li>
                 <a
                   href="mailto:danger091@gmail.com"
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Contact Us
                 </a>
@@ -86,7 +86,7 @@ export function Footer() {
         </div>
         <div className="text-sm text-gray-600 md:text-right">
           <div>© {year} LaundroMate. All rights reserved.</div>
-          <div className="mt-2">Made with ❤️ for laundromats operators.</div>
+          <div className="mt-2">Made for laundromat operators.</div>
         </div>
       </div>
     </footer>
