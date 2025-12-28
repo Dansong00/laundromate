@@ -111,8 +111,8 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 
 - **FR-001**: System MUST provide an onboarding wizard that guides internal staff through creating an organization with required details (name, address, contact information).
 - **FR-002**: System MUST allow creation of multiple store locations under a single organization, each with its own address and identifier.
-- **FR-003**: System MUST support sending email invitations to store owners with secure invitation links that expire after a configurable time period.
-- **FR-004**: System MUST enforce role-based access control with three distinct roles: Super-Admin (full access), Support Agent (read-only financial data, can reset passwords), and Provisioning Specialist (machine mapping and store setup).
+- **FR-003**: System MUST support sending email invitations to store owners with secure invitation links that expire after a configurable time period (default: 7 days, configurable via `INVITATION_EXPIRATION_DAYS` environment variable).
+- **FR-004**: System MUST enforce role-based access control with three distinct roles: Super-Admin (full access), Support Agent (read-only financial data, can reset passwords), and Provisioning Specialist (machine mapping and store setup). Roles are stored as boolean flags on the User model: `is_super_admin`, `is_support_agent`, `is_provisioning_specialist`.
 - **FR-005**: System MUST allow provisioning of IoT controllers by MAC address or serial number, associating each controller with a specific store.
 - **FR-006**: System MUST provide a mapping interface where physical IoT controllers can be assigned logical labels (e.g., "Washer #1", "Dryer #3") that appear in operator dashboards.
 - **FR-007**: System MUST allow Super-Admins to enable or disable individual AI agents (e.g., Maintenance Prophet, Pricing Strategist) on a per-store basis.
@@ -145,6 +145,247 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 - **AI Agent**: Represents an available intelligent agent feature (e.g., Maintenance Prophet, Pricing Strategist). Attributes include agent name, description, and availability status. Relationships: can be enabled/disabled per Store via Agent Configuration.
 
 - **System Health Status**: Represents the current operational state of a store's IoT infrastructure. Attributes include store affiliation, connectivity status (online/offline), last heartbeat timestamp, alert count, and device status summary. Relationships: belongs to one Store.
+
+- **Invitation**: Represents a store owner invitation sent via email. Attributes include token (secure URL-safe token), email address, store affiliation, invited_by (User who sent invitation), status (pending/accepted/expired/revoked), expires_at, accepted_at, and creation timestamp. Relationships: belongs to one Store, created by one User (invited_by), accepted by one User (when accepted).
+
+## Invitation System Details
+
+### Invitation Token Model
+
+- **Token Generation**: Secure token generation using `secrets.token_urlsafe(32)` (32-byte token, URL-safe base64 encoding)
+- **Token Storage**: Tokens stored in `invitations` table with expiration tracking and status management
+- **Default Expiration**: 7 days from creation (configurable via `INVITATION_EXPIRATION_DAYS` environment variable)
+- **Token Uniqueness**: Each token MUST be unique across all invitations (database unique constraint)
+
+### Invitation Acceptance Flow
+
+1. **User clicks invitation link**: `{FRONTEND_URL}/auth/accept-invitation?token={token}`
+2. **Frontend validates token**: Calls `GET /auth/invitations/{token}/validate` to verify token is valid and not expired
+3. **User sets password**: Submits password via `POST /auth/invitations/{token}/accept` with password field
+4. **System creates User account**: If user with email doesn't exist, creates new User account with email
+5. **System associates User with Store**: Creates user-store relationship with "owner" role/permissions
+6. **System marks invitation as accepted**: Updates invitation status to "accepted" and sets `accepted_at` timestamp
+7. **User is authenticated**: System logs user in and redirects to store dashboard
+
+### Email Service Integration
+
+- **Email Provider**: SendGrid (already in dependencies: `sendgrid==6.10.0`)
+- **Required Environment Variables**:
+  - `SENDGRID_API_KEY`: SendGrid API key for authentication
+  - `FROM_EMAIL`: Sender email address (e.g., "noreply@laundromate.com")
+  - `FRONTEND_URL`: Base URL for frontend application (e.g., "https://app.laundromate.com")
+- **Email Service Utility**: Centralized email service in `apps/api/app/core/services/email_service.py`
+- **Error Handling**: Failed email sends MUST be logged; retry logic for transient failures (3 retries with exponential backoff)
+- **Email Delivery Tracking**: Log email delivery status (sent, delivered, failed) for audit purposes
+
+### Email Template Requirements
+
+- **Subject Line**: "You've been invited to manage {Store Name} on LaundroMate"
+- **Email Body Content**:
+  - Store name and organization name
+  - Invitation link (full URL with token parameter)
+  - Expiration notice (e.g., "This invitation expires in 7 days")
+  - Instructions for accepting invitation
+  - Support contact information
+- **Format**: Both HTML and plain text versions MUST be provided
+- **Branding**: Email MUST be branded with LaundroMate styling and logo
+- **Template Location**: `apps/api/app/core/templates/invitation_email.html` (HTML) and `.txt` (plain text)
+
+### Invitation Status & Lifecycle
+
+- **Status Enum**: `pending`, `accepted`, `expired`, `revoked`
+- **State Transitions**:
+  - `pending` → `accepted`: When user successfully accepts invitation
+  - `pending` → `expired`: When `expires_at` timestamp passes (checked on validation)
+  - `pending` → `revoked`: When Super-Admin manually revokes invitation
+  - `accepted`, `expired`, `revoked` → (no further transitions, terminal states)
+- **Automatic Expiration**: Expiration checked on token validation; expired invitations return 410 Gone status
+- **Revocation**: Super-Admin can revoke pending invitations via `DELETE /super-admin/invitations/{id}` endpoint
+
+### Resend Functionality
+
+- **Idempotent Behavior**: If a pending invitation exists for the same email and store, the system MAY resend the existing invitation email (same token) OR generate a new invitation (invalidating the old one)
+- **Recommended Approach**: Generate new invitation token when resending, invalidating old invitation to prevent confusion
+- **Resend Endpoint**: `POST /super-admin/stores/{id}/resend-invitation` with email parameter (optional, defaults to most recent invitation for that store)
+
+### User Creation & Permissions
+
+- **User Creation**: When invitation is accepted, if User with email doesn't exist, create new User with:
+  - `email`: From invitation
+  - `is_active`: `true`
+  - `is_admin`: `false` (unless explicitly set)
+  - `is_super_admin`: `false`
+- **Store Association**: Create user-store relationship (many-to-many if users can own multiple stores):
+  - Table: `user_stores` with columns: `user_id`, `store_id`, `role` (enum: owner, operator), `created_at`
+  - Role: Set to "owner" for store owner invitations
+- **Permission Model**: Users with "owner" role for a store have full access to that store's dashboard and settings
+
+### Error Handling & Edge Cases
+
+- **Expired Invitations**: Return `410 Gone` with message: "This invitation has expired. Please request a new invitation."
+- **Already Accepted**: Return `400 Bad Request` with message: "This invitation has already been used."
+- **Invalid Token**: Return `404 Not Found` with message: "Invitation not found."
+- **Email Already Exists**:
+  - If user exists but not associated with store: Associate existing user with store and mark invitation as accepted
+  - If user exists and already associated with store: Return `409 Conflict` with message: "User is already an owner of this store."
+- **Store Deleted**: If store is deleted after invitation sent, return `404 Not Found` with message: "Store no longer exists."
+- **Invalid Email Format**: Return `400 Bad Request` with validation error during invitation creation
+- **Duplicate Invitation**: If pending invitation exists for same email/store, return `409 Conflict` with option to resend
+
+### Frontend Acceptance Flow
+
+- **Page Route**: `/auth/accept-invitation?token={token}`
+- **Token Validation**: On page load, call `GET /auth/invitations/{token}/validate` to check token validity
+- **Loading States**: Display loading state while validating token
+- **Error States**: Display appropriate error messages for expired, invalid, or already-accepted invitations
+- **Password Form**: Once token validated, display password setting form with:
+  - Password field (with strength indicator)
+  - Confirm password field
+  - Submit button
+- **Success State**: After successful acceptance, display success message and redirect to store dashboard
+- **Redirect Logic**: After acceptance, redirect to `/portal` or store-specific dashboard
+
+### Audit Trail
+
+- **Invitation Creation**: Log `invited_by` (User who sent invitation), `created_at`, `email`, `store_id`
+- **Invitation Acceptance**: Log `accepted_at`, `accepted_by` (User who accepted), `user_id` (created or existing)
+- **Invitation Revocation**: Log `revoked_at`, `revoked_by` (Super-Admin who revoked)
+- **All Events**: Store in invitation model and optionally in audit log table for compliance
+
+## Role-Based Access Control (RBAC) Details
+
+### Role Model
+
+The system uses boolean flags on the User model to represent internal staff roles. This approach is simpler than a separate role table for internal staff, as these roles are mutually exclusive and rarely change.
+
+**User Model Fields**:
+- `is_super_admin` (Boolean, existing): Full access to all features
+- `is_support_agent` (Boolean, new): Support and troubleshooting access
+- `is_provisioning_specialist` (Boolean, new): Machine mapping and store setup access
+
+**Role Mutually Exclusive**: A user SHOULD have only one of these internal staff roles set to `true`. If multiple are set, `is_super_admin` takes precedence.
+
+### Role Definitions & Permissions
+
+#### Super-Admin
+- **Full Access**: Can perform all operations in the Control Room
+- **Permissions**:
+  - Create, read, update, delete organizations and stores
+  - Invite store owners
+  - Configure IoT controllers and machine mappings
+  - Enable/disable AI agents for stores
+  - View system health dashboard
+  - Use Shadow View
+  - Reset user passwords
+  - Revoke invitations
+  - Access financial data (full read/write)
+- **Use Case**: Internal operations managers, system administrators
+
+#### Support Agent
+- **Limited Access**: Focused on support and troubleshooting
+- **Permissions**:
+  - **Read-only** access to organizations and stores (view details, list)
+  - **Read-only** access to financial data (cannot modify billing, pricing)
+  - View system health dashboard
+  - Use Shadow View to troubleshoot operator issues
+  - Reset user passwords for store owners and operators
+  - View IoT controller status and machine mappings (read-only)
+  - View agent configurations (read-only)
+- **Restrictions**:
+  - Cannot create or modify organizations/stores
+  - Cannot provision IoT controllers or modify machine mappings
+  - Cannot modify agent configurations
+  - Cannot invite store owners
+  - Cannot access financial modification features
+- **Use Case**: Customer support staff, help desk operators
+
+#### Provisioning Specialist
+- **Focused Access**: Machine mapping and initial store setup
+- **Permissions**:
+  - Create and update stores (within organizations)
+  - Provision IoT controllers (create, update, delete)
+  - Map machine labels to IoT controllers
+  - View store details and IoT mappings
+  - View system health dashboard (read-only)
+- **Restrictions**:
+  - Cannot create organizations
+  - Cannot invite store owners
+  - Cannot modify agent configurations
+  - Cannot use Shadow View
+  - Cannot reset passwords
+  - Cannot access financial data
+  - Cannot modify organization details
+- **Use Case**: Field technicians, hardware installation staff
+
+### Role Assignment
+
+- **Super-Admin Assignment**: Only existing Super-Admins can assign Super-Admin role to other users
+- **Support Agent Assignment**: Super-Admins can assign Support Agent role
+- **Provisioning Specialist Assignment**: Super-Admins can assign Provisioning Specialist role
+- **Role Changes**: Super-Admins can modify roles of other users; users cannot modify their own roles
+
+### Authorization Decorators
+
+The system provides decorators for role-based authorization:
+
+- `@require_super_admin`: Requires `is_super_admin = True`
+- `@require_support_agent`: Requires `is_support_agent = True` OR `is_super_admin = True` (Super-Admins have all permissions)
+- `@require_provisioning_specialist`: Requires `is_provisioning_specialist = True` OR `is_super_admin = True`
+- `@require_admin`: Existing decorator (requires `is_admin = True` OR `is_super_admin = True`)
+
+**Permission Hierarchy**: Super-Admins automatically have all permissions granted to Support Agents and Provisioning Specialists. Decorators should check Super-Admin status first, then role-specific status.
+
+### Helper Functions
+
+Utility functions in `apps/api/app/auth/security.py`:
+
+- `is_super_admin(user: User) -> bool`: Check if user is Super-Admin (existing)
+- `is_support_agent(user: User) -> bool`: Check if user is Support Agent or Super-Admin
+- `is_provisioning_specialist(user: User) -> bool`: Check if user is Provisioning Specialist or Super-Admin
+- `has_role(user: User, role: str) -> bool`: Generic role checker (role: "super_admin", "support_agent", "provisioning_specialist")
+
+### Permission Matrix
+
+| Feature | Super-Admin | Support Agent | Provisioning Specialist |
+|---------|-------------|---------------|-------------------------|
+| Create Organization | ✅ | ❌ | ❌ |
+| View Organizations | ✅ | ✅ (read-only) | ✅ (read-only) |
+| Update Organization | ✅ | ❌ | ❌ |
+| Create Store | ✅ | ❌ | ✅ |
+| View Stores | ✅ | ✅ (read-only) | ✅ |
+| Update Store | ✅ | ❌ | ✅ |
+| Invite Store Owner | ✅ | ❌ | ❌ |
+| Provision IoT Controllers | ✅ | ❌ | ✅ |
+| View IoT Mappings | ✅ | ✅ (read-only) | ✅ |
+| Update Machine Labels | ✅ | ❌ | ✅ |
+| Configure AI Agents | ✅ | ❌ | ❌ |
+| View Agent Config | ✅ | ✅ (read-only) | ❌ |
+| View System Health | ✅ | ✅ | ✅ |
+| Shadow View | ✅ | ✅ | ❌ |
+| Reset Passwords | ✅ | ✅ | ❌ |
+| View Financial Data | ✅ | ✅ (read-only) | ❌ |
+| Modify Financial Data | ✅ | ❌ | ❌ |
+
+### Database Migration
+
+- **New Fields**: Add `is_support_agent` and `is_provisioning_specialist` boolean columns to `users` table
+- **Default Values**: Both fields default to `False`
+- **Nullable**: Both fields are `NOT NULL` with default `False`
+- **Indexes**: Consider adding indexes if role-based queries are frequent (optional optimization)
+
+### Frontend Role Checks
+
+- **Route Protection**: Frontend routes MUST check user roles before rendering
+- **Component-Level**: Components can conditionally render features based on user role
+- **API Validation**: Frontend checks are for UX only; backend MUST enforce all authorization
+- **Role Context**: User role information should be available in authentication context/state
+
+### Error Messages
+
+When authorization fails, return appropriate error messages:
+
+- **403 Forbidden**: "Super admin privileges required" / "Support agent privileges required" / "Provisioning specialist privileges required"
+- **401 Unauthorized**: "Authentication required" (when user is not authenticated)
 
 ## Success Criteria *(mandatory)*
 
