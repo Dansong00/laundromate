@@ -24,10 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create directory structure for super-admin feature in apps/web/src/app/super-admin/
-- [ ] T002 [P] Create directory structure for backend routers in apps/api/app/organizations/, apps/api/app/stores/, apps/api/app/iot/, apps/api/app/agents/, apps/api/app/health/
-- [ ] T003 [P] Install @tanstack/react-query dependency in apps/web/package.json
-- [ ] T004 [P] Create base API client utility in apps/web/src/lib/api/client.ts with apiFetch helper function
+- [X] T001 Create directory structure for super-admin feature in apps/web/src/app/super-admin/
+- [X] T002 [P] Create directory structure for backend routers in apps/api/app/organizations/, apps/api/app/stores/, apps/api/app/iot/, apps/api/app/agents/, apps/api/app/health/
+- [X] T003 [P] Install @tanstack/react-query dependency in apps/web/package.json
+- [X] T004 [P] Create base API client utility in apps/web/src/lib/api/client.ts with apiFetch helper function
 
 ---
 
