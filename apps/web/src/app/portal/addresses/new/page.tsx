@@ -1,7 +1,7 @@
 "use client";
 
 import { useToast } from "@/components/ToastProvider";
-import { createAddress } from "@/lib/api";
+import { AddressCreatePayload, createAddress } from "@/lib/api";
 import {
   Alert,
   AlertDescription,
@@ -21,7 +21,7 @@ export default function NewAddressPage() {
   const router = useRouter();
   const { notifySuccess, notifyError } = useToast();
   const params = new URLSearchParams(
-    typeof window !== "undefined" ? window.location.search : ""
+    typeof window !== "undefined" ? window.location.search : "",
   );
   const defaultCustomerId = Number(params.get("customer_id") || 0);
   const [form, setForm] = useState({
@@ -39,7 +39,7 @@ export default function NewAddressPage() {
 
   function update<K extends keyof typeof form>(
     k: K,
-    v: string | number | boolean
+    v: string | number | boolean,
   ) {
     setForm((f) => ({ ...f, [k]: v }));
   }
@@ -49,7 +49,7 @@ export default function NewAddressPage() {
     setLoading(true);
     setError(null);
     try {
-      const payload = { ...form } as any;
+      const payload = { ...form } as unknown as AddressCreatePayload;
       payload.customer_id = Number(payload.customer_id);
       await createAddress(payload);
       notifySuccess("Address added");

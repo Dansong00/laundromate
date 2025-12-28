@@ -1,6 +1,7 @@
-from pydantic_settings import BaseSettings
-from pydantic import Field
 from typing import List
+
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -16,7 +17,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24)  # 24 hours
 
     # Database
-    DATABASE_URL: str = Field(default="postgresql://laundromate:laundromate@localhost:5432/laundromate")
+    DATABASE_URL: str = Field(
+        default="postgresql://laundromate:laundromate@localhost:5432/laundromate"
+    )
 
     class Config:
         env_file = ".env"

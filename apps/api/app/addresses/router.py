@@ -1,4 +1,7 @@
-from typing import List
+from typing import Any, List
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 from app.auth.security import get_current_user
 from app.core.database.session import get_db
@@ -6,8 +9,6 @@ from app.core.models.address import Address
 from app.core.models.customer import Customer
 from app.core.models.user import User
 from app.core.schemas.address import AddressCreate, AddressRead, AddressUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -16,25 +17,25 @@ router = APIRouter()
 async def list_customer_addresses(
     customer_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+    current_user: User = Depends(get_current_user),
+) -> Any:
     """List all addresses for a specific customer"""
     # Check if user can access this customer's addresses
-    customer = db.query(Customer).filter(Customer.id == customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == customer_id).first()
+    )
     if not customer:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
         )
 
     if not current_user.is_admin and current_user.id != customer.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to access these addresses"
+            detail="Not authorized to access these addresses",
         )
 
-    addresses = db.query(Address).filter(
-        Address.customer_id == customer_id).all()
+    addresses = db.query(Address).filter(Address.customer_id == customer_id).all()
     return addresses
 
 
@@ -42,23 +43,27 @@ async def list_customer_addresses(
 async def get_address(
     address_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+    current_user: User = Depends(get_current_user),
+) -> AddressRead:
     """Get a specific address by ID"""
     address = db.query(Address).filter(Address.id == address_id).first()
     if not address:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Address not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
         )
 
     # Check authorization
-    customer = db.query(Customer).filter(
-        Customer.id == address.customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == address.customer_id).first()
+    )
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
+        )
     if not current_user.is_admin and current_user.id != customer.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to access this address"
+            detail="Not authorized to access this address",
         )
 
     return address
@@ -68,32 +73,30 @@ async def get_address(
 async def create_address(
     address_data: AddressCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+    current_user: User = Depends(get_current_user),
+) -> AddressRead:
     """Create a new address for a customer"""
     # Check if user can create addresses for this customer
-    customer = db.query(Customer).filter(
-        Customer.id == address_data.customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == address_data.customer_id).first()
+    )
     if not customer:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
         )
 
     if not current_user.is_admin and current_user.id != customer.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to create addresses for this customer"
+            detail="Not authorized to create addresses for this customer",
         )
 
-    # If this is set as default, unset other default addresses
     if address_data.is_default:
         db.query(Address).filter(
             Address.customer_id == address_data.customer_id,
-            Address.is_default is True
+            Address.is_default == True,  # noqa: E712
         ).update({"is_default": False})
 
-    # Create address
     address = Address(**address_data.model_dump())
     db.add(address)
     db.commit()
@@ -107,34 +110,35 @@ async def update_address(
     address_id: int,
     address_data: AddressUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+    current_user: User = Depends(get_current_user),
+) -> AddressRead:
     """Update an address"""
     address = db.query(Address).filter(Address.id == address_id).first()
     if not address:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Address not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
         )
 
-    # Check authorization
-    customer = db.query(Customer).filter(
-        Customer.id == address.customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == address.customer_id).first()
+    )
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
+        )
     if not current_user.is_admin and current_user.id != customer.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to update this address"
+            detail="Not authorized to update this address",
         )
 
-    # If setting as default, unset other default addresses
     if address_data.is_default:
         db.query(Address).filter(
             Address.customer_id == address.customer_id,
             Address.id != address_id,
-            Address.is_default is True
+            Address.is_default == True,  # noqa: E712
         ).update({"is_default": False})
 
-    # Update fields
     update_data = address_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(address, field, value)
@@ -148,23 +152,26 @@ async def update_address(
 async def delete_address(
     address_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+    current_user: User = Depends(get_current_user),
+) -> None:
     """Delete an address"""
     address = db.query(Address).filter(Address.id == address_id).first()
     if not address:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Address not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
         )
 
-    # Check authorization
-    customer = db.query(Customer).filter(
-        Customer.id == address.customer_id).first()
+    customer: Customer | None = (
+        db.query(Customer).filter(Customer.id == address.customer_id).first()
+    )
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
+        )
     if not current_user.is_admin and current_user.id != customer.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to delete this address"
+            detail="Not authorized to delete this address",
         )
 
     db.delete(address)

@@ -1,0 +1,254 @@
+Metadata-Version: 2.4
+Name: laundromate-api
+Version: 0.1.0
+Summary: LaundroMate API - FastAPI backend for laundry service management
+Author-email: LaundroMate Team <team@laundromate.com>
+Project-URL: Homepage, https://github.com/laundromate/laundromate-api
+Project-URL: Repository, https://github.com/laundromate/laundromate-api.git
+Project-URL: Issues, https://github.com/laundromate/laundromate-api/issues
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi==0.104.1
+Requires-Dist: uvicorn[standard]==0.24.0
+Requires-Dist: sqlalchemy==2.0.23
+Requires-Dist: alembic==1.12.1
+Requires-Dist: psycopg2-binary==2.9.9
+Requires-Dist: python-jose[cryptography]==3.3.0
+Requires-Dist: passlib[bcrypt]==1.7.4
+Requires-Dist: python-multipart==0.0.6
+Requires-Dist: pydantic==2.5.0
+Requires-Dist: pydantic-settings==2.1.0
+Requires-Dist: python-dotenv==1.0.0
+Requires-Dist: email-validator==2.1.0
+Requires-Dist: twilio==8.10.0
+Requires-Dist: sendgrid==6.10.0
+Requires-Dist: celery==5.3.4
+Requires-Dist: redis==5.0.1
+Requires-Dist: typer>=0.9.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: httpx<0.28.0,>=0.25.2; extra == "dev"
+Requires-Dist: pytest-httpx>=0.21.0; extra == "dev"
+Requires-Dist: factory-boy>=3.3.1; extra == "dev"
+Requires-Dist: pre-commit>=3.5.0; extra == "dev"
+Requires-Dist: types-python-jose>=3.3.0; extra == "dev"
+Requires-Dist: types-passlib>=1.7.7; extra == "dev"
+
+# 🧺 LaundroMate API
+
+FastAPI backend for LaundroMate laundry service management system.
+
+## ⚡ Quick Start
+
+For the fastest setup, use our automated script:
+
+```bash
+cd apps/api
+./setup-dev.sh
+```
+
+This will install dependencies, start services, and set up the database automatically.
+
+## 🚀 Manual Setup
+
+### Prerequisites
+
+- Python 3.11+
+- Docker & Docker Compose
+- Poetry (recommended) or pip
+
+### Setup Steps
+
+1. **Install dependencies**
+
+   ```bash
+   pip install -e .[dev]
+   # or
+   pip install .
+   ```
+
+2. **Start database services**
+
+   ```bash
+   docker compose up -d postgres redis
+   ```
+
+3. **Create environment file**
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your local settings
+   ```
+
+4. **Create database**
+
+   ```bash
+   docker compose exec postgres psql -U laundromate -c "CREATE DATABASE laundromate;"
+   ```
+
+5. **Run migrations**
+
+   ```bash
+   alembic upgrade head
+   ```
+
+6. **Start the API**
+   ```bash
+   poetry run uvicorn app.main:app --reload
+   # or
+   uvicorn app.main:app --reload
+   ```
+
+## 🗄️ Database Management
+
+### Running Migrations
+
+```bash
+# Apply all pending migrations
+alembic upgrade head
+
+# Create new migration
+alembic revision --autogenerate -m "Description of changes"
+
+# Rollback one migration
+alembic downgrade -1
+
+# Check current status
+alembic current
+
+# View migration history
+alembic history
+```
+
+### Development vs Production
+
+- **Development**: Use `alembic upgrade head` to get latest schema
+- **Production**: Run migrations as part of deployment process
+
+## ��️ Project Structure
+
+```
+app/
+├── auth/           # Authentication & authorization
+├── core/           # Core configuration & database
+├── customers/      # Customer management
+├── orders/         # Order processing
+└── notifications/  # Email/SMS notifications
+```
+
+## 🔧 Development
+
+### Running Tests
+
+```bash
+pytest
+# or
+python -m pytest
+```
+
+### Code Formatting
+
+```bash
+black .
+isort .
+```
+
+### Linting
+
+```bash
+flake8
+```
+
+## 🐳 Docker Development
+
+### Start all services
+
+```bash
+docker compose up -d
+```
+
+### View logs
+
+```bash
+docker compose logs -f api
+docker compose logs -f postgres
+docker compose logs -f redis
+```
+
+### Rebuild API
+
+```bash
+docker compose build api
+docker compose up -d api
+```
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **Database connection failed**
+
+   - Ensure PostgreSQL is running: `docker compose ps postgres`
+   - Check DATABASE_URL in .env file
+   - Verify database exists: `docker compose exec postgres psql -U laundromate -l`
+
+2. **Port already in use**
+
+   - Stop local PostgreSQL/Redis: `brew services stop postgresql` (macOS)
+   - Or change ports in docker-compose.yml
+
+3. **Migration errors**
+
+   - Check alembic/env.py configuration
+   - Ensure all models are imported in app/core/models/**init**.py
+
+4. **Import errors**
+   - Verify Python path includes app directory
+   - Check **init**.py files exist in all packages
+
+### Getting Help
+
+- Check the logs: `docker compose logs api`
+- Verify environment variables: `docker compose exec api env | grep DATABASE`
+- Test database connection: `docker compose exec api python -c "from app.core.database.session import engine; print(engine.url)"`
+
+## 📚 API Documentation
+
+Once running, visit:
+
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **OpenAPI JSON**: http://localhost:8000/openapi.json
+
+## 🔐 Environment Variables
+
+| Variable       | Description                          | Default                                                           |
+| -------------- | ------------------------------------ | ----------------------------------------------------------------- |
+| `DATABASE_URL` | PostgreSQL connection string         | `postgresql://laundromate:laundromate@localhost:5432/laundromate` |
+| `REDIS_URL`    | Redis connection string              | `redis://localhost:6379`                                          |
+| `SECRET_KEY`   | JWT secret key                       | `your-secret-key-here`                                            |
+| `ENV`          | Environment (development/production) | `development`                                                     |
+| `DEBUG`        | Enable debug mode                    | `true`                                                            |
+
+## 🤝 Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests and linting
+4. Create a pull request
+
+## 📄 License
+
+This project is proprietary software.

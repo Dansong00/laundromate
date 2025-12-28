@@ -1,10 +1,13 @@
 // User and Authentication Types
 export interface User {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
+  email?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  isActive: boolean;
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

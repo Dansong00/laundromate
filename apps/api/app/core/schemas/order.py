@@ -19,16 +19,16 @@ class OrderBase(BaseModel):
     is_rush_order: bool = False
     rush_fee: float = 0.0
 
-    @validator('delivery_date')
-    def validate_delivery_after_pickup(cls, v, values):
-        if 'pickup_date' in values and v <= values['pickup_date']:
-            raise ValueError('delivery_date must be after pickup_date')
+    @validator("delivery_date")
+    def validate_delivery_after_pickup(cls, v: datetime, values: dict) -> datetime:
+        if "pickup_date" in values and v <= values["pickup_date"]:
+            raise ValueError("delivery_date must be after pickup_date")
         return v
 
-    @validator('rush_fee')
-    def validate_rush_fee(cls, v, values):
-        if values.get('is_rush_order', False) and v <= 0:
-            raise ValueError('rush_fee must be positive for rush orders')
+    @validator("rush_fee")
+    def validate_rush_fee(cls, v: float, values: dict) -> float:
+        if values.get("is_rush_order", False) and v <= 0:
+            raise ValueError("rush_fee must be positive for rush orders")
         return v
 
 

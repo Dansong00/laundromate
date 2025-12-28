@@ -1,6 +1,7 @@
-from pydantic import BaseModel, validator
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, validator
 
 
 class ServiceBase(BaseModel):
@@ -16,23 +17,23 @@ class ServiceBase(BaseModel):
     special_instructions: Optional[str] = None
     min_order_amount: float = 0.0
 
-    @validator('category')
-    def validate_category(cls, v):
+    @validator("category")
+    def validate_category(cls, v: str) -> str:
         valid_categories = ["wash_fold", "dry_clean", "press_only", "starch"]
         if v not in valid_categories:
-            raise ValueError(f'category must be one of {valid_categories}')
+            raise ValueError(f"category must be one of {valid_categories}")
         return v
 
-    @validator('base_price', 'price_per_pound', 'price_per_item', 'min_order_amount')
-    def validate_positive_price(cls, v):
+    @validator("base_price", "price_per_pound", "price_per_item", "min_order_amount")
+    def validate_positive_price(cls, v: Optional[float]) -> Optional[float]:
         if v is not None and v < 0:
-            raise ValueError('price must be non-negative')
+            raise ValueError("price must be non-negative")
         return v
 
-    @validator('turnaround_hours')
-    def validate_turnaround_hours(cls, v):
+    @validator("turnaround_hours")
+    def validate_turnaround_hours(cls, v: int) -> int:
         if v <= 0:
-            raise ValueError('turnaround_hours must be positive')
+            raise ValueError("turnaround_hours must be positive")
         return v
 
 

@@ -1,12 +1,16 @@
-import { ChevronLeft, MapPin } from 'lucide-react'
+import { ChevronLeft, MapPin } from "lucide-react";
 
 interface NavigationHeaderProps {
-  title: string
-  showBackButton?: boolean
-  onBack?: () => void
+  title: string;
+  showBackButton?: boolean;
+  onBack?: () => void;
 }
 
-export function NavigationHeader({ title, showBackButton = true, onBack }: NavigationHeaderProps) {
+export function NavigationHeader({
+  title,
+  showBackButton = true,
+  onBack,
+}: NavigationHeaderProps) {
   return (
     <div className="bg-white px-4 py-4 flex items-center justify-between border-b border-gray-100">
       <div className="flex items-center space-x-3">
@@ -22,9 +26,9 @@ export function NavigationHeader({ title, showBackButton = true, onBack }: Navig
           <span className="text-blue-600 font-medium">LaundroMate</span>
         </div>
       </div>
-      
+
       <h1 className="font-medium text-gray-900">{title}</h1>
       <div className="w-8"></div>
     </div>
-  )
+  );
 }
