@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  // Use internal Docker service name when running in Docker, otherwise localhost
+  const apiUrl =
+    process.env.API_URL_INTERNAL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:8000";
   const body = await req.json();
 
   const res = await fetch(`${apiUrl}/auth/otp/verify`, {

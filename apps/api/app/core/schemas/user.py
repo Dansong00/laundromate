@@ -30,6 +30,8 @@ class UserRead(UserBase):
     is_active: bool
     is_admin: bool
     is_super_admin: bool
+    is_support_agent: bool
+    is_provisioning_specialist: bool
     created_at: datetime
     updated_at: datetime
 
@@ -44,6 +46,8 @@ class UserCreateByAdmin(UserBase):
     last_name: str | None = None
     is_admin: bool = False
     is_super_admin: bool = False
+    is_support_agent: bool = False
+    is_provisioning_specialist: bool = False
     is_active: bool = True
 
 
@@ -54,6 +58,8 @@ class UserUpdate(BaseModel):
     phone: str | None = None
     is_admin: bool | None = None
     is_super_admin: bool | None = None
+    is_support_agent: bool | None = None
+    is_provisioning_specialist: bool | None = None
     is_active: bool | None = None
 
 

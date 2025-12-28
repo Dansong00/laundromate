@@ -88,6 +88,16 @@ def is_admin_or_super_admin(user: User) -> bool:
     return bool(user.is_admin or user.is_super_admin)
 
 
+def is_support_agent(user: User) -> bool:
+    """Check if user is a support agent or super admin."""
+    return bool(user.is_super_admin or user.is_support_agent)
+
+
+def is_provisioning_specialist(user: User) -> bool:
+    """Check if user is a provisioning specialist or super admin."""
+    return bool(user.is_super_admin or user.is_provisioning_specialist)
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bool(pwd_context.verify(plain_password, hashed_password))
 

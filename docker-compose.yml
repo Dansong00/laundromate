@@ -47,6 +47,7 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - API_URL_INTERNAL=http://api:8000
       - NEXT_PUBLIC_API_URL_DEV=http://localhost:8000
       - NEXT_PUBLIC_API_URL_STAGING=http://localhost:8000
       - NEXT_PUBLIC_API_URL_PRODUCTION=http://localhost:8000
