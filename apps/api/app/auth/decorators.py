@@ -102,3 +102,53 @@ def require_owner_or_admin(func: Callable) -> Callable:
         return await func(*args, **kwargs)
 
     return wrapper
+
+
+def require_support_agent(func: Callable) -> Callable:
+    """Decorator to require support agent privileges for an endpoint.
+
+    This decorator validates that current_user is a support agent or super admin.
+    Super-Admins have all permissions.
+    """
+
+    @wraps(func)
+    async def wrapper(*args: Any, **kwargs: Any) -> Any:
+        current_user = kwargs.get("current_user")
+
+        if not current_user or (
+            not current_user.is_super_admin and not current_user.is_support_agent
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Support agent privileges required",
+            )
+
+        return await func(*args, **kwargs)
+
+    return wrapper
+
+
+def require_provisioning_specialist(func: Callable) -> Callable:
+    """Decorator to require provisioning specialist privileges for an endpoint.
+
+    This decorator validates that current_user is a provisioning specialist
+    or super admin.
+    Super-Admins have all permissions.
+    """
+
+    @wraps(func)
+    async def wrapper(*args: Any, **kwargs: Any) -> Any:
+        current_user = kwargs.get("current_user")
+
+        if not current_user or (
+            not current_user.is_super_admin
+            and not current_user.is_provisioning_specialist
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Provisioning specialist privileges required",
+            )
+
+        return await func(*args, **kwargs)
+
+    return wrapper
