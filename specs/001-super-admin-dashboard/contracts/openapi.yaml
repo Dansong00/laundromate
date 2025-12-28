@@ -1,0 +1,972 @@
+openapi: 3.0.3
+info:
+  title: Super-User Admin Dashboard API
+  description: API endpoints for the Control Room - organization management, store provisioning, IoT mapping, agent configuration, and system health monitoring
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://api.laundromate.com
+    description: Production
+
+tags:
+  - name: Organizations
+    description: Organization management endpoints
+  - name: Stores
+    description: Store management endpoints
+  - name: IoT Controllers
+    description: IoT controller provisioning and mapping
+  - name: Agent Configuration
+    description: AI agent subscription management
+  - name: System Health
+    description: System health monitoring
+  - name: User Management
+    description: User provisioning and password reset
+
+paths:
+  /super-admin/organizations:
+    get:
+      tags: [Organizations]
+      summary: List all organizations
+      description: Retrieve a paginated list of all organizations (Super-Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+      responses:
+        '200':
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganizationRead'
+                  total:
+                    type: integer
+                  skip:
+                    type: integer
+                  limit:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Organizations]
+      summary: Create a new organization
+      description: Create a new organization with required details (Super-Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationCreate'
+      responses:
+        '201':
+          description: Organization created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /super-admin/organizations/{organization_id}:
+    get:
+      tags: [Organizations]
+      summary: Get organization details
+      description: Retrieve details of a specific organization (Super-Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organization_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationRead'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    put:
+      tags: [Organizations]
+      summary: Update organization
+      description: Update organization details (Super-Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organization_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationUpdate'
+      responses:
+        '200':
+          description: Organization updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /super-admin/organizations/{organization_id}/stores:
+    get:
+      tags: [Stores]
+      summary: List stores for organization
+      description: Retrieve all stores belonging to an organization (Super-Admin, Support Agent)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organization_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: List of stores
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StoreRead'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags: [Stores]
+      summary: Create a new store
+      description: Create a new store under an organization (Super-Admin, Provisioning Specialist)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organization_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreCreate'
+      responses:
+        '201':
+          description: Store created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /super-admin/stores/{store_id}:
+    get:
+      tags: [Stores]
+      summary: Get store details
+      description: Retrieve details of a specific store (Super-Admin, Support Agent)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Store details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreRead'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    put:
+      tags: [Stores]
+      summary: Update store
+      description: Update store details (Super-Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreUpdate'
+      responses:
+        '200':
+          description: Store updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /super-admin/stores/{store_id}/iot:
+    get:
+      tags: [IoT Controllers]
+      summary: List IoT controllers for store
+      description: Retrieve all IoT controllers for a store (Super-Admin, Provisioning Specialist)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of IoT controllers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IoTControllerRead'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags: [IoT Controllers]
+      summary: Provision IoT controller
+      description: Create a new IoT controller mapping for a store (Super-Admin, Provisioning Specialist)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IoTControllerCreate'
+      responses:
+        '201':
+          description: IoT controller provisioned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IoTControllerRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /super-admin/stores/{store_id}/iot/{controller_id}:
+    put:
+      tags: [IoT Controllers]
+      summary: Update IoT controller mapping
+      description: Update machine label or other IoT controller details (Super-Admin, Provisioning Specialist)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: controller_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IoTControllerUpdate'
+      responses:
+        '200':
+          description: IoT controller updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IoTControllerRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      tags: [IoT Controllers]
+      summary: Delete IoT controller
+      description: Remove an IoT controller mapping (Super-Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: controller_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: IoT controller deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /super-admin/stores/{store_id}/agents:
+    get:
+      tags: [Agent Configuration]
+      summary: Get agent configuration for store
+      description: Retrieve current agent configuration for a store (Super-Admin, Support Agent)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Agent configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfigurationRead'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    put:
+      tags: [Agent Configuration]
+      summary: Update agent configuration
+      description: Enable or disable AI agents for a store (Super-Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentConfigurationUpdate'
+      responses:
+        '200':
+          description: Agent configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfigurationRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /super-admin/stores/{store_id}/invite-owner:
+    post:
+      tags: [User Management]
+      summary: Invite store owner
+      description: Send invitation email to store owner (Super-Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '201':
+          description: Invitation sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user_id:
+                    type: string
+                    format: uuid
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /super-admin/health:
+    get:
+      tags: [System Health]
+      summary: Get system health status
+      description: Retrieve health status for all stores (Super-Admin, Support Agent)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [online, offline, partial, unknown]
+      responses:
+        '200':
+          description: System health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SystemHealthStatus'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /super-admin/users/{user_id}/reset-password:
+    post:
+      tags: [User Management]
+      summary: Reset user password
+      description: Reset password for a user (Super-Admin, Support Agent)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - new_password
+              properties:
+                new_password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    OrganizationCreate:
+      type: object
+      required:
+        - name
+        - billing_address
+        - city
+        - state
+        - postal_code
+        - country
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        billing_address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+          pattern: '^[A-Z]{2}$'
+        contact_email:
+          type: string
+          format: email
+        contact_phone:
+          type: string
+
+    OrganizationUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        billing_address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+          pattern: '^[A-Z]{2}$'
+        contact_email:
+          type: string
+          format: email
+        contact_phone:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+
+    OrganizationRead:
+      allOf:
+        - $ref: '#/components/schemas/OrganizationCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [active, inactive, suspended]
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    StoreCreate:
+      type: object
+      required:
+        - name
+        - street_address
+        - city
+        - state
+        - postal_code
+        - country
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        street_address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+          pattern: '^[A-Z]{2}$'
+
+    StoreUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        street_address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+          pattern: '^[A-Z]{2}$'
+        status:
+          type: string
+          enum: [active, inactive]
+
+    StoreRead:
+      allOf:
+        - $ref: '#/components/schemas/StoreCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organization_id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [active, inactive]
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    IoTControllerCreate:
+      type: object
+      required:
+        - mac_address
+        - machine_label
+        - device_type
+      properties:
+        mac_address:
+          type: string
+          pattern: '^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'
+        serial_number:
+          type: string
+        machine_label:
+          type: string
+          maxLength: 100
+        device_type:
+          type: string
+          enum: [washer, dryer, other]
+
+    IoTControllerUpdate:
+      type: object
+      properties:
+        machine_label:
+          type: string
+          maxLength: 100
+        device_type:
+          type: string
+          enum: [washer, dryer, other]
+
+    IoTControllerRead:
+      allOf:
+        - $ref: '#/components/schemas/IoTControllerCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            store_id:
+              type: string
+              format: uuid
+            connectivity_status:
+              type: string
+              enum: [online, offline, unknown]
+            last_heartbeat:
+              type: string
+              format: date-time
+              nullable: true
+            provisioned_at:
+              type: string
+              format: date-time
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    AgentConfigurationUpdate:
+      type: object
+      required:
+        - enabled_agents
+      properties:
+        enabled_agents:
+          type: array
+          items:
+            type: string
+          example: ['maintenance_prophet', 'pricing_strategist']
+
+    AgentConfigurationRead:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        store_id:
+          type: string
+          format: uuid
+        enabled_agents:
+          type: array
+          items:
+            type: string
+        available_agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIAgent'
+        last_updated_at:
+          type: string
+          format: date-time
+        last_updated_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AIAgent:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [maintenance, pricing, scheduling, analytics, other]
+        is_available:
+          type: boolean
+
+    SystemHealthStatus:
+      type: object
+      properties:
+        store_id:
+          type: string
+          format: uuid
+        store_name:
+          type: string
+        organization_name:
+          type: string
+        connectivity_status:
+          type: string
+          enum: [online, offline, partial, unknown]
+        online_controllers:
+          type: integer
+        offline_controllers:
+          type: integer
+        total_controllers:
+          type: integer
+        last_heartbeat:
+          type: string
+          format: date-time
+          nullable: true
+        alert_count:
+          type: integer
+        critical_alerts:
+          type: integer
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
