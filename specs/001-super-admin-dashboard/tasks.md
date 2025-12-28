@@ -43,8 +43,8 @@
 - [ ] T008 [P] Create IoT Controller SQLAlchemy model in apps/api/app/core/models/iot_controller.py
 - [ ] T009 [P] Create Agent Configuration SQLAlchemy model in apps/api/app/core/models/agent_configuration.py
 - [ ] T010 [P] Create AI Agent SQLAlchemy model in apps/api/app/core/models/ai_agent.py
-- [ ] T010a [P] Create Invitation SQLAlchemy model in apps/api/app/core/models/invitation.py
-- [ ] T010b [P] Create User-Store association SQLAlchemy model in apps/api/app/core/models/user_store.py
+- [ ] T010a [P] Create Invitation SQLAlchemy model in apps/api/app/core/models/invitation.py with fields: token, email, store_id, invited_by, status (enum), expires_at, accepted_at, created_at (see spec.md and data-model.md for details)
+- [ ] T010b [P] Create User-Store association SQLAlchemy model (user_stores table) in apps/api/app/core/models/user_store.py for many-to-many relationship with role field (enum: owner, operator)
 - [ ] T011 Update apps/api/app/core/models/__init__.py to export all new models
 - [ ] T012 Run Alembic migration to create tables: alembic upgrade head
 - [ ] T013 [P] Seed ai_agents table with initial agents (maintenance_prophet, pricing_strategist) via migration or script
@@ -105,14 +105,12 @@
 - [ ] T035 [US1] Create Organization router with GET /super-admin/organizations/{id} and PUT /super-admin/organizations/{id} endpoints in apps/api/app/organizations/router.py
 - [ ] T036 [US1] Create Store router with GET /super-admin/organizations/{id}/stores and POST /super-admin/organizations/{id}/stores endpoints in apps/api/app/stores/router.py
 - [ ] T037 [US1] Create Store router with GET /super-admin/stores/{id} and PUT /super-admin/stores/{id} endpoints in apps/api/app/stores/router.py
-- [ ] T038a [P] [US1] Create Invitation SQLAlchemy model in apps/api/app/core/models/invitation.py with fields: token, email, store_id, invited_by, status (enum), expires_at, accepted_at, created_at
 - [ ] T038b [P] [US1] Create invitation token generation utility function in apps/api/app/auth/invitation.py using secrets.token_urlsafe(32)
 - [ ] T038c [P] [US1] Create email service utility using SendGrid in apps/api/app/core/services/email_service.py with send_invitation_email function
 - [ ] T038d [US1] Create invitation acceptance endpoint POST /auth/invitations/{token}/accept in apps/api/app/auth/router.py
 - [ ] T038e [US1] Create invitation validation endpoint GET /auth/invitations/{token}/validate in apps/api/app/auth/router.py
 - [ ] T038f [P] [US1] Create email templates for store owner invitations (HTML and plain text) in apps/api/app/core/templates/invitation_email.html and invitation_email.txt
 - [ ] T038g [US1] Implement store owner invitation endpoint POST /super-admin/stores/{id}/invite-owner in apps/api/app/stores/router.py with token generation, email sending, and invitation creation
-- [ ] T038h [US1] Create user-store association model (user_stores table) in apps/api/app/core/models/user_store.py for many-to-many relationship with role field
 - [ ] T038i [US1] Add invitation expiration check logic (automatic expiration on validation)
 - [ ] T038j [US1] Add error handling for invitation edge cases (expired, already accepted, invalid token, duplicate email)
 - [ ] T039 [US1] Register organizations and stores routers in apps/api/app/main.py

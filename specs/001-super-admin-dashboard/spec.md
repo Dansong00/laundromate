@@ -136,9 +136,7 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 
 - **Store**: Represents a physical laundromat location. Attributes include name, street address, city, state, postal code, organization affiliation, status (active/inactive), and creation date. Relationships: belongs to one Organization, has many IoT Controllers, has many Users (store owners/operators), has Agent Configuration.
 
-- **IoT Controller**: Represents a physical hardware device installed on a machine. Attributes include MAC address (unique identifier), serial number (optional unique identifier), store affiliation, assigned machine label, provisioned date, and connectivity status. Relationships: belongs to one Store, mapped to one Machine Label.
-
-- **Machine Label**: Represents the logical name/label assigned to a physical machine in the operator's dashboard. Attributes include label text (e.g., "Washer #1"), store affiliation, and IoT controller association. Relationships: belongs to one Store, associated with one IoT Controller.
+- **IoT Controller**: Represents a physical hardware device installed on a machine. Attributes include MAC address (unique identifier), serial number (optional unique identifier), store affiliation, machine label (logical name like "Washer #1" that appears in operator dashboards), provisioned date, and connectivity status. The `machine_label` is stored as a string field on the IoT Controller entity (not a separate table). Relationships: belongs to one Store.
 
 - **Agent Configuration**: Represents the subscription/feature access settings for a store. Attributes include store affiliation, enabled agents list, and last updated timestamp. Relationships: belongs to one Store, references multiple AI Agents.
 
