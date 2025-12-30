@@ -8,7 +8,9 @@ from app.auth.decorators import (
     require_admin,
     require_auth,
     require_owner_or_admin,
+    require_provisioning_specialist,
     require_super_admin,
+    require_support_agent,
 )
 from app.core.models.user import User
 
@@ -306,3 +308,167 @@ class TestRequireOwnerOrAdmin:
 
         result = await test_endpoint(current_user=owner_user, customer_id=user_id)
         assert result == "success"
+
+
+class TestRequireSupportAgent:
+    """Test require_support_agent decorator."""
+
+    @pytest.mark.asyncio
+    async def test_require_support_agent_with_support_agent(self) -> None:
+        """Test that decorator allows request when user is support agent."""
+        support_agent_user = User(
+            phone="+1234567890",
+            is_admin=False,
+            is_super_admin=False,
+            is_support_agent=True,
+            is_provisioning_specialist=False,
+        )
+
+        @require_support_agent
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        result = await test_endpoint(current_user=support_agent_user)
+        assert result == "success"
+
+    @pytest.mark.asyncio
+    async def test_require_support_agent_with_super_admin(self) -> None:
+        """Test that decorator allows request when user is super admin."""
+        super_admin_user = User(
+            phone="+1234567891",
+            is_admin=False,
+            is_super_admin=True,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+
+        @require_support_agent
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        result = await test_endpoint(current_user=super_admin_user)
+        assert result == "success"
+
+    @pytest.mark.asyncio
+    async def test_require_support_agent_with_regular_user(self) -> None:
+        """Test that decorator raises exception when user is not support agent."""
+        regular_user = User(
+            phone="+1234567892",
+            is_admin=False,
+            is_super_admin=False,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+
+        @require_support_agent
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        with pytest.raises(HTTPException) as exc_info:
+            await test_endpoint(current_user=regular_user)
+        assert exc_info.value.status_code == 403
+        assert "Support agent privileges required" in exc_info.value.detail
+
+    @pytest.mark.asyncio
+    async def test_require_support_agent_without_user(self) -> None:
+        """Test that decorator raises exception when user is not present."""
+
+        @require_support_agent
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        with pytest.raises(HTTPException) as exc_info:
+            await test_endpoint()
+        assert exc_info.value.status_code == 403
+
+
+class TestRequireProvisioningSpecialist:
+    """Test require_provisioning_specialist decorator."""
+
+    @pytest.mark.asyncio
+    async def test_require_provisioning_specialist_with_specialist(self) -> None:
+        """Test that decorator allows request when user is provisioning specialist."""
+        specialist_user = User(
+            phone="+1234567890",
+            is_admin=False,
+            is_super_admin=False,
+            is_support_agent=False,
+            is_provisioning_specialist=True,
+        )
+
+        @require_provisioning_specialist
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        result = await test_endpoint(current_user=specialist_user)
+        assert result == "success"
+
+    @pytest.mark.asyncio
+    async def test_require_provisioning_specialist_with_super_admin(self) -> None:
+        """Test that decorator allows request when user is super admin."""
+        super_admin_user = User(
+            phone="+1234567891",
+            is_admin=False,
+            is_super_admin=True,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+
+        @require_provisioning_specialist
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        result = await test_endpoint(current_user=super_admin_user)
+        assert result == "success"
+
+    @pytest.mark.asyncio
+    async def test_require_provisioning_specialist_with_regular_user(self) -> None:
+        """Test decorator raises exception when user is not provisioning specialist."""
+        regular_user = User(
+            phone="+1234567892",
+            is_admin=False,
+            is_super_admin=False,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+
+        @require_provisioning_specialist
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        with pytest.raises(HTTPException) as exc_info:
+            await test_endpoint(current_user=regular_user)
+        assert exc_info.value.status_code == 403
+        assert "Provisioning specialist privileges required" in exc_info.value.detail
+
+    @pytest.mark.asyncio
+    async def test_require_provisioning_specialist_with_support_agent(self) -> None:
+        """Test that decorator raises exception when user is only support agent."""
+        support_agent_user = User(
+            phone="+1234567893",
+            is_admin=False,
+            is_super_admin=False,
+            is_support_agent=True,
+            is_provisioning_specialist=False,
+        )
+
+        @require_provisioning_specialist
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        with pytest.raises(HTTPException) as exc_info:
+            await test_endpoint(current_user=support_agent_user)
+        assert exc_info.value.status_code == 403
+        assert "Provisioning specialist privileges required" in exc_info.value.detail
+
+    @pytest.mark.asyncio
+    async def test_require_provisioning_specialist_without_user(self) -> None:
+        """Test that decorator raises exception when user is not present."""
+
+        @require_provisioning_specialist
+        async def test_endpoint(*args: Any, **kwargs: Any) -> str:
+            return "success"
+
+        with pytest.raises(HTTPException) as exc_info:
+            await test_endpoint()
+        assert exc_info.value.status_code == 403
