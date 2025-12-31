@@ -82,22 +82,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T026 [P] [US1] Unit test for Organization model creation and validation in apps/api/tests/unit/database/test_models_organization.py
-- [ ] T027 [P] [US1] Unit test for Store model creation and validation in apps/api/tests/unit/database/test_models_store.py
-- [ ] T027a [P] [US1] Unit test for Invitation model creation and validation in apps/api/tests/unit/database/test_models_invitation.py
-- [ ] T027b [P] [US1] Unit test for User-Store association model in apps/api/tests/unit/database/test_models_user_store.py
-- [ ] T027c [P] Unit test for User model with new role fields (is_support_agent, is_provisioning_specialist) in apps/api/tests/unit/database/test_models_user.py
-- [ ] T028 [P] [US1] Unit test for Organization repository CRUD operations in apps/api/tests/unit/domain/test_organizations.py
-- [ ] T029 [P] [US1] Unit test for Store repository CRUD operations in apps/api/tests/unit/domain/test_stores.py
-- [ ] T030 [P] [US1] Integration test for POST /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
-- [ ] T031 [P] [US1] Integration test for GET /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
-- [ ] T032 [P] [US1] Integration test for POST /super-admin/organizations/{id}/stores endpoint in apps/api/tests/integration/test_stores_routes.py
-- [ ] T033 [P] [US1] Integration test for POST /super-admin/stores/{id}/invite-owner endpoint in apps/api/tests/integration/test_stores_routes.py
-- [ ] T033a [P] [US1] Integration test for GET /auth/invitations/{token}/validate endpoint in apps/api/tests/integration/test_invitations_routes.py
-- [ ] T033b [P] [US1] Integration test for POST /auth/invitations/{token}/accept endpoint in apps/api/tests/integration/test_invitations_routes.py
-- [ ] T033c [P] [US1] Unit test for invitation token generation in apps/api/tests/unit/domain/test_invitations.py
-- [ ] T033d [P] [US1] Unit test for invitation expiration logic in apps/api/tests/unit/domain/test_invitations.py
-- [ ] T033e [P] [US1] Unit test for email service in apps/api/tests/unit/domain/test_email_service.py
+- [X] T026 [P] [US1] Unit test for Organization model creation and validation in apps/api/tests/unit/database/test_models_organization.py
+- [X] T027 [P] [US1] Unit test for Store model creation and validation in apps/api/tests/unit/database/test_models_store.py
+- [X] T027a [P] [US1] Unit test for Invitation model creation and validation in apps/api/tests/unit/database/test_models_invitation.py
+- [X] T027b [P] [US1] Unit test for User-Store association model in apps/api/tests/unit/database/test_models_user_store.py
+- [X] T027c [P] Unit test for User model with new role fields (is_support_agent, is_provisioning_specialist) in apps/api/tests/unit/database/test_models_user.py
+- [X] T028 [P] [US1] Unit test for Organization repository CRUD operations in apps/api/tests/unit/domain/test_organizations.py
+- [X] T029 [P] [US1] Unit test for Store repository CRUD operations in apps/api/tests/unit/domain/test_stores.py
+- [X] T030 [P] [US1] Integration test for POST /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
+- [X] T031 [P] [US1] Integration test for GET /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
+- [X] T032 [P] [US1] Integration test for POST /super-admin/organizations/{id}/stores endpoint in apps/api/tests/integration/test_stores_routes.py
+- [X] T033 [P] [US1] Integration test for POST /super-admin/stores/{id}/invite-owner endpoint in apps/api/tests/integration/test_stores_routes.py
+- [X] T033a [P] [US1] Integration test for GET /auth/invitations/{token}/validate endpoint in apps/api/tests/integration/test_invitations_routes.py
+- [X] T033b [P] [US1] Integration test for POST /auth/invitations/{token}/accept endpoint in apps/api/tests/integration/test_invitations_routes.py
+- [X] T033c [P] [US1] Unit test for invitation token generation in apps/api/tests/unit/domain/test_invitations.py
+- [X] T033d [P] [US1] Unit test for invitation expiration logic in apps/api/tests/unit/domain/test_invitations.py
+- [X] T033e [P] [US1] Unit test for email service in apps/api/tests/unit/domain/test_email_service.py
 
 ### Implementation for User Story 1
 

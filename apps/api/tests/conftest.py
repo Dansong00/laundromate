@@ -176,6 +176,31 @@ def admin_auth_headers(admin_user: User) -> dict:
     return {"Authorization": f"Bearer {access_token}"}
 
 
+@pytest.fixture
+def super_admin_user(db_session: Session) -> User:
+    """Create a test super admin user in the database."""
+    user = User(
+        email="superadmin@example.com",
+        first_name="Super",
+        last_name="Admin",
+        phone="+1234567892",
+        is_active=True,
+        is_admin=True,
+        is_super_admin=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def super_admin_auth_headers(super_admin_user: User) -> dict:
+    """Create authentication headers for super admin test requests."""
+    access_token = create_access_token(subject=str(super_admin_user.id))
+    return {"Authorization": f"Bearer {access_token}"}
+
+
 # Test data fixtures
 @pytest.fixture
 def sample_user_data() -> dict:

@@ -62,6 +62,62 @@ class TestUserModelCreation:
         assert user.is_active is True
         assert user.is_admin is False
         assert user.is_super_admin is False
+        assert user.is_support_agent is False
+        assert user.is_provisioning_specialist is False
+
+    def test_user_creation_with_role_fields(self, db_session) -> None:
+        """Test that user can be created with role fields."""
+        user = User(
+            phone="+1234567890",
+            is_super_admin=True,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+        db_session.add(user)
+        db_session.commit()
+
+        assert user.is_super_admin is True
+        assert user.is_support_agent is False
+        assert user.is_provisioning_specialist is False
+
+    def test_user_support_agent_role(self, db_session) -> None:
+        """Test that user can be set as support agent."""
+        user = User(
+            phone="+1234567891",
+            is_super_admin=False,
+            is_support_agent=True,
+            is_provisioning_specialist=False,
+        )
+        db_session.add(user)
+        db_session.commit()
+
+        assert user.is_support_agent is True
+        assert user.is_super_admin is False
+        assert user.is_provisioning_specialist is False
+
+    def test_user_provisioning_specialist_role(self, db_session) -> None:
+        """Test that user can be set as provisioning specialist."""
+        user = User(
+            phone="+1234567892",
+            is_super_admin=False,
+            is_support_agent=False,
+            is_provisioning_specialist=True,
+        )
+        db_session.add(user)
+        db_session.commit()
+
+        assert user.is_provisioning_specialist is True
+        assert user.is_super_admin is False
+        assert user.is_support_agent is False
+
+    def test_user_role_fields_default_to_false(self, db_session) -> None:
+        """Test that role fields default to False."""
+        user = User(phone="+1234567893")
+        db_session.add(user)
+        db_session.commit()
+
+        assert user.is_support_agent is False
+        assert user.is_provisioning_specialist is False
 
 
 class TestUserConstraints:
