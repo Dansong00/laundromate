@@ -148,3 +148,143 @@ export interface DeliveryDetailsForm {
   scheduledTime: string;
   notes?: string;
 }
+
+// Super-Admin Dashboard Types
+export type OrganizationStatus = "active" | "inactive" | "suspended";
+
+export interface Organization {
+  id: string;
+  name: string;
+  billingAddress: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  status: OrganizationStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface OrganizationCreate {
+  name: string;
+  billingAddress: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  status?: OrganizationStatus;
+}
+
+export interface OrganizationUpdate {
+  name?: string | null;
+  billingAddress?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  status?: OrganizationStatus | null;
+}
+
+export type StoreStatus = "active" | "inactive";
+
+export interface Store {
+  id: string;
+  organizationId: string;
+  name: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  status: StoreStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface StoreCreate {
+  organizationId: string;
+  name: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  status?: StoreStatus;
+}
+
+export interface StoreUpdate {
+  name?: string | null;
+  streetAddress?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+  status?: StoreStatus | null;
+}
+
+export type DeviceType = "washer" | "dryer" | "other";
+export type ConnectivityStatus = "online" | "offline" | "unknown";
+
+export interface IoTController {
+  id: string;
+  storeId: string;
+  macAddress: string;
+  serialNumber?: string | null;
+  machineLabel: string;
+  deviceType: DeviceType;
+  connectivityStatus: ConnectivityStatus;
+  lastHeartbeat?: Date | null;
+  provisionedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IoTControllerCreate {
+  storeId: string;
+  macAddress: string;
+  serialNumber?: string | null;
+  machineLabel: string;
+  deviceType: DeviceType;
+  connectivityStatus?: ConnectivityStatus;
+}
+
+export interface IoTControllerUpdate {
+  macAddress?: string | null;
+  serialNumber?: string | null;
+  machineLabel?: string | null;
+  deviceType?: DeviceType | null;
+  connectivityStatus?: ConnectivityStatus | null;
+  lastHeartbeat?: Date | null;
+}
+
+export type AgentCategory = "maintenance" | "pricing" | "scheduling" | "analytics" | "other";
+
+export interface AIAgent {
+  id: string;
+  name: string;
+  description?: string | null;
+  category: AgentCategory;
+  isAvailable: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AgentConfiguration {
+  id: string;
+  storeId: string;
+  enabledAgents: string[];
+  lastUpdatedAt: Date;
+  lastUpdatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AgentConfigurationUpdate {
+  enabledAgents: string[];
+}

@@ -37,36 +37,36 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create Alembic migration for new database tables (organizations, stores, iot_controllers, agent_configurations, ai_agents, invitations, user_stores) and add is_support_agent and is_provisioning_specialist columns to users table in apps/api/alembic/versions/
-- [ ] T006 [P] Create Organization SQLAlchemy model in apps/api/app/core/models/organization.py
-- [ ] T007 [P] Create Store SQLAlchemy model in apps/api/app/core/models/store.py
-- [ ] T008 [P] Create IoT Controller SQLAlchemy model in apps/api/app/core/models/iot_controller.py
-- [ ] T009 [P] Create Agent Configuration SQLAlchemy model in apps/api/app/core/models/agent_configuration.py
-- [ ] T010 [P] Create AI Agent SQLAlchemy model in apps/api/app/core/models/ai_agent.py
-- [ ] T010a [P] Create Invitation SQLAlchemy model in apps/api/app/core/models/invitation.py with fields: token, email, store_id, invited_by, status (enum), expires_at, accepted_at, created_at (see spec.md and data-model.md for details)
-- [ ] T010b [P] Create User-Store association SQLAlchemy model (user_stores table) in apps/api/app/core/models/user_store.py for many-to-many relationship with role field (enum: owner, operator)
-- [ ] T011 Update apps/api/app/core/models/__init__.py to export all new models
-- [ ] T012 Run Alembic migration to create tables: alembic upgrade head
-- [ ] T013 [P] Seed ai_agents table with initial agents (maintenance_prophet, pricing_strategist) via migration or script
-- [ ] T014 [P] Create Organization Pydantic schemas (Create, Read, Update) in apps/api/app/core/schemas/organization.py
-- [ ] T015 [P] Create Store Pydantic schemas (Create, Read, Update) in apps/api/app/core/schemas/store.py
-- [ ] T016 [P] Create IoT Controller Pydantic schemas (Create, Read, Update) in apps/api/app/core/schemas/iot_controller.py
-- [ ] T017 [P] Create Agent Configuration Pydantic schemas (Read, Update) in apps/api/app/core/schemas/agent_configuration.py
-- [ ] T018 [P] Create AI Agent Pydantic schemas (Read) in apps/api/app/core/schemas/ai_agent.py
-- [ ] T018a [P] Create Invitation Pydantic schemas (Create, Read, Validate, Accept) in apps/api/app/core/schemas/invitation.py
-- [ ] T019 [P] Create Organization repository implementing Repository protocol in apps/api/app/core/repositories/organization_repository.py
-- [ ] T020 [P] Create Store repository implementing Repository protocol in apps/api/app/core/repositories/store_repository.py
-- [ ] T021 [P] Create IoT Controller repository implementing Repository protocol in apps/api/app/core/repositories/iot_controller_repository.py
-- [ ] T022 [P] Create Agent Configuration repository implementing Repository protocol in apps/api/app/core/repositories/agent_configuration_repository.py
-- [ ] T022a [P] Extend User SQLAlchemy model with is_support_agent and is_provisioning_specialist boolean fields in apps/api/app/core/models/user.py
-- [ ] T022b [P] Update User Pydantic schemas to include is_support_agent and is_provisioning_specialist fields in apps/api/app/core/schemas/user.py
-- [ ] T022c [P] Create helper functions is_support_agent and is_provisioning_specialist in apps/api/app/auth/security.py
-- [ ] T023 Extend auth decorators with require_support_agent and require_provisioning_specialist decorators in apps/api/app/auth/decorators.py
-- [ ] T023a [P] Add unit tests for require_support_agent decorator in apps/api/tests/unit/utilities/test_decorators.py
-- [ ] T023b [P] Add unit tests for require_provisioning_specialist decorator in apps/api/tests/unit/utilities/test_decorators.py
-- [ ] T023c [P] Add unit tests for is_support_agent and is_provisioning_specialist helper functions in apps/api/tests/unit/domain/test_auth.py
-- [ ] T024 [P] Add Organization, Store, IoT Controller, Agent Configuration, AI Agent TypeScript interfaces to packages/types/src/index.ts
-- [ ] T025 [P] Setup React Query QueryClient provider in apps/web/src/app/layout.tsx or create providers directory
+- [X] T005 Create Alembic migration for new database tables (organizations, stores, iot_controllers, agent_configurations, ai_agents, invitations, user_stores) and add is_support_agent and is_provisioning_specialist columns to users table in apps/api/alembic/versions/
+- [X] T006 [P] Create Organization SQLAlchemy model in apps/api/app/core/models/organization.py
+- [X] T007 [P] Create Store SQLAlchemy model in apps/api/app/core/models/store.py
+- [X] T008 [P] Create IoT Controller SQLAlchemy model in apps/api/app/core/models/iot_controller.py
+- [X] T009 [P] Create Agent Configuration SQLAlchemy model in apps/api/app/core/models/agent_configuration.py
+- [X] T010 [P] Create AI Agent SQLAlchemy model in apps/api/app/core/models/ai_agent.py
+- [X] T010a [P] Create Invitation SQLAlchemy model in apps/api/app/core/models/invitation.py with fields: token, email, store_id, invited_by, status (enum), expires_at, accepted_at, created_at (see spec.md and data-model.md for details)
+- [X] T010b [P] Create User-Store association SQLAlchemy model (user_stores table) in apps/api/app/core/models/user_store.py for many-to-many relationship with role field (enum: owner, operator)
+- [X] T011 Update apps/api/app/core/models/__init__.py to export all new models
+- [X] T012 Run Alembic migration to create tables: alembic upgrade head
+- [X] T013 [P] Seed ai_agents table with initial agents (maintenance_prophet, pricing_strategist) via migration or script
+- [X] T014 [P] Create Organization Pydantic schemas (Create, Read, Update) in apps/api/app/core/schemas/organization.py
+- [X] T015 [P] Create Store Pydantic schemas (Create, Read, Update) in apps/api/app/core/schemas/store.py
+- [X] T016 [P] Create IoT Controller Pydantic schemas (Create, Read, Update) in apps/api/app/core/schemas/iot_controller.py
+- [X] T017 [P] Create Agent Configuration Pydantic schemas (Read, Update) in apps/api/app/core/schemas/agent_configuration.py
+- [X] T018 [P] Create AI Agent Pydantic schemas (Read) in apps/api/app/core/schemas/ai_agent.py
+- [X] T018a [P] Create Invitation Pydantic schemas (Create, Read, Validate, Accept) in apps/api/app/core/schemas/invitation.py
+- [X] T019 [P] Create Organization repository implementing Repository protocol in apps/api/app/core/repositories/organization_repository.py
+- [X] T020 [P] Create Store repository implementing Repository protocol in apps/api/app/core/repositories/store_repository.py
+- [X] T021 [P] Create IoT Controller repository implementing Repository protocol in apps/api/app/core/repositories/iot_controller_repository.py
+- [X] T022 [P] Create Agent Configuration repository implementing Repository protocol in apps/api/app/core/repositories/agent_configuration_repository.py
+- [X] T022a [P] Extend User SQLAlchemy model with is_support_agent and is_provisioning_specialist boolean fields in apps/api/app/core/models/user.py
+- [X] T022b [P] Update User Pydantic schemas to include is_support_agent and is_provisioning_specialist fields in apps/api/app/core/schemas/user.py
+- [X] T022c [P] Create helper functions is_support_agent and is_provisioning_specialist in apps/api/app/auth/security.py
+- [X] T023 Extend auth decorators with require_support_agent and require_provisioning_specialist decorators in apps/api/app/auth/decorators.py
+- [X] T023a [P] Add unit tests for require_support_agent decorator in apps/api/tests/unit/utilities/test_decorators.py
+- [X] T023b [P] Add unit tests for require_provisioning_specialist decorator in apps/api/tests/unit/utilities/test_decorators.py
+- [X] T023c [P] Add unit tests for is_support_agent and is_provisioning_specialist helper functions in apps/api/tests/unit/domain/test_auth.py
+- [X] T024 [P] Add Organization, Store, IoT Controller, Agent Configuration, AI Agent TypeScript interfaces to packages/types/src/index.ts
+- [X] T025 [P] Setup React Query QueryClient provider in apps/web/src/app/layout.tsx or create providers directory
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,22 +82,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T026 [P] [US1] Unit test for Organization model creation and validation in apps/api/tests/unit/database/test_models_organization.py
-- [ ] T027 [P] [US1] Unit test for Store model creation and validation in apps/api/tests/unit/database/test_models_store.py
-- [ ] T027a [P] [US1] Unit test for Invitation model creation and validation in apps/api/tests/unit/database/test_models_invitation.py
-- [ ] T027b [P] [US1] Unit test for User-Store association model in apps/api/tests/unit/database/test_models_user_store.py
-- [ ] T027c [P] Unit test for User model with new role fields (is_support_agent, is_provisioning_specialist) in apps/api/tests/unit/database/test_models_user.py
-- [ ] T028 [P] [US1] Unit test for Organization repository CRUD operations in apps/api/tests/unit/domain/test_organizations.py
-- [ ] T029 [P] [US1] Unit test for Store repository CRUD operations in apps/api/tests/unit/domain/test_stores.py
-- [ ] T030 [P] [US1] Integration test for POST /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
-- [ ] T031 [P] [US1] Integration test for GET /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
-- [ ] T032 [P] [US1] Integration test for POST /super-admin/organizations/{id}/stores endpoint in apps/api/tests/integration/test_stores_routes.py
-- [ ] T033 [P] [US1] Integration test for POST /super-admin/stores/{id}/invite-owner endpoint in apps/api/tests/integration/test_stores_routes.py
-- [ ] T033a [P] [US1] Integration test for GET /auth/invitations/{token}/validate endpoint in apps/api/tests/integration/test_invitations_routes.py
-- [ ] T033b [P] [US1] Integration test for POST /auth/invitations/{token}/accept endpoint in apps/api/tests/integration/test_invitations_routes.py
-- [ ] T033c [P] [US1] Unit test for invitation token generation in apps/api/tests/unit/domain/test_invitations.py
-- [ ] T033d [P] [US1] Unit test for invitation expiration logic in apps/api/tests/unit/domain/test_invitations.py
-- [ ] T033e [P] [US1] Unit test for email service in apps/api/tests/unit/domain/test_email_service.py
+- [X] T026 [P] [US1] Unit test for Organization model creation and validation in apps/api/tests/unit/database/test_models_organization.py
+- [X] T027 [P] [US1] Unit test for Store model creation and validation in apps/api/tests/unit/database/test_models_store.py
+- [X] T027a [P] [US1] Unit test for Invitation model creation and validation in apps/api/tests/unit/database/test_models_invitation.py
+- [X] T027b [P] [US1] Unit test for User-Store association model in apps/api/tests/unit/database/test_models_user_store.py
+- [X] T027c [P] Unit test for User model with new role fields (is_support_agent, is_provisioning_specialist) in apps/api/tests/unit/database/test_models_user.py
+- [X] T028 [P] [US1] Unit test for Organization repository CRUD operations in apps/api/tests/unit/domain/test_organizations.py
+- [X] T029 [P] [US1] Unit test for Store repository CRUD operations in apps/api/tests/unit/domain/test_stores.py
+- [X] T030 [P] [US1] Integration test for POST /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
+- [X] T031 [P] [US1] Integration test for GET /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
+- [X] T032 [P] [US1] Integration test for POST /super-admin/organizations/{id}/stores endpoint in apps/api/tests/integration/test_stores_routes.py
+- [X] T033 [P] [US1] Integration test for POST /super-admin/stores/{id}/invite-owner endpoint in apps/api/tests/integration/test_stores_routes.py
+- [X] T033a [P] [US1] Integration test for GET /auth/invitations/{token}/validate endpoint in apps/api/tests/integration/test_invitations_routes.py
+- [X] T033b [P] [US1] Integration test for POST /auth/invitations/{token}/accept endpoint in apps/api/tests/integration/test_invitations_routes.py
+- [X] T033c [P] [US1] Unit test for invitation token generation in apps/api/tests/unit/domain/test_invitations.py
+- [X] T033d [P] [US1] Unit test for invitation expiration logic in apps/api/tests/unit/domain/test_invitations.py
+- [X] T033e [P] [US1] Unit test for email service in apps/api/tests/unit/domain/test_email_service.py
 
 ### Implementation for User Story 1
 

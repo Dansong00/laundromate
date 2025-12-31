@@ -12,7 +12,9 @@ from app.auth.security import (
     generate_otp,
     get_password_hash,
     is_admin_or_super_admin,
+    is_provisioning_specialist,
     is_super_admin,
+    is_support_agent,
     verify_password,
 )
 from app.core.config.settings import settings
@@ -229,3 +231,121 @@ class TestUserRoleChecks:
         db_session.add(user)
         db_session.commit()
         assert is_admin_or_super_admin(user) is True
+
+
+class TestSupportAgentChecks:
+    """Test support agent checking functions."""
+
+    def test_is_support_agent_true_for_support_agent(self, db_session) -> None:
+        """Test is_support_agent returns True for support agent."""
+        user = User(
+            email="support@example.com",
+            phone="+1234567890",
+            is_super_admin=False,
+            is_support_agent=True,
+            is_provisioning_specialist=False,
+        )
+        db_session.add(user)
+        db_session.commit()
+        assert is_support_agent(user) is True
+
+    def test_is_support_agent_true_for_super_admin(self, db_session) -> None:
+        """Test is_support_agent returns True for super admin."""
+        user = User(
+            email="super@example.com",
+            phone="+1234567891",
+            is_super_admin=True,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+        db_session.add(user)
+        db_session.commit()
+        assert is_support_agent(user) is True
+
+    def test_is_support_agent_false_for_regular_user(self, db_session) -> None:
+        """Test is_support_agent returns False for regular user."""
+        user = User(
+            email="user@example.com",
+            phone="+1234567892",
+            is_super_admin=False,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+        db_session.add(user)
+        db_session.commit()
+        assert is_support_agent(user) is False
+
+    def test_is_support_agent_false_for_provisioning_specialist_only(
+        self, db_session
+    ) -> None:
+        """Test is_support_agent returns False for provisioning specialist only."""
+        user = User(
+            email="specialist@example.com",
+            phone="+1234567893",
+            is_super_admin=False,
+            is_support_agent=False,
+            is_provisioning_specialist=True,
+        )
+        db_session.add(user)
+        db_session.commit()
+        assert is_support_agent(user) is False
+
+
+class TestProvisioningSpecialistChecks:
+    """Test provisioning specialist checking functions."""
+
+    def test_is_provisioning_specialist_true_for_specialist(self, db_session) -> None:
+        """Test is_provisioning_specialist returns True for provisioning specialist."""
+        user = User(
+            email="specialist@example.com",
+            phone="+1234567890",
+            is_super_admin=False,
+            is_support_agent=False,
+            is_provisioning_specialist=True,
+        )
+        db_session.add(user)
+        db_session.commit()
+        assert is_provisioning_specialist(user) is True
+
+    def test_is_provisioning_specialist_true_for_super_admin(self, db_session) -> None:
+        """Test is_provisioning_specialist returns True for super admin."""
+        user = User(
+            email="super@example.com",
+            phone="+1234567891",
+            is_super_admin=True,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+        db_session.add(user)
+        db_session.commit()
+        assert is_provisioning_specialist(user) is True
+
+    def test_is_provisioning_specialist_false_for_regular_user(
+        self, db_session
+    ) -> None:
+        """Test is_provisioning_specialist returns False for regular user."""
+        user = User(
+            email="user@example.com",
+            phone="+1234567892",
+            is_super_admin=False,
+            is_support_agent=False,
+            is_provisioning_specialist=False,
+        )
+        db_session.add(user)
+        db_session.commit()
+        assert is_provisioning_specialist(user) is False
+
+    def test_is_provisioning_specialist_false_for_support_agent_only(
+        self, db_session
+    ) -> None:
+        """Test is_provisioning_specialist returns False for support agent only."""
+        user = User(
+            email="support@example.com",
+            phone="+1234567893",
+            is_super_admin=False,
+            is_support_agent=True,
+            is_provisioning_specialist=False,
+        )
+        db_session.add(user)
+        db_session.commit()
+        assert is_provisioning_specialist(user) is False
