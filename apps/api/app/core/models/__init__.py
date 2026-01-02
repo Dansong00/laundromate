@@ -23,6 +23,10 @@ from app.core.models.organization import Organization, OrganizationStatus  # noq
 from app.core.models.service import Service  # noqa: E402
 from app.core.models.store import Store, StoreStatus  # noqa: E402
 from app.core.models.user import User  # noqa: E402
+from app.core.models.user_organization import (  # noqa: E402
+    UserOrganization,
+    UserOrganizationRole,
+)
 from app.core.models.user_store import UserStore, UserStoreRole  # noqa: E402
 from app.core.models.verification_code import VerificationCode  # noqa: E402
 
@@ -50,4 +54,6 @@ __all__ = [
     "InvitationStatus",
     "UserStore",
     "UserStoreRole",
+    "UserOrganization",
+    "UserOrganizationRole",
 ]

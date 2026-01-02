@@ -9,18 +9,18 @@
 
 ### User Story 1 - Organization and Store Onboarding (Priority: P1)
 
-Internal staff need to create new customer organizations and their physical store locations through a guided onboarding wizard, then invite the store owner to access their dashboard.
+Internal staff need to create new customer organizations and their physical store locations through a guided onboarding wizard, then invite organization members to access their dashboard.
 
 **Why this priority**: Without this capability, new customers cannot be onboarded. This is the foundational workflow that enables all other operations. The system cannot provision new stores without this feature.
 
-**Independent Test**: Can be fully tested by creating a new organization with one store and verifying the store owner invitation email is sent. Delivers value by enabling new customer onboarding.
+**Independent Test**: Can be fully tested by creating a new organization with one store and verifying the organization member invitation email is sent. Delivers value by enabling new customer onboarding.
 
 **Acceptance Scenarios**:
 
 1. **Given** a Super-Admin is logged into the Control Room, **When** they complete the onboarding wizard to create an organization named "Sunny Laundromat LLC" with address "123 Main St", **Then** the organization is created and stored in the system.
 2. **Given** an organization exists, **When** a Super-Admin adds a new store location "Downtown Branch" with address "456 Oak Ave", **Then** the store is associated with the organization and displayed in the organization's store list.
-3. **Given** a store has been created, **When** a Super-Admin invites a store owner by entering their email address "dan@example.com", **Then** an invitation email is sent and the user account is created with owner permissions for that store.
-4. **Given** a store owner invitation has been sent, **When** the owner clicks the invitation link, **Then** they are prompted to set a password and granted access to their store dashboard.
+3. **Given** an organization has been created, **When** a Super-Admin invites an organization member by entering their email address "dan@example.com" and selecting a role (owner, employee, or admin), **Then** an invitation email is sent and the user account is created with the specified role for that organization.
+4. **Given** an organization member invitation has been sent, **When** the member clicks the invitation link, **Then** they are prompted to set a password and granted access to their organization dashboard with access to all stores in the organization.
 
 ---
 
@@ -94,16 +94,18 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 
 ### Edge Cases
 
-- What happens when a store owner's email address is already in use by another user?
+- What happens when an organization member's email address is already in use by another user?
 - How does the system handle duplicate MAC addresses or serial numbers during IoT provisioning?
 - What happens when an organization has no stores created yet - can it exist?
 - How does the system handle stores with no IoT controllers provisioned - do they appear in health monitoring?
 - What happens when all agents are disabled for a store - what features remain accessible to operators?
-- How does the system handle expired or invalid store owner invitations?
+- How does the system handle expired or invalid organization member invitations?
 - What happens when an IoT controller is mapped to a machine that is later deleted?
 - How does the system handle stores that have been deleted but still have active IoT controllers?
 - What happens when a Support Agent tries to view as operator for a store they don't have permission to access?
 - How does the system handle concurrent updates to agent configuration by multiple Super-Admins?
+- How does the system handle organization members with different roles (owner, employee, admin) accessing stores?
+- What happens when an organization is deleted but has active invitations pending?
 
 ## Requirements *(mandatory)*
 
@@ -111,7 +113,7 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 
 - **FR-001**: System MUST provide an onboarding wizard that guides internal staff through creating an organization with required details (name, address, contact information).
 - **FR-002**: System MUST allow creation of multiple store locations under a single organization, each with its own address and identifier.
-- **FR-003**: System MUST support sending email invitations to store owners with secure invitation links that expire after a configurable time period (default: 7 days, configurable via `INVITATION_EXPIRATION_DAYS` environment variable).
+- **FR-003**: System MUST support sending email invitations to organization members with secure invitation links that expire after a configurable time period (default: 7 days, configurable via `INVITATION_EXPIRATION_DAYS` environment variable).
 - **FR-004**: System MUST enforce role-based access control with three distinct roles: Super-Admin (full access), Support Agent (read-only financial data, can reset passwords), and Provisioning Specialist (machine mapping and store setup). Roles are stored as boolean flags on the User model: `is_super_admin`, `is_support_agent`, `is_provisioning_specialist`.
 - **FR-005**: System MUST allow provisioning of IoT controllers by MAC address or serial number, associating each controller with a specific store.
 - **FR-006**: System MUST provide a mapping interface where physical IoT controllers can be assigned logical labels (e.g., "Washer #1", "Dryer #3") that appear in operator dashboards.
@@ -123,8 +125,8 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 - **FR-012**: System MUST log all actions performed in Shadow View mode with audit trail information (user, timestamp, action type).
 - **FR-013**: System MUST prevent data modifications when viewing in Shadow View mode (read-only access).
 - **FR-014**: System MUST validate that MAC addresses and serial numbers are unique per store during IoT controller provisioning.
-- **FR-015**: System MUST require store owner email addresses to be unique across the system.
-- **FR-016**: System MUST allow Support Agents to reset user passwords for store owners and operators.
+- **FR-015**: System MUST require organization member email addresses to be unique per organization (same email can belong to different organizations).
+- **FR-016**: System MUST allow Support Agents to reset user passwords for organization members and store operators.
 - **FR-017**: System MUST display machine mapping information (controller identifier, assigned label) in a searchable, sortable table format.
 - **FR-018**: System MUST allow updating machine labels after initial provisioning without requiring controller re-provisioning.
 - **FR-019**: System MUST display system health status in a high-density, data-rich interface optimized for internal staff use.
@@ -132,9 +134,11 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 
 ### Key Entities *(include if feature involves data)*
 
-- **Organization**: Represents the parent company that owns one or more store locations. Attributes include name, billing address, contact information, and creation date. Relationships: has many Stores, has many Users (organization-level admins).
+- **Organization**: Represents the parent company that owns one or more store locations. Attributes include name, billing address, contact information, and creation date. Relationships: has many Stores, has many Users via UserOrganization (organization-level members with roles: owner, employee, admin).
 
-- **Store**: Represents a physical laundromat location. Attributes include name, street address, city, state, postal code, organization affiliation, status (active/inactive), and creation date. Relationships: belongs to one Organization, has many IoT Controllers, has many Users (store owners/operators), has Agent Configuration.
+- **UserOrganization**: Represents the many-to-many relationship between Users and Organizations for organization-level access. Attributes include user_id, organization_id, role (enum: owner, employee, admin), and created_at. Relationships: belongs to one User, belongs to one Organization. Purpose: Organization-level users (via UserOrganization) have automatic access to all stores in their organization. Organization OWNER role provides full access to all stores; EMPLOYEE and ADMIN roles have access determined by organization admin (store assignments managed separately).
+
+- **Store**: Represents a physical laundromat location. Attributes include name, street address, city, state, postal code, organization affiliation, status (active/inactive), and creation date. Relationships: belongs to one Organization, has many IoT Controllers, has many Users via UserStore (store owners/operators, for store-specific access), has Agent Configuration. Note: Organization-level users (via UserOrganization) have automatic access to all stores in their organization.
 
 - **IoT Controller**: Represents a physical hardware device installed on a machine. Attributes include MAC address (unique identifier), serial number (optional unique identifier), store affiliation, machine label (logical name like "Washer #1" that appears in operator dashboards), provisioned date, and connectivity status. The `machine_label` is stored as a string field on the IoT Controller entity (not a separate table). Relationships: belongs to one Store.
 
@@ -144,7 +148,7 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 
 - **System Health Status**: Represents the current operational state of a store's IoT infrastructure. Attributes include store affiliation, connectivity status (online/offline), last heartbeat timestamp, alert count, and device status summary. Relationships: belongs to one Store.
 
-- **Invitation**: Represents a store owner invitation sent via email. Attributes include token (secure URL-safe token), email address, store affiliation, invited_by (User who sent invitation), status (pending/accepted/expired/revoked), expires_at, accepted_at, and creation timestamp. Relationships: belongs to one Store, created by one User (invited_by), accepted by one User (when accepted).
+- **Invitation**: Represents an organization member invitation sent via email. Attributes include token (secure URL-safe token), email address, organization affiliation, organization_role (enum: owner, employee, admin), invited_by (User who sent invitation), status (pending/accepted/expired/revoked), expires_at, accepted_at, and creation timestamp. Relationships: belongs to one Organization, created by one User (invited_by), accepted by one User (when accepted).
 
 ## Invitation System Details
 
@@ -161,9 +165,9 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 2. **Frontend validates token**: Calls `GET /auth/invitations/{token}/validate` to verify token is valid and not expired
 3. **User sets password**: Submits password via `POST /auth/invitations/{token}/accept` with password field
 4. **System creates User account**: If user with email doesn't exist, creates new User account with email
-5. **System associates User with Store**: Creates user-store relationship with "owner" role/permissions
+5. **System associates User with Organization**: Creates user-organization relationship via UserOrganization with specified role (owner, employee, or admin) from invitation's `organization_role` field
 6. **System marks invitation as accepted**: Updates invitation status to "accepted" and sets `accepted_at` timestamp
-7. **User is authenticated**: System logs user in and redirects to store dashboard
+7. **User is authenticated**: System logs user in and redirects to organization dashboard or portal
 
 ### Email Service Integration
 
@@ -178,9 +182,10 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 
 ### Email Template Requirements
 
-- **Subject Line**: "You've been invited to manage {Store Name} on LaundroMate"
+- **Subject Line**: "You've been invited to manage {Organization Name} on LaundroMate"
 - **Email Body Content**:
-  - Store name and organization name
+  - Organization name
+  - Role information (owner, employee, or admin)
   - Invitation link (full URL with token parameter)
   - Expiration notice (e.g., "This invitation expires in 7 days")
   - Instructions for accepting invitation
@@ -202,9 +207,9 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 
 ### Resend Functionality
 
-- **Idempotent Behavior**: If a pending invitation exists for the same email and store, the system MAY resend the existing invitation email (same token) OR generate a new invitation (invalidating the old one)
+- **Idempotent Behavior**: If a pending invitation exists for the same email and organization, the system MAY resend the existing invitation email (same token) OR generate a new invitation (invalidating the old one)
 - **Recommended Approach**: Generate new invitation token when resending, invalidating old invitation to prevent confusion
-- **Resend Endpoint**: `POST /super-admin/stores/{id}/resend-invitation` with email parameter (optional, defaults to most recent invitation for that store)
+- **Resend Endpoint**: `POST /super-admin/organizations/{id}/resend-invitation` with email parameter (optional, defaults to most recent invitation for that organization)
 
 ### User Creation & Permissions
 
@@ -213,10 +218,13 @@ Support Agents need to view a store's operator dashboard exactly as the operator
   - `is_active`: `true`
   - `is_admin`: `false` (unless explicitly set)
   - `is_super_admin`: `false`
-- **Store Association**: Create user-store relationship (many-to-many if users can own multiple stores):
-  - Table: `user_stores` with columns: `user_id`, `store_id`, `role` (enum: owner, operator), `created_at`
-  - Role: Set to "owner" for store owner invitations
-- **Permission Model**: Users with "owner" role for a store have full access to that store's dashboard and settings
+- **Organization Association**: Create user-organization relationship (many-to-many if users can belong to multiple organizations):
+  - Table: `user_organizations` with columns: `user_id`, `organization_id`, `role` (enum: owner, employee, admin), `created_at`
+  - Role: Set from invitation's `organization_role` field
+- **Permission Model**:
+  - Organization OWNER role: Full access to all stores in the organization
+  - Organization EMPLOYEE/ADMIN roles: Access determined by organization admin (store assignments managed separately)
+  - Store-level users (via UserStore): Specific to individual stores for store-specific operators
 
 ### Error Handling & Edge Cases
 
@@ -224,11 +232,11 @@ Support Agents need to view a store's operator dashboard exactly as the operator
 - **Already Accepted**: Return `400 Bad Request` with message: "This invitation has already been used."
 - **Invalid Token**: Return `404 Not Found` with message: "Invitation not found."
 - **Email Already Exists**:
-  - If user exists but not associated with store: Associate existing user with store and mark invitation as accepted
-  - If user exists and already associated with store: Return `409 Conflict` with message: "User is already an owner of this store."
-- **Store Deleted**: If store is deleted after invitation sent, return `404 Not Found` with message: "Store no longer exists."
+  - If user exists but not associated with organization: Associate existing user with organization via UserOrganization and mark invitation as accepted
+  - If user exists and already associated with organization: Return `409 Conflict` with message: "User is already a member of this organization."
+- **Organization Deleted**: If organization is deleted after invitation sent, return `404 Not Found` with message: "Organization no longer exists."
 - **Invalid Email Format**: Return `400 Bad Request` with validation error during invitation creation
-- **Duplicate Invitation**: If pending invitation exists for same email/store, return `409 Conflict` with option to resend
+- **Duplicate Invitation**: If pending invitation exists for same email/organization, return `409 Conflict` with option to resend
 
 ### Frontend Acceptance Flow
 
@@ -240,12 +248,12 @@ Support Agents need to view a store's operator dashboard exactly as the operator
   - Password field (with strength indicator)
   - Confirm password field
   - Submit button
-- **Success State**: After successful acceptance, display success message and redirect to store dashboard
-- **Redirect Logic**: After acceptance, redirect to `/portal` or store-specific dashboard
+- **Success State**: After successful acceptance, display success message and redirect to organization dashboard or portal
+- **Redirect Logic**: After acceptance, redirect to `/portal` or organization dashboard
 
 ### Audit Trail
 
-- **Invitation Creation**: Log `invited_by` (User who sent invitation), `created_at`, `email`, `store_id`
+- **Invitation Creation**: Log `invited_by` (User who sent invitation), `created_at`, `email`, `organization_id`, `organization_role`
 - **Invitation Acceptance**: Log `accepted_at`, `accepted_by` (User who accepted), `user_id` (created or existing)
 - **Invitation Revocation**: Log `revoked_at`, `revoked_by` (Super-Admin who revoked)
 - **All Events**: Store in invitation model and optionally in audit log table for compliance
@@ -269,7 +277,7 @@ The system uses boolean flags on the User model to represent internal staff role
 - **Full Access**: Can perform all operations in the Control Room
 - **Permissions**:
   - Create, read, update, delete organizations and stores
-  - Invite store owners
+  - Invite organization members (with roles: owner, employee, admin)
   - Configure IoT controllers and machine mappings
   - Enable/disable AI agents for stores
   - View system health dashboard
@@ -286,14 +294,14 @@ The system uses boolean flags on the User model to represent internal staff role
   - **Read-only** access to financial data (cannot modify billing, pricing)
   - View system health dashboard
   - Use Shadow View to troubleshoot operator issues
-  - Reset user passwords for store owners and operators
+  - Reset user passwords for organization members and store operators
   - View IoT controller status and machine mappings (read-only)
   - View agent configurations (read-only)
 - **Restrictions**:
   - Cannot create or modify organizations/stores
   - Cannot provision IoT controllers or modify machine mappings
   - Cannot modify agent configurations
-  - Cannot invite store owners
+  - Cannot invite organization members
   - Cannot access financial modification features
 - **Use Case**: Customer support staff, help desk operators
 
@@ -307,7 +315,7 @@ The system uses boolean flags on the User model to represent internal staff role
   - View system health dashboard (read-only)
 - **Restrictions**:
   - Cannot create organizations
-  - Cannot invite store owners
+  - Cannot invite organization members
   - Cannot modify agent configurations
   - Cannot use Shadow View
   - Cannot reset passwords
@@ -352,7 +360,7 @@ Utility functions in `apps/api/app/auth/security.py`:
 | Create Store | ✅ | ❌ | ✅ |
 | View Stores | ✅ | ✅ (read-only) | ✅ |
 | Update Store | ✅ | ❌ | ✅ |
-| Invite Store Owner | ✅ | ❌ | ❌ |
+| Invite Organization Member | ✅ | ❌ | ❌ |
 | Provision IoT Controllers | ✅ | ❌ | ✅ |
 | View IoT Mappings | ✅ | ✅ (read-only) | ✅ |
 | Update Machine Labels | ✅ | ❌ | ✅ |
@@ -389,10 +397,10 @@ When authorization fails, return appropriate error messages:
 
 ### Measurable Outcomes
 
-- **SC-001**: Internal staff can complete onboarding of a new organization and store from "Contract Signed" to "Fully Provisioned" (including owner invitation) in under 30 minutes.
+- **SC-001**: Internal staff can complete onboarding of a new organization and store from "Contract Signed" to "Fully Provisioned" (including organization member invitation) in under 30 minutes.
 - **SC-002**: Zero errors occur in mapping physical IoT controllers to logical machine labels during provisioning (100% accuracy in hardware-to-software mapping).
 - **SC-003**: System health dashboard displays connectivity status for all stores with updates visible within 30 seconds of a status change.
 - **SC-004**: Support Agents can successfully troubleshoot operator-reported issues using Shadow View in 90% of cases without requiring operator screen sharing.
 - **SC-005**: Super-Admins can update agent configuration for a store and have changes take effect for operators within 1 minute.
-- **SC-006**: 95% of store owner invitations result in successful account creation and first login within 24 hours of invitation being sent.
+- **SC-006**: 95% of organization member invitations result in successful account creation and first login within 24 hours of invitation being sent.
 - **SC-007**: System health alerts for offline stores are generated within 2 minutes of connectivity loss being detected.

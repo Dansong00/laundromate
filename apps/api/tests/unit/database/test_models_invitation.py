@@ -7,8 +7,8 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.models.invitation import Invitation, InvitationStatus
 from app.core.models.organization import Organization
-from app.core.models.store import Store
 from app.core.models.user import User
+from app.core.models.user_organization import UserOrganizationRole
 
 
 class TestInvitationModelCreation:
@@ -27,18 +27,6 @@ class TestInvitationModelCreation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Invitation Store",
-            street_address="456 Inv Ave",
-            city="New York",
-            state="NY",
-            postal_code="10002",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567890", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -47,7 +35,8 @@ class TestInvitationModelCreation:
         invitation = Invitation(
             token="test-token-12345",
             email="owner@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
@@ -58,7 +47,8 @@ class TestInvitationModelCreation:
         assert isinstance(invitation.id, uuid.UUID)
         assert invitation.token == "test-token-12345"
         assert invitation.email == "owner@example.com"
-        assert invitation.store_id == store.id
+        assert invitation.organization_id == org.id
+        assert invitation.organization_role == UserOrganizationRole.OWNER
         assert invitation.invited_by == inviter.id
         assert invitation.status == InvitationStatus.PENDING
         assert invitation.expires_at == expires_at
@@ -78,18 +68,6 @@ class TestInvitationModelCreation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Default Store",
-            street_address="321 Default Ave",
-            city="Los Angeles",
-            state="CA",
-            postal_code="90002",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567891", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -98,7 +76,8 @@ class TestInvitationModelCreation:
         invitation = Invitation(
             token="default-token",
             email="default@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
@@ -120,18 +99,6 @@ class TestInvitationModelCreation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Status Store",
-            street_address="222 Status Ave",
-            city="Chicago",
-            state="IL",
-            postal_code="60602",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567892", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -140,7 +107,8 @@ class TestInvitationModelCreation:
         pending = Invitation(
             token="pending-token",
             email="pending@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.PENDING,
@@ -148,7 +116,8 @@ class TestInvitationModelCreation:
         accepted = Invitation(
             token="accepted-token",
             email="accepted@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.ACCEPTED,
@@ -157,7 +126,8 @@ class TestInvitationModelCreation:
         expired = Invitation(
             token="expired-token",
             email="expired@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=datetime.now(timezone.utc) - timedelta(days=1),
             status=InvitationStatus.EXPIRED,
@@ -165,7 +135,8 @@ class TestInvitationModelCreation:
         revoked = Invitation(
             token="revoked-token",
             email="revoked@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.REVOKED,
@@ -191,18 +162,6 @@ class TestInvitationModelCreation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Unique Store",
-            street_address="444 Unique Ave",
-            city="Houston",
-            state="TX",
-            postal_code="77002",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567893", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -211,14 +170,16 @@ class TestInvitationModelCreation:
         invitation1 = Invitation(
             token="unique-token",
             email="user1@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
         invitation2 = Invitation(
             token="unique-token",  # Same token
             email="user2@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
@@ -241,18 +202,6 @@ class TestInvitationModelCreation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Timestamp Store",
-            street_address="666 Timestamp Ave",
-            city="Miami",
-            state="FL",
-            postal_code="33102",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567894", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -261,7 +210,8 @@ class TestInvitationModelCreation:
         invitation = Invitation(
             token="timestamp-token",
             email="timestamp@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
@@ -284,18 +234,6 @@ class TestInvitationModelCreation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Accepted Store",
-            street_address="888 Accepted Ave",
-            city="Seattle",
-            state="WA",
-            postal_code="98102",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567895", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -304,7 +242,8 @@ class TestInvitationModelCreation:
         invitation = Invitation(
             token="accepted-null-token",
             email="accepted-null@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
@@ -325,8 +264,8 @@ class TestInvitationModelCreation:
 class TestInvitationRelationships:
     """Test Invitation relationships."""
 
-    def test_invitation_belongs_to_store(self, db_session) -> None:
-        """Test that invitation belongs to a store."""
+    def test_invitation_belongs_to_organization(self, db_session) -> None:
+        """Test that invitation belongs to an organization."""
         org = Organization(
             name="Relationship Org",
             billing_address="999 Rel St",
@@ -338,18 +277,6 @@ class TestInvitationRelationships:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Relationship Store",
-            street_address="000 Rel Ave",
-            city="Boston",
-            state="MA",
-            postal_code="02102",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567896", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -358,16 +285,17 @@ class TestInvitationRelationships:
         invitation = Invitation(
             token="relationship-token",
             email="relationship@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
         db_session.add(invitation)
         db_session.commit()
 
-        assert invitation.store is not None
-        assert invitation.store.id == store.id
-        assert invitation.store.name == "Relationship Store"
+        assert invitation.organization is not None
+        assert invitation.organization.id == org.id
+        assert invitation.organization.name == "Relationship Org"
 
     def test_invitation_belongs_to_inviter(self, db_session) -> None:
         """Test that invitation belongs to the user who created it."""
@@ -382,18 +310,6 @@ class TestInvitationRelationships:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Inviter Store",
-            street_address="222 Inviter Ave",
-            city="Denver",
-            state="CO",
-            postal_code="80202",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567897", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -402,7 +318,8 @@ class TestInvitationRelationships:
         invitation = Invitation(
             token="inviter-token",
             email="inviter@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
@@ -413,8 +330,8 @@ class TestInvitationRelationships:
         assert invitation.inviter.id == inviter.id
         assert invitation.inviter.phone == "+1234567897"
 
-    def test_invitation_cascade_delete_on_store_delete(self, db_session) -> None:
-        """Test that invitation is deleted when store is deleted."""
+    def test_invitation_cascade_delete_on_organization_delete(self, db_session) -> None:
+        """Test that invitation is deleted when organization is deleted."""
         org = Organization(
             name="Cascade Org",
             billing_address="333 Cascade St",
@@ -426,18 +343,6 @@ class TestInvitationRelationships:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Cascade Store",
-            street_address="444 Cascade Ave",
-            city="Phoenix",
-            state="AZ",
-            postal_code="85002",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567898", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -446,7 +351,8 @@ class TestInvitationRelationships:
         invitation = Invitation(
             token="cascade-token",
             email="cascade@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
         )
@@ -454,7 +360,7 @@ class TestInvitationRelationships:
         db_session.commit()
 
         invitation_id = invitation.id
-        db_session.delete(store)
+        db_session.delete(org)
         db_session.commit()
 
         # Verify invitation was deleted

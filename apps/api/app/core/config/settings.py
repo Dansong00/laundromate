@@ -21,6 +21,14 @@ class Settings(BaseSettings):
         default="postgresql://laundromate:laundromate@localhost:5432/laundromate"
     )
 
+    # Email Configuration (SendGrid)
+    SENDGRID_API_KEY: str = Field(default="")
+    FROM_EMAIL: str = Field(default="noreply@laundromate.com")
+    FRONTEND_URL: str = Field(default="http://localhost:3000")
+
+    # Invitation Configuration
+    INVITATION_EXPIRATION_DAYS: int = Field(default=7)
+
     class Config:
         env_file = ".env"
         case_sensitive = True

@@ -6,9 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.core.models.invitation import Invitation, InvitationStatus
 from app.core.models.organization import Organization
-from app.core.models.store import Store
 from app.core.models.user import User
-from app.core.models.user_store import UserStore, UserStoreRole
+from app.core.models.user_organization import UserOrganization, UserOrganizationRole
 
 
 class TestValidateInvitation:
@@ -29,18 +28,6 @@ class TestValidateInvitation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Validate Store",
-            street_address="456 Validate Ave",
-            city="New York",
-            state="NY",
-            postal_code="10002",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567890", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -49,7 +36,8 @@ class TestValidateInvitation:
         invitation = Invitation(
             token="valid-token-123",
             email="owner@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.PENDING,
@@ -63,9 +51,9 @@ class TestValidateInvitation:
         data = response.json()
         assert data["valid"] is True
         assert data["email"] == "owner@example.com"
-        assert data["store_id"] == str(store.id)
-        assert data["store_name"] == "Validate Store"
+        assert data["organization_id"] == str(org.id)
         assert data["organization_name"] == "Validate Org"
+        assert data["organization_role"] == UserOrganizationRole.OWNER.value
 
     def test_validate_invitation_expired(
         self, client: TestClient, db_session: Session
@@ -82,18 +70,6 @@ class TestValidateInvitation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Expired Store",
-            street_address="321 Expired Ave",
-            city="Los Angeles",
-            state="CA",
-            postal_code="90002",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567891", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -102,7 +78,8 @@ class TestValidateInvitation:
         invitation = Invitation(
             token="expired-token-456",
             email="expired@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.PENDING,
@@ -132,18 +109,6 @@ class TestValidateInvitation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Accepted Store",
-            street_address="666 Accepted Ave",
-            city="Chicago",
-            state="IL",
-            postal_code="60602",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567892", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -152,7 +117,8 @@ class TestValidateInvitation:
         invitation = Invitation(
             token="accepted-token-789",
             email="accepted@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.ACCEPTED,
@@ -169,10 +135,27 @@ class TestValidateInvitation:
         assert "accepted" in data["reason"].lower()
 
     def test_validate_invitation_invalid_token(self, client: TestClient) -> None:
-        """Test validating with an invalid token."""
-        response = client.get("/auth/invitations/invalid-token-xyz/validate")
+        """Test validating with an invalid token (not found)."""
+        # Use a valid format token that doesn't exist
+        response = client.get(
+            "/auth/invitations/AbCdEfGhIjKlMnOpQrStUvWxYz123456789012/validate"
+        )
 
         assert response.status_code == 404
+
+    def test_validate_invitation_invalid_token_format(self, client: TestClient) -> None:
+        """Test validating with an invalid token format."""
+        # Test with invalid format (spaces, special chars, etc.)
+        invalid_tokens = [
+            "invalid token with spaces",
+            "invalid+token+with+plus",
+            "short",
+            "a" * 100,  # Too long
+        ]
+        for invalid_token in invalid_tokens:
+            response = client.get(f"/auth/invitations/{invalid_token}/validate")
+            assert response.status_code == 400
+            assert "Invalid invitation token format" in response.json()["detail"]
 
     def test_validate_invitation_revoked(
         self, client: TestClient, db_session: Session
@@ -189,18 +172,6 @@ class TestValidateInvitation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Revoked Store",
-            street_address="888 Revoked Ave",
-            city="Houston",
-            state="TX",
-            postal_code="77002",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567893", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -209,7 +180,8 @@ class TestValidateInvitation:
         invitation = Invitation(
             token="revoked-token-abc",
             email="revoked@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.REVOKED,
@@ -243,18 +215,6 @@ class TestAcceptInvitation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Accept Store",
-            street_address="000 Accept Ave",
-            city="Miami",
-            state="FL",
-            postal_code="33102",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567894", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -263,7 +223,8 @@ class TestAcceptInvitation:
         invitation = Invitation(
             token="accept-token-123",
             email="newowner@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.PENDING,
@@ -294,14 +255,17 @@ class TestAcceptInvitation:
         )
         assert user is not None
 
-        # Verify user-store association was created
-        user_store = (
-            db_session.query(UserStore)
-            .filter(UserStore.user_id == user.id, UserStore.store_id == store.id)
+        # Verify user-organization association was created
+        user_org = (
+            db_session.query(UserOrganization)
+            .filter(
+                UserOrganization.user_id == user.id,
+                UserOrganization.organization_id == org.id,
+            )
             .first()
         )
-        assert user_store is not None
-        assert user_store.role == UserStoreRole.OWNER
+        assert user_org is not None
+        assert user_org.role == UserOrganizationRole.OWNER
 
     def test_accept_invitation_existing_user(
         self, client: TestClient, db_session: Session
@@ -316,18 +280,6 @@ class TestAcceptInvitation:
             country="US",
         )
         db_session.add(org)
-        db_session.commit()
-
-        store = Store(
-            organization_id=org.id,
-            name="Existing Store",
-            street_address="222 Existing Ave",
-            city="Seattle",
-            state="WA",
-            postal_code="98102",
-            country="US",
-        )
-        db_session.add(store)
         db_session.commit()
 
         # Create existing user
@@ -346,7 +298,8 @@ class TestAcceptInvitation:
         invitation = Invitation(
             token="existing-token-456",
             email="existing@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.PENDING,
@@ -364,16 +317,17 @@ class TestAcceptInvitation:
         assert data["user"]["email"] == "existing@example.com"
         assert data["user"]["id"] == str(existing_user.id)
 
-        # Verify user-store association was created
-        user_store = (
-            db_session.query(UserStore)
+        # Verify user-organization association was created
+        user_org = (
+            db_session.query(UserOrganization)
             .filter(
-                UserStore.user_id == existing_user.id,
-                UserStore.store_id == store.id,
+                UserOrganization.user_id == existing_user.id,
+                UserOrganization.organization_id == org.id,
             )
             .first()
         )
-        assert user_store is not None
+        assert user_org is not None
+        assert user_org.role == UserOrganizationRole.OWNER
 
     def test_accept_invitation_expired(
         self, client: TestClient, db_session: Session
@@ -390,18 +344,6 @@ class TestAcceptInvitation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Expired Accept Store",
-            street_address="444 Expired Ave",
-            city="Boston",
-            state="MA",
-            postal_code="02102",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567897", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -410,7 +352,8 @@ class TestAcceptInvitation:
         invitation = Invitation(
             token="expired-accept-token",
             email="expired@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.PENDING,
@@ -441,18 +384,6 @@ class TestAcceptInvitation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Already Accepted Store",
-            street_address="666 Already Ave",
-            city="Denver",
-            state="CO",
-            postal_code="80202",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567898", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -461,7 +392,8 @@ class TestAcceptInvitation:
         invitation = Invitation(
             token="already-accepted-token",
             email="already@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.ACCEPTED,
@@ -479,13 +411,31 @@ class TestAcceptInvitation:
         assert "accepted" in response.json()["detail"].lower()
 
     def test_accept_invitation_invalid_token(self, client: TestClient) -> None:
-        """Test accepting with an invalid token."""
+        """Test accepting with an invalid token (not found)."""
+        # Use a valid format token that doesn't exist
         payload = {"password": "Password123!"}
         response = client.post(
-            "/auth/invitations/invalid-token-xyz/accept", json=payload
+            "/auth/invitations/AbCdEfGhIjKlMnOpQrStUvWxYz123456789012/accept",
+            json=payload,
         )
 
         assert response.status_code == 404
+
+    def test_accept_invitation_invalid_token_format(self, client: TestClient) -> None:
+        """Test accepting with an invalid token format."""
+        payload = {"password": "Password123!"}
+        invalid_tokens = [
+            "invalid token with spaces",
+            "invalid+token+with+plus",
+            "short",
+            "a" * 100,  # Too long
+        ]
+        for invalid_token in invalid_tokens:
+            response = client.post(
+                f"/auth/invitations/{invalid_token}/accept", json=payload
+            )
+            assert response.status_code == 400
+            assert "Invalid invitation token format" in response.json()["detail"]
 
     def test_accept_invitation_weak_password(
         self, client: TestClient, db_session: Session
@@ -502,18 +452,6 @@ class TestAcceptInvitation:
         db_session.add(org)
         db_session.commit()
 
-        store = Store(
-            organization_id=org.id,
-            name="Weak Password Store",
-            street_address="888 Weak Ave",
-            city="Phoenix",
-            state="AZ",
-            postal_code="85002",
-            country="US",
-        )
-        db_session.add(store)
-        db_session.commit()
-
         inviter = User(phone="+1234567899", is_super_admin=True)
         db_session.add(inviter)
         db_session.commit()
@@ -522,7 +460,8 @@ class TestAcceptInvitation:
         invitation = Invitation(
             token="weak-password-token",
             email="weak@example.com",
-            store_id=store.id,
+            organization_id=org.id,
+            organization_role=UserOrganizationRole.OWNER,
             invited_by=inviter.id,
             expires_at=expires_at,
             status=InvitationStatus.PENDING,

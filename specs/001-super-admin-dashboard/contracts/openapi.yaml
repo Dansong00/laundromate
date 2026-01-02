@@ -161,6 +161,53 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /super-admin/organizations/{organization_id}/invite-member:
+    post:
+      tags: [Organizations]
+      summary: Invite organization member
+      description: Send invitation email to organization member with specified role (Super-Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organization_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - organization_role
+              properties:
+                email:
+                  type: string
+                  format: email
+                organization_role:
+                  type: string
+                  enum: [owner, employee, admin]
+                  description: Role for the organization member
+      responses:
+        '201':
+          description: Invitation sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvitationRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /super-admin/organizations/{organization_id}/stores:
     get:
       tags: [Stores]
@@ -495,54 +542,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AgentConfigurationRead'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-
-  /super-admin/stores/{store_id}/invite-owner:
-    post:
-      tags: [User Management]
-      summary: Invite store owner
-      description: Send invitation email to store owner (Super-Admin only)
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: store_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - email
-              properties:
-                email:
-                  type: string
-                  format: email
-      responses:
-        '201':
-          description: Invitation sent successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  user_id:
-                    type: string
-                    format: uuid
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':

@@ -10,7 +10,9 @@ from app.core.config.settings import settings
 from app.customers.router import router as customers_router
 from app.notifications.router import router as notifications_router
 from app.orders.router import router as orders_router
+from app.organizations.router import router as organizations_router
 from app.services.router import router as services_router
+from app.stores.router import router as stores_router
 from app.users.router import router as users_router
 
 
@@ -53,6 +55,10 @@ app.include_router(
     notifications_router, prefix="/notifications", tags=["Notifications"]
 )
 app.include_router(users_router, prefix="/users", tags=["Users"])
+app.include_router(
+    organizations_router, prefix="/super-admin/organizations", tags=["Organizations"]
+)
+app.include_router(stores_router, prefix="/super-admin/stores", tags=["Stores"])
 
 
 @app.get("/")

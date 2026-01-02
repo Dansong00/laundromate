@@ -1,4 +1,4 @@
-"""Invitation model for store owner invitations."""
+"""Invitation model for organization member invitations."""
 
 import enum
 import uuid
@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.core.models import Base
+from app.core.models.user_organization import UserOrganizationRole
 
 
 class InvitationStatus(str, enum.Enum):
@@ -20,18 +21,23 @@ class InvitationStatus(str, enum.Enum):
 
 
 class Invitation(Base):
-    """Invitation model for store owner email invitations."""
+    """Invitation model for organization member email invitations."""
 
     __tablename__ = "invitations"
 
     id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     token = Column(String(255), nullable=False, unique=True, index=True)
     email = Column(String(255), nullable=False, index=True)
-    store_id = Column(
+    organization_id = Column(
         Uuid(as_uuid=True),
-        ForeignKey("stores.id", ondelete="CASCADE"),
+        ForeignKey("organizations.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
+    )
+    organization_role = Column(
+        Enum(UserOrganizationRole),
+        nullable=False,
+        default=UserOrganizationRole.OWNER,
     )
     invited_by = Column(
         Uuid(as_uuid=True),
@@ -51,5 +57,5 @@ class Invitation(Base):
     )
 
     # Relationships
-    store = relationship("Store")
+    organization = relationship("Organization")
     inviter = relationship("User", foreign_keys=[invited_by])

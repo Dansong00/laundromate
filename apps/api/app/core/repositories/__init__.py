@@ -24,6 +24,18 @@ from app.core.repositories.exceptions import (
     RepositoryError,
     ResourceNotFoundError,
 )
+from app.core.repositories.invitation_repository import InvitationRepository
+from app.core.repositories.protocols import (
+    InvitationRepositoryProtocol,
+    UserOrganizationRepositoryProtocol,
+    UserRepositoryProtocol,
+    UserStoreRepositoryProtocol,
+)
+from app.core.repositories.user_organization_repository import (
+    UserOrganizationRepository,
+)
+from app.core.repositories.user_repository import UserRepository
+from app.core.repositories.user_store_repository import UserStoreRepository
 
 __all__ = [
     "Repository",
@@ -31,4 +43,12 @@ __all__ = [
     "RepositoryError",
     "ResourceNotFoundError",
     "DuplicateResourceError",
+    "InvitationRepository",
+    "UserRepository",
+    "UserStoreRepository",
+    "UserOrganizationRepository",
+    "InvitationRepositoryProtocol",
+    "UserRepositoryProtocol",
+    "UserStoreRepositoryProtocol",
+    "UserOrganizationRepositoryProtocol",
 ]

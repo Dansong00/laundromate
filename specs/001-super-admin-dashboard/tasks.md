@@ -37,13 +37,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 Create Alembic migration for new database tables (organizations, stores, iot_controllers, agent_configurations, ai_agents, invitations, user_stores) and add is_support_agent and is_provisioning_specialist columns to users table in apps/api/alembic/versions/
+- [X] T005 Create Alembic migration for new database tables (organizations, user_organizations, stores, iot_controllers, agent_configurations, ai_agents, invitations, user_stores) and add is_support_agent and is_provisioning_specialist columns to users table in apps/api/alembic/versions/
 - [X] T006 [P] Create Organization SQLAlchemy model in apps/api/app/core/models/organization.py
 - [X] T007 [P] Create Store SQLAlchemy model in apps/api/app/core/models/store.py
 - [X] T008 [P] Create IoT Controller SQLAlchemy model in apps/api/app/core/models/iot_controller.py
 - [X] T009 [P] Create Agent Configuration SQLAlchemy model in apps/api/app/core/models/agent_configuration.py
 - [X] T010 [P] Create AI Agent SQLAlchemy model in apps/api/app/core/models/ai_agent.py
-- [X] T010a [P] Create Invitation SQLAlchemy model in apps/api/app/core/models/invitation.py with fields: token, email, store_id, invited_by, status (enum), expires_at, accepted_at, created_at (see spec.md and data-model.md for details)
+- [X] T010a [P] Create Invitation SQLAlchemy model in apps/api/app/core/models/invitation.py with fields: token, email, organization_id, organization_role, invited_by, status (enum), expires_at, accepted_at, created_at (see spec.md and data-model.md for details)
 - [X] T010b [P] Create User-Store association SQLAlchemy model (user_stores table) in apps/api/app/core/models/user_store.py for many-to-many relationship with role field (enum: owner, operator)
 - [X] T011 Update apps/api/app/core/models/__init__.py to export all new models
 - [X] T012 Run Alembic migration to create tables: alembic upgrade head
@@ -74,9 +74,9 @@
 
 ## Phase 3: User Story 1 - Organization and Store Onboarding (Priority: P1) 🎯 MVP
 
-**Goal**: Enable internal staff to create new customer organizations and stores through an onboarding wizard, then invite store owners to access their dashboard.
+**Goal**: Enable internal staff to create new customer organizations and stores through an onboarding wizard, then invite organization members to access their dashboard.
 
-**Independent Test**: Create a new organization with one store and verify the store owner invitation email is sent. This delivers value by enabling new customer onboarding.
+**Independent Test**: Create a new organization with one store and verify the organization member invitation email is sent. This delivers value by enabling new customer onboarding.
 
 ### Tests for User Story 1 ⚠️
 
@@ -92,7 +92,7 @@
 - [X] T030 [P] [US1] Integration test for POST /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
 - [X] T031 [P] [US1] Integration test for GET /super-admin/organizations endpoint in apps/api/tests/integration/test_organizations_routes.py
 - [X] T032 [P] [US1] Integration test for POST /super-admin/organizations/{id}/stores endpoint in apps/api/tests/integration/test_stores_routes.py
-- [X] T033 [P] [US1] Integration test for POST /super-admin/stores/{id}/invite-owner endpoint in apps/api/tests/integration/test_stores_routes.py
+- [X] T033 [P] [US1] Integration test for POST /super-admin/organizations/{id}/invite-member endpoint in apps/api/tests/integration/test_organizations_routes.py
 - [X] T033a [P] [US1] Integration test for GET /auth/invitations/{token}/validate endpoint in apps/api/tests/integration/test_invitations_routes.py
 - [X] T033b [P] [US1] Integration test for POST /auth/invitations/{token}/accept endpoint in apps/api/tests/integration/test_invitations_routes.py
 - [X] T033c [P] [US1] Unit test for invitation token generation in apps/api/tests/unit/domain/test_invitations.py
@@ -101,19 +101,19 @@
 
 ### Implementation for User Story 1
 
-- [ ] T034 [US1] Create Organization router with GET /super-admin/organizations and POST /super-admin/organizations endpoints in apps/api/app/organizations/router.py
-- [ ] T035 [US1] Create Organization router with GET /super-admin/organizations/{id} and PUT /super-admin/organizations/{id} endpoints in apps/api/app/organizations/router.py
-- [ ] T036 [US1] Create Store router with GET /super-admin/organizations/{id}/stores and POST /super-admin/organizations/{id}/stores endpoints in apps/api/app/stores/router.py
-- [ ] T037 [US1] Create Store router with GET /super-admin/stores/{id} and PUT /super-admin/stores/{id} endpoints in apps/api/app/stores/router.py
-- [ ] T038b [P] [US1] Create invitation token generation utility function in apps/api/app/auth/invitation.py using secrets.token_urlsafe(32)
-- [ ] T038c [P] [US1] Create email service utility using SendGrid in apps/api/app/core/services/email_service.py with send_invitation_email function
-- [ ] T038d [US1] Create invitation acceptance endpoint POST /auth/invitations/{token}/accept in apps/api/app/auth/router.py
-- [ ] T038e [US1] Create invitation validation endpoint GET /auth/invitations/{token}/validate in apps/api/app/auth/router.py
-- [ ] T038f [P] [US1] Create email templates for store owner invitations (HTML and plain text) in apps/api/app/core/templates/invitation_email.html and invitation_email.txt
-- [ ] T038g [US1] Implement store owner invitation endpoint POST /super-admin/stores/{id}/invite-owner in apps/api/app/stores/router.py with token generation, email sending, and invitation creation
-- [ ] T038i [US1] Add invitation expiration check logic (automatic expiration on validation)
-- [ ] T038j [US1] Add error handling for invitation edge cases (expired, already accepted, invalid token, duplicate email)
-- [ ] T039 [US1] Register organizations and stores routers in apps/api/app/main.py
+- [X] T034 [US1] Create Organization router with GET /super-admin/organizations and POST /super-admin/organizations endpoints in apps/api/app/organizations/router.py
+- [X] T035 [US1] Create Organization router with GET /super-admin/organizations/{id} and PUT /super-admin/organizations/{id} endpoints in apps/api/app/organizations/router.py
+- [X] T036 [US1] Create Store router with GET /super-admin/organizations/{id}/stores and POST /super-admin/organizations/{id}/stores endpoints in apps/api/app/stores/router.py
+- [X] T037 [US1] Create Store router with GET /super-admin/stores/{id} and PUT /super-admin/stores/{id} endpoints in apps/api/app/stores/router.py
+- [X] T038b [P] [US1] Create invitation token generation utility function in apps/api/app/auth/invitation.py using secrets.token_urlsafe(32)
+- [X] T038c [P] [US1] Create email service utility using SendGrid in apps/api/app/core/services/email_service.py with send_invitation_email function
+- [X] T038d [US1] Create invitation acceptance endpoint POST /auth/invitations/{token}/accept in apps/api/app/auth/router.py
+- [X] T038e [US1] Create invitation validation endpoint GET /auth/invitations/{token}/validate in apps/api/app/auth/router.py
+- [X] T038f [P] [US1] Create email templates for organization member invitations (HTML and plain text) in apps/api/app/core/templates/invitation_email.html and invitation_email.txt
+- [X] T038g [US1] Implement organization member invitation endpoint POST /super-admin/organizations/{id}/invite-member in apps/api/app/organizations/router.py with token generation, email sending, and invitation creation
+- [X] T038i [US1] Add invitation expiration check logic (automatic expiration on validation)
+- [X] T038j [US1] Add error handling for invitation edge cases (expired, already accepted, invalid token, duplicate email)
+- [X] T039 [US1] Register organizations and stores routers in apps/api/app/main.py
 - [ ] T040 [US1] Create organization API client functions (list, get, create, update) in apps/web/src/features/organizations/api/client.ts
 - [ ] T041 [US1] Create store API client functions (list, get, create, update, inviteOwner) in apps/web/src/features/stores/api/client.ts
 - [ ] T042 [US1] Create organization React Query queries in apps/web/src/features/organizations/api/queries.ts
