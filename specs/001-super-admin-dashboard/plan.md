@@ -156,6 +156,7 @@ apps/api/
 │   ├── core/
 │   │   ├── models/
 │   │   │   ├── organization.py             # Organization model
+│   │   │   ├── user_organization.py        # UserOrganization model
 │   │   │   ├── store.py                    # Store model
 │   │   │   ├── iot_controller.py            # IoT Controller model
 │   │   │   ├── agent_configuration.py      # Agent Configuration model
