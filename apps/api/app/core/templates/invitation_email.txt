@@ -1,0 +1,19 @@
+LaundroMate Invitation
+=====================
+
+Hello,
+
+You've been invited to join {organization_name} on LaundroMate.
+
+To accept your invitation and set up your account, click the following link:
+{invitation_url}
+
+IMPORTANT: This invitation expires in {expiration_days} days.
+
+If you didn't expect this invitation, you can safely ignore this email.
+
+If you have any questions, please contact our support team.
+
+---
+© LaundroMate. All rights reserved.
+This is an automated message. Please do not reply to this email.

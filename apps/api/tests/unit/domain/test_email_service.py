@@ -4,12 +4,29 @@ from unittest.mock import MagicMock, patch
 import pytest
 from sendgrid.helpers.mail import Mail
 
+from app.core.config.email_config import EmailConfig
+from app.core.emails.invitation_templates import InvitationTemplateRenderer
 from app.core.models.organization import Organization
 from app.core.models.store import Store
+from app.core.services.email_service import EmailService
 
 
 class TestEmailService:
     """Test email service functionality."""
+
+    @staticmethod
+    def _create_test_config() -> EmailConfig:
+        """Create test email configuration for EmailService."""
+        return EmailConfig(
+            sendgrid_api_key="test-api-key",
+            from_email="noreply@laundromate.com",
+            frontend_url="https://app.laundromate.com",
+        )
+
+    @staticmethod
+    def _create_test_template_renderer() -> InvitationTemplateRenderer:
+        """Create test template renderer for EmailService."""
+        return InvitationTemplateRenderer()
 
     @patch("app.core.services.email_service.SendGridAPIClient")
     @patch.dict(
@@ -24,8 +41,6 @@ class TestEmailService:
         self, mock_sendgrid_client_class: MagicMock, db_session
     ) -> None:
         """Test successfully sending an invitation email."""
-        from app.core.services.email_service import send_invitation_email
-
         # Setup mock
         mock_sendgrid_client = MagicMock()
         mock_sendgrid_client_class.return_value = mock_sendgrid_client
@@ -58,7 +73,10 @@ class TestEmailService:
         db_session.commit()
 
         # Send email
-        result = send_invitation_email(
+        email_service = EmailService(
+            self._create_test_config(), self._create_test_template_renderer()
+        )
+        result = email_service.send_invitation_email(
             to_email="owner@example.com",
             store_name=store.name,
             organization_name=org.name,
@@ -87,15 +105,16 @@ class TestEmailService:
         self, mock_sendgrid_client_class: MagicMock
     ) -> None:
         """Test that invitation email includes store name."""
-        from app.core.services.email_service import send_invitation_email
-
         mock_sendgrid_client = MagicMock()
         mock_sendgrid_client_class.return_value = mock_sendgrid_client
         mock_response = MagicMock()
         mock_response.status_code = 202
         mock_sendgrid_client.send.return_value = mock_response
 
-        send_invitation_email(
+        email_service = EmailService(
+            self._create_test_config(), self._create_test_template_renderer()
+        )
+        email_service.send_invitation_email(
             to_email="owner@example.com",
             store_name="Test Store",
             organization_name="Test Org",
@@ -120,8 +139,6 @@ class TestEmailService:
         self, mock_sendgrid_client_class: MagicMock
     ) -> None:
         """Test that invitation email includes invitation link."""
-        from app.core.services.email_service import send_invitation_email
-
         mock_sendgrid_client = MagicMock()
         mock_sendgrid_client_class.return_value = mock_sendgrid_client
         mock_response = MagicMock()
@@ -129,7 +146,10 @@ class TestEmailService:
         mock_sendgrid_client.send.return_value = mock_response
 
         token = "test-token-abc123"
-        send_invitation_email(
+        email_service = EmailService(
+            self._create_test_config(), self._create_test_template_renderer()
+        )
+        email_service.send_invitation_email(
             to_email="owner@example.com",
             store_name="Test Store",
             organization_name="Test Org",
@@ -155,15 +175,16 @@ class TestEmailService:
         self, mock_sendgrid_client_class: MagicMock
     ) -> None:
         """Test that invitation email includes expiration notice."""
-        from app.core.services.email_service import send_invitation_email
-
         mock_sendgrid_client = MagicMock()
         mock_sendgrid_client_class.return_value = mock_sendgrid_client
         mock_response = MagicMock()
         mock_response.status_code = 202
         mock_sendgrid_client.send.return_value = mock_response
 
-        send_invitation_email(
+        email_service = EmailService(
+            self._create_test_config(), self._create_test_template_renderer()
+        )
+        email_service.send_invitation_email(
             to_email="owner@example.com",
             store_name="Test Store",
             organization_name="Test Org",
@@ -188,15 +209,16 @@ class TestEmailService:
         self, mock_sendgrid_client_class: MagicMock
     ) -> None:
         """Test that email service handles SendGrid errors gracefully."""
-        from app.core.services.email_service import send_invitation_email
-
         mock_sendgrid_client = MagicMock()
         mock_sendgrid_client_class.return_value = mock_sendgrid_client
         mock_sendgrid_client.send.side_effect = RuntimeError("SendGrid API error")
 
         # Should raise exception when SendGrid API fails
+        email_service = EmailService(
+            self._create_test_config(), self._create_test_template_renderer()
+        )
         with pytest.raises(RuntimeError):
-            send_invitation_email(
+            email_service.send_invitation_email(
                 to_email="owner@example.com",
                 store_name="Test Store",
                 organization_name="Test Org",
@@ -217,19 +239,21 @@ class TestEmailService:
         self, mock_sendgrid_client_class: MagicMock
     ) -> None:
         """Test that email service handles missing API key."""
-        from app.core.services.email_service import send_invitation_email
-
-        # Should handle missing API key gracefully
-        result = send_invitation_email(
-            to_email="owner@example.com",
-            store_name="Test Store",
-            organization_name="Test Org",
-            invitation_token="token-123",
-            expiration_days=7,
+        test_config = EmailConfig(
+            sendgrid_api_key="",
+            from_email="noreply@laundromate.com",
+            frontend_url="https://app.laundromate.com",
         )
-
-        # Should return False or raise appropriate error
-        assert result is False or isinstance(result, Exception)
+        email_service = EmailService(test_config, self._create_test_template_renderer())
+        # Should raise exception when API key is missing
+        with pytest.raises(RuntimeError):
+            email_service.send_invitation_email(
+                to_email="owner@example.com",
+                store_name="Test Store",
+                organization_name="Test Org",
+                invitation_token="token-123",
+                expiration_days=7,
+            )
 
     def test_send_invitation_email_uses_html_template(self) -> None:
         """Test that email service uses HTML template."""

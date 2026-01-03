@@ -1,4 +1,4 @@
-"""Invitation Pydantic schemas for store owner invitations."""
+"""Invitation Pydantic schemas for organization member invitations."""
 
 from datetime import datetime
 from uuid import UUID
@@ -6,19 +6,24 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr
 
 from app.core.models.invitation import InvitationStatus
+from app.core.models.user_organization import UserOrganizationRole
 
 
 class InvitationBase(BaseModel):
     """Base invitation schema."""
 
     email: EmailStr
-    store_id: UUID
+    organization_id: UUID
 
 
 class InvitationCreate(InvitationBase):
     """Schema for creating a new invitation."""
 
-    pass
+    token: str
+    organization_role: UserOrganizationRole = UserOrganizationRole.OWNER
+    invited_by: UUID
+    expires_at: datetime
+    status: InvitationStatus = InvitationStatus.PENDING
 
 
 class InvitationRead(InvitationBase):
@@ -26,6 +31,7 @@ class InvitationRead(InvitationBase):
 
     id: UUID
     token: str
+    organization_role: UserOrganizationRole
     invited_by: UUID
     status: InvitationStatus
     expires_at: datetime
@@ -36,18 +42,32 @@ class InvitationRead(InvitationBase):
         from_attributes = True
 
 
-class InvitationValidate(BaseModel):
-    """Schema for validating an invitation token."""
+class InvitationValidateResponse(BaseModel):
+    """Schema for invitation validation response."""
 
-    token: str
-    is_valid: bool
+    valid: bool
+    email: str | None = None
+    organization_id: str | None = None
+    organization_name: str | None = None
+    organization_role: UserOrganizationRole | None = None
+    reason: str | None = None
+
+
+class InvitationUpdate(BaseModel):
+    """Schema for updating an invitation."""
+
     status: InvitationStatus | None = None
-    expires_at: datetime | None = None
-    message: str | None = None
+    accepted_at: datetime | None = None
 
 
-class InvitationAccept(BaseModel):
-    """Schema for accepting an invitation."""
+class InvitationAcceptRequest(BaseModel):
+    """Schema for accepting an invitation request."""
 
-    token: str
     password: str
+
+
+class InviteMemberRequest(BaseModel):
+    """Schema for inviting an organization member."""
+
+    email: EmailStr
+    organization_role: UserOrganizationRole = UserOrganizationRole.OWNER

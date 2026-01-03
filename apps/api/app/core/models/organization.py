@@ -51,6 +51,11 @@ class Organization(Base):
     stores = relationship(
         "Store", back_populates="organization", cascade="all, delete-orphan"
     )
+    user_organizations = relationship(
+        "UserOrganization",
+        back_populates="organization",
+        cascade="all, delete-orphan",
+    )
 
     # Indexes
     __table_args__ = (

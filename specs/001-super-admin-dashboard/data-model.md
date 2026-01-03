@@ -29,7 +29,7 @@ Represents the parent company that owns one or more store locations.
 
 **Relationships**:
 - Has many `Store` (one-to-many)
-- Has many `User` (organization-level admins, optional)
+- Has many `User` via UserOrganization (organization-level members with roles, optional)
 
 **Validation Rules**:
 - `name` must be unique across active organizations
@@ -42,6 +42,30 @@ Represents the parent company that owns one or more store locations.
 - `active` → `suspended`: Organization suspended (temporary)
 - `inactive` → `active`: Organization reactivated
 - `suspended` → `active`: Suspension lifted
+
+### UserOrganization
+
+Represents the many-to-many relationship between Users and Organizations for organization-level access.
+
+**Attributes**:
+- `id` (UUID, Primary Key): Unique identifier
+- `user_id` (UUID, Foreign Key → User, Required): Associated user
+- `organization_id` (UUID, Foreign Key → Organization, Required): Associated organization
+- `role` (Enum: owner, employee, admin, Required): User's role within the organization
+- `created_at` (DateTime, Required): Creation timestamp
+
+**Relationships**:
+- Belongs to one `User` (many-to-one)
+- Belongs to one `Organization` (many-to-one)
+
+**Validation Rules**:
+- `user_id` and `organization_id` combination must be unique
+- `role` defaults to "owner" on creation
+
+**Permission Model**:
+- `owner`: Full access to all stores in the organization
+- `employee`: Access determined by organization admin (store assignments managed separately)
+- `admin`: Administrative access within organization (store assignments managed separately)
 
 ### Store
 
@@ -63,8 +87,10 @@ Represents a physical laundromat location.
 **Relationships**:
 - Belongs to one `Organization` (many-to-one)
 - Has many `IoT Controller` (one-to-many)
-- Has many `User` (store owners/operators, optional)
+- Has many `User` via UserStore (store owners/operators, for store-specific access, optional)
 - Has one `Agent Configuration` (one-to-one)
+
+**Note**: Organization-level users (via UserOrganization) have automatic access to all stores in their organization.
 
 **Validation Rules**:
 - `name` must be unique within the organization
@@ -190,13 +216,17 @@ Represents the current operational state of a store's IoT infrastructure (derive
 
 ### New Tables
 1. `organizations` - Organization entity
-2. `stores` - Store entity
-3. `iot_controllers` - IoT Controller entity
-4. `agent_configurations` - Agent Configuration entity
-5. `ai_agents` - AI Agent entity (reference data, seeded on migration)
+2. `user_organizations` - UserOrganization entity (many-to-many relationship)
+3. `stores` - Store entity
+4. `iot_controllers` - IoT Controller entity
+5. `agent_configurations` - Agent Configuration entity
+6. `ai_agents` - AI Agent entity (reference data, seeded on migration)
 
 ### New Indexes
 - `organizations.name` (unique, partial: status = 'active')
+- `user_organizations.user_id` (foreign key index)
+- `user_organizations.organization_id` (foreign key index)
+- `user_organizations.user_id, organization_id` (unique composite index)
 - `stores.organization_id` (foreign key index)
 - `stores.name` (unique within organization)
 - `iot_controllers.store_id` (foreign key index)
@@ -205,6 +235,8 @@ Represents the current operational state of a store's IoT infrastructure (derive
 - `agent_configurations.store_id` (unique foreign key index)
 
 ### Foreign Key Constraints
+- `user_organizations.user_id` → `users.id` (CASCADE on delete)
+- `user_organizations.organization_id` → `organizations.id` (CASCADE on delete)
 - `stores.organization_id` → `organizations.id` (CASCADE on delete)
 - `iot_controllers.store_id` → `stores.id` (CASCADE on delete)
 - `agent_configurations.store_id` → `stores.id` (CASCADE on delete)
