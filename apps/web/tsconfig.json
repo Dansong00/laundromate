@@ -21,7 +21,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@laundromate/ui": ["../../packages/ui/src/index.ts"]
+      "@laundromate/ui": ["../../packages/ui/src/index.ts"],
+      "@laundromate/types": ["../../packages/types/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

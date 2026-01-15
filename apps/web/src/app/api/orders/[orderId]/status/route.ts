@@ -1,31 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { proxyToBackend } from "@/lib/api/server-route";
 
 export async function PUT(
   req: NextRequest,
   { params }: { params: { orderId: string } },
 ) {
-  // Use internal Docker service name when running in Docker, otherwise localhost
-  const apiUrl =
-    process.env.API_URL_INTERNAL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:8000";
-  const cookieToken = req.cookies.get("access_token")?.value;
   const { status } = await req.json();
 
-  const res = await fetch(
-    `${apiUrl}/orders/${encodeURIComponent(
-      params.orderId,
-    )}/status?status_value=${encodeURIComponent(status)}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...(cookieToken ? { Authorization: `Bearer ${cookieToken}` } : {}),
-      },
-    },
-  );
-
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
-  return NextResponse.json(data, { status: res.status });
+  return proxyToBackend(req, `/orders/${params.orderId}/status`, {
+    method: "PUT",
+    searchParams: { status_value: status },
+  });
 }

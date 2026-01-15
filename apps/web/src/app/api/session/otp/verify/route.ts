@@ -1,23 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import axios from "axios";
+import { getApiUrl } from "@/lib/api/server-route";
 
 export async function POST(req: NextRequest) {
-  // Use internal Docker service name when running in Docker, otherwise localhost
-  const apiUrl =
-    process.env.API_URL_INTERNAL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:8000";
+  const apiUrl = getApiUrl();
   const body = await req.json();
 
-  const res = await fetch(`${apiUrl}/auth/otp/verify`, {
-    method: "POST",
+  const res = await axios.post(`${apiUrl}/auth/otp/verify`, body, {
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    validateStatus: () => true,
   });
 
-  const data = await res.json();
+  const data = res.data;
   const response = NextResponse.json(data, { status: res.status });
 
-  if (res.ok && data.access_token) {
+  if (res.status >= 200 && res.status < 300 && data?.access_token) {
     // Store token in httpOnly cookie
     response.cookies.set("access_token", data.access_token, {
       httpOnly: true,

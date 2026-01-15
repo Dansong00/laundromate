@@ -7,5 +7,5 @@ export function middleware() {
 }
 
 export const config = {
-  matcher: ["/portal/:path*", "/super-admin/:path*"],
+  matcher: ["/portal/:path*", "/admin/:path*"],
 };
