@@ -42,7 +42,7 @@ const mockAxiosInstance = {
       return await mockRequestImpl(finalConfig);
     } catch (e) {
       if (responseErrorHandler) {
-        throw responseErrorHandler(e);
+        return responseErrorHandler(e) as Promise<never>;
       }
       throw e;
     }
@@ -58,7 +58,7 @@ vi.mock("axios", () => ({
 }));
 
 describe("getAuthHeader", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     vi.resetModules();
     requestInterceptor = null;
@@ -68,6 +68,8 @@ describe("getAuthHeader", () => {
     (window.sessionStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
       null,
     );
+    const mod = await import("./client");
+    getAuthHeader = mod.getAuthHeader;
   });
 
   it("returns Authorization header when token exists", () => {

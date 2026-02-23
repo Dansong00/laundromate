@@ -138,11 +138,11 @@ describe("StoreList", () => {
     // First store data
     expect(screen.getByText("Downtown Store")).toBeInTheDocument();
     expect(screen.getByText("123 Main Street")).toBeInTheDocument();
-    expect(screen.getByText("New York")).toBeInTheDocument();
-    expect(screen.getByText("NY")).toBeInTheDocument();
+    expect(screen.getAllByText("New York").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("NY").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("active")).toBeInTheDocument();
 
-    // Second store data
+    // Second store data (both stores have city "New York", so use getAllByText for city)
     expect(screen.getByText("Uptown Store")).toBeInTheDocument();
     expect(screen.getByText("456 Park Avenue")).toBeInTheDocument();
     expect(screen.getByText("inactive")).toBeInTheDocument();

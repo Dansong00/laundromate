@@ -67,7 +67,9 @@ describe("OrganizationWizard", () => {
     it("renders the wizard with organization step as default", () => {
       renderWithProviders(<OrganizationWizard />);
 
-      expect(screen.getByText("Create Organization")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Create Organization" }),
+      ).toBeInTheDocument();
       expect(screen.getByText("Organization")).toBeInTheDocument();
     });
 
@@ -165,7 +167,11 @@ describe("OrganizationWizard", () => {
       await user.type(screen.getByLabelText(/city/i), "New York");
       await user.type(screen.getByLabelText(/state/i), "NY");
       await user.type(screen.getByLabelText(/postal code/i), "10001");
-      await user.type(screen.getByLabelText(/country/i), "US");
+      const orgCountryInput = document.getElementById(
+        "country",
+      ) as HTMLInputElement;
+      await user.clear(orgCountryInput);
+      await user.type(orgCountryInput, "US");
 
       // Submit
       const createButton = screen.getByRole("button", {
@@ -211,7 +217,11 @@ describe("OrganizationWizard", () => {
       await user.type(screen.getByLabelText(/city/i), "New York");
       await user.type(screen.getByLabelText(/state/i), "NY");
       await user.type(screen.getByLabelText(/postal code/i), "10001");
-      await user.type(screen.getByLabelText(/country/i), "US");
+      const orgCountryErr = document.getElementById(
+        "country",
+      ) as HTMLInputElement;
+      await user.clear(orgCountryErr);
+      await user.type(orgCountryErr, "US");
 
       const createButton = screen.getByRole("button", {
         name: /create organization/i,
@@ -227,7 +237,9 @@ describe("OrganizationWizard", () => {
       expect(mockNotifyError).toHaveBeenCalledWith(
         "Organization creation failed",
       );
-      expect(screen.getByText("Create Organization")).toBeInTheDocument(); // Still on org step
+      expect(
+        screen.getByRole("heading", { name: "Create Organization" }),
+      ).toBeInTheDocument(); // Still on org step
     });
   });
 
@@ -264,7 +276,11 @@ describe("OrganizationWizard", () => {
       await user.type(screen.getByLabelText(/city/i), "New York");
       await user.type(screen.getByLabelText(/state/i), "NY");
       await user.type(screen.getByLabelText(/postal code/i), "10001");
-      await user.type(screen.getByLabelText(/country/i), "US");
+      const orgCountryInput = document.getElementById(
+        "country",
+      ) as HTMLInputElement;
+      await user.clear(orgCountryInput);
+      await user.type(orgCountryInput, "US");
 
       await user.click(
         screen.getByRole("button", { name: /create organization/i }),
@@ -293,7 +309,11 @@ describe("OrganizationWizard", () => {
       await user.type(screen.getByLabelText(/city/i), "New York");
       await user.type(screen.getByLabelText(/state/i), "NY");
       await user.type(screen.getByLabelText(/postal code/i), "10001");
-      await user.type(screen.getByLabelText(/country/i), "US");
+      const orgCountryBack = document.getElementById(
+        "country",
+      ) as HTMLInputElement;
+      await user.clear(orgCountryBack);
+      await user.type(orgCountryBack, "US");
 
       await user.click(
         screen.getByRole("button", { name: /create organization/i }),
@@ -308,7 +328,9 @@ describe("OrganizationWizard", () => {
       await user.click(backButton);
 
       await waitFor(() => {
-        expect(screen.getByText("Create Organization")).toBeInTheDocument();
+        expect(
+          screen.getByRole("heading", { name: "Create Organization" }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -341,7 +363,11 @@ describe("OrganizationWizard", () => {
       await user.type(screen.getByLabelText(/city/i), "New York");
       await user.type(screen.getByLabelText(/state/i), "NY");
       await user.type(screen.getByLabelText(/postal code/i), "10001");
-      await user.type(screen.getByLabelText(/country/i), "US");
+      const orgCountryInvite = document.getElementById(
+        "country",
+      ) as HTMLInputElement;
+      await user.clear(orgCountryInvite);
+      await user.type(orgCountryInvite, "US");
 
       await user.click(
         screen.getByRole("button", { name: /create organization/i }),
@@ -461,7 +487,11 @@ describe("OrganizationWizard", () => {
       await user.type(screen.getByLabelText(/city/i), "New York");
       await user.type(screen.getByLabelText(/state/i), "NY");
       await user.type(screen.getByLabelText(/postal code/i), "10001");
-      await user.type(screen.getByLabelText(/country/i), "US");
+      const orgCountryStore = document.getElementById(
+        "country",
+      ) as HTMLInputElement;
+      await user.clear(orgCountryStore);
+      await user.type(orgCountryStore, "US");
 
       await user.click(
         screen.getByRole("button", { name: /create organization/i }),
@@ -556,14 +586,15 @@ describe("OrganizationWizard", () => {
       await user.type(screen.getByLabelText(/city/i), "New York");
       await user.type(screen.getByLabelText(/state/i), "NY");
       await user.type(screen.getByLabelText(/postal code/i), "10001");
-      await user.type(screen.getByLabelText(/country/i), "US");
+      const orgCountryLoading = document.getElementById(
+        "country",
+      ) as HTMLInputElement;
+      await user.clear(orgCountryLoading);
+      await user.type(orgCountryLoading, "US");
 
-      const createButton = screen.getByRole("button", {
-        name: /create organization/i,
-      });
+      // When pending, the submit button shows "Creating..." and is disabled
+      const createButton = screen.getByRole("button", { name: /creating/i });
       expect(createButton).toBeDisabled();
-
-      expect(screen.getByText(/creating/i)).toBeInTheDocument();
     });
   });
 });
