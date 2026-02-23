@@ -16,6 +16,20 @@ class Settings(BaseSettings):
     ALGORITHM: str = Field(default="HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24)  # 24 hours
 
+    # Clerk / IdP (Phase 1 – optional until Clerk is configured)
+    IDP_JWKS_URI: str = Field(
+        default="",
+        description="Clerk JWKS URL, e.g. ...clerk.accounts.dev/.well-known/jwks.json",
+    )
+    IDP_ISSUER: str = Field(
+        default="",
+        description="Clerk issuer URL (often same base as Frontend API).",
+    )
+    IDP_AUDIENCE: str = Field(
+        default="",
+        description="Optional JWT audience; set if using Clerk custom JWT template.",
+    )
+
     # Database
     DATABASE_URL: str = Field(
         default="postgresql://laundromate:laundromate@localhost:5432/laundromate"

@@ -16,15 +16,6 @@ class UserCreate(UserBase):
     phone: str
 
 
-class OTPRequest(BaseModel):
-    phone: str
-
-
-class OTPVerify(BaseModel):
-    phone: str
-    code: str
-
-
 class UserRead(UserBase):
     id: UUID
     is_active: bool
@@ -32,6 +23,8 @@ class UserRead(UserBase):
     is_super_admin: bool
     is_support_agent: bool
     is_provisioning_specialist: bool
+    auth_provider: str | None = None
+    auth_provider_sub: str | None = None
     created_at: datetime
     updated_at: datetime
 
