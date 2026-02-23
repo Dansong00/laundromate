@@ -1,12 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import {
-  CustomerRead,
-  getAuthHeader,
-  getMyCustomer,
-  UserRead,
-} from "@/lib/api";
+import { CustomerRead, getMe, getMyCustomer, UserRead } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -31,15 +26,9 @@ export default function PortalPage() {
       return;
     }
     (async () => {
+      setError(null);
       try {
-        const res = await fetch("/api/me", {
-          headers: {
-            ...getAuthHeader(),
-          },
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error("Failed to fetch profile");
-        const data = await res.json();
+        const data = await getMe();
         setMe(data);
         try {
           const c = await getMyCustomer();
@@ -48,7 +37,7 @@ export default function PortalPage() {
           // ignore if customer not found
         }
       } catch (e) {
-        setError((e as Error).message);
+        setError((e as Error).message ?? "Failed to fetch profile");
       }
     })();
   }, [isAuthenticated, router]);
@@ -84,7 +73,7 @@ export default function PortalPage() {
         </div>
       )}
 
-      {!me ? (
+      {error ? null : !me ? (
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>

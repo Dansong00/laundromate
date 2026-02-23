@@ -149,6 +149,16 @@ function getAccessToken(): string | null {
   return sessionStorage.getItem("access_token");
 }
 
+/**
+ * Optional async token getter (e.g. Clerk's getToken()). When set, API client
+ * uses this first, then falls back to sessionStorage (invitation flow).
+ */
+let apiTokenGetter: (() => Promise<string | null>) | null = null;
+
+export function setApiTokenGetter(fn: () => Promise<string | null>): void {
+  apiTokenGetter = fn;
+}
+
 export function getAuthHeader(): Record<string, string> {
   const token = getAccessToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -183,7 +193,7 @@ function getBackendAxios(): AxiosInstance {
 
   backendAxios = axios.create({ baseURL: API_URL });
 
-  backendAxios.interceptors.request.use((config) => {
+  backendAxios.interceptors.request.use(async (config) => {
     config.headers = config.headers ?? {};
 
     if (
@@ -193,7 +203,15 @@ function getBackendAxios(): AxiosInstance {
       config.headers["Content-Type"] = "application/json";
     }
 
-    const token = getAccessToken();
+    let token: string | null = null;
+    if (apiTokenGetter) {
+      try {
+        token = await apiTokenGetter();
+      } catch {
+        token = null;
+      }
+    }
+    if (!token) token = getAccessToken();
     const hasAuth =
       "Authorization" in config.headers || "authorization" in config.headers;
     if (token && !hasAuth) {
