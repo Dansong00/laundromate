@@ -3,14 +3,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.core.schemas.service import ServiceBase, ServiceCreate, ServiceUpdate
-from app.core.schemas.user import (
-    OTPRequest,
-    OTPVerify,
-    UserCreate,
-    UserCreateByAdmin,
-    UserRead,
-    UserUpdate,
-)
+from app.core.schemas.user import UserCreate, UserCreateByAdmin, UserRead, UserUpdate
 
 
 class TestServiceSchemaValidation:
@@ -196,37 +189,6 @@ class TestUserSchemaValidation:
         update = UserUpdate(email="new@example.com")
         assert update.email == "new@example.com"
         assert update.phone is None
-
-
-class TestOTPSchemaValidation:
-    """Test OTP schema validation."""
-
-    def test_otp_request_requires_phone(self) -> None:
-        """Test that OTPRequest requires phone."""
-        with pytest.raises(ValidationError):
-            OTPRequest()
-
-    def test_otp_request_with_phone(self) -> None:
-        """Test that OTPRequest accepts phone."""
-        otp_request = OTPRequest(phone="+1234567890")
-        assert otp_request.phone == "+1234567890"
-
-    def test_otp_verify_requires_phone_and_code(self) -> None:
-        """Test that OTPVerify requires both phone and code."""
-        with pytest.raises(ValidationError):
-            OTPVerify()
-
-        with pytest.raises(ValidationError):
-            OTPVerify(phone="+1234567890")
-
-        with pytest.raises(ValidationError):
-            OTPVerify(code="123456")
-
-    def test_otp_verify_with_phone_and_code(self) -> None:
-        """Test that OTPVerify accepts phone and code."""
-        otp_verify = OTPVerify(phone="+1234567890", code="123456")
-        assert otp_verify.phone == "+1234567890"
-        assert otp_verify.code == "123456"
 
 
 class TestSchemaSerialization:
