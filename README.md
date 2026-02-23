@@ -59,7 +59,7 @@
 | ------------- | ------------------------------- |
 | Frontend      | Next.js + Tailwind CSS          |
 | Backend       | FastAPI (Python) OR NestJS (TS) |
-| Auth          | Auth0 or JWT                    |
+| Auth          | Clerk (IdP) + JWT for invitation |
 | DB            | PostgreSQL                      |
 | Async Queue   | Celery (Python) / BullMQ (TS)   |
 | Notifications | Twilio (SMS), SendGrid (Email)  |

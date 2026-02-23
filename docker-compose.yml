@@ -45,6 +45,8 @@ services:
       target: dev
     ports:
       - "3000:3000"
+    env_file:
+      - ./apps/web/.env.local
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
       - API_URL_INTERNAL=http://api:8000
@@ -65,6 +67,7 @@ services:
       - ./apps/web:/app/apps/web
       - ./packages/ui:/app/packages/ui
       - /app/apps/web/node_modules
+    command: sh -c "pnpm install --no-frozen-lockfile && pnpm --filter @laundromate/web dev"
     depends_on:
       - api
 
