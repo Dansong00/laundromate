@@ -1,15 +1,16 @@
 """Unit tests for authentication domain logic."""
-import re
+
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
+from fastapi import HTTPException
 from jose import JWTError, jwt
 
 from app.auth.security import (
+    _resolve_user_from_idp_payload,
     create_access_token,
     decode_access_token,
-    generate_otp,
     get_password_hash,
     is_admin_or_super_admin,
     is_provisioning_specialist,
@@ -19,32 +20,6 @@ from app.auth.security import (
 )
 from app.core.config.settings import settings
 from app.core.models.user import User
-
-
-class TestGenerateOTP:
-    """Test OTP generation."""
-
-    def test_generate_otp_default_length(self) -> None:
-        """Test that OTP is generated with default length of 6."""
-        otp = generate_otp()
-        assert len(otp) == 6
-        assert otp.isdigit()
-
-    def test_generate_otp_custom_length(self) -> None:
-        """Test that OTP can be generated with custom length."""
-        otp = generate_otp(length=8)
-        assert len(otp) == 8
-        assert otp.isdigit()
-
-    def test_generate_otp_numeric_only(self) -> None:
-        """Test that OTP contains only numeric digits."""
-        otp = generate_otp()
-        assert re.match(r"^\d+$", otp) is not None
-
-    def test_generate_otp_randomness(self) -> None:
-        """Test that generated OTPs are different."""
-        otps = [generate_otp() for _ in range(10)]
-        assert len(set(otps)) > 1, "OTPs should be random"
 
 
 class TestCreateAccessToken:
@@ -349,3 +324,44 @@ class TestProvisioningSpecialistChecks:
         db_session.add(user)
         db_session.commit()
         assert is_provisioning_specialist(user) is False
+
+
+class TestResolveUserFromIdpPayload:
+    """Test _resolve_user_from_idp_payload (Clerk IdP user resolution)."""
+
+    def test_creates_new_user_when_no_match(self, db_session) -> None:
+        """When no user has auth_provider_sub, creates a new user."""
+        exc = HTTPException(status_code=401, detail="unauthorized")
+        payload = {
+            "sub": "user_2clerkabc123",
+            "email": "clerkuser@example.com",
+            "first_name": "Clerk",
+            "last_name": "User",
+        }
+        user = _resolve_user_from_idp_payload(db_session, payload, exc)
+        assert user.id is not None
+        assert user.auth_provider == "clerk"
+        assert user.auth_provider_sub == "user_2clerkabc123"
+        assert user.email == "clerkuser@example.com"
+        assert user.first_name == "Clerk"
+        assert user.last_name == "User"
+        assert user.phone.startswith("+idp-")
+
+    def test_returns_existing_user_when_auth_provider_sub_matches(
+        self, db_session
+    ) -> None:
+        """Return user when auth_provider and auth_provider_sub match."""
+        exc = HTTPException(status_code=401, detail="unauthorized")
+        existing = User(
+            phone="+15551234567",
+            email="existing@example.com",
+            auth_provider="clerk",
+            auth_provider_sub="user_2existing",
+        )
+        db_session.add(existing)
+        db_session.commit()
+        db_session.refresh(existing)
+        payload = {"sub": "user_2existing"}
+        user = _resolve_user_from_idp_payload(db_session, payload, exc)
+        assert user.id == existing.id
+        assert user.auth_provider_sub == "user_2existing"

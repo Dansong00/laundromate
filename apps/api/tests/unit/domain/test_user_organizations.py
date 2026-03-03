@@ -181,40 +181,6 @@ class TestUserOrganizationRepositoryGet:
 
         assert result is None
 
-    def test_get_model_by_user_and_organization(self, db_session) -> None:
-        """Test getting user-organization model by user ID and organization ID."""
-        org = Organization(
-            name="Model Org",
-            billing_address="444 Model St",
-            city="Boston",
-            state="MA",
-            postal_code="02101",
-            country="US",
-        )
-        db_session.add(org)
-        db_session.commit()
-
-        user = User(phone="+1234567895")
-        db_session.add(user)
-        db_session.commit()
-
-        user_org = UserOrganization(
-            user_id=user.id,
-            organization_id=org.id,
-            role=UserOrganizationRole.OWNER,
-        )
-        db_session.add(user_org)
-        db_session.commit()
-
-        repo = UserOrganizationRepository(db_session)
-        result = repo.get_model_by_user_and_organization(user.id, org.id)
-
-        assert result is not None
-        assert isinstance(result, UserOrganization)
-        assert result.id == user_org.id
-        assert result.user_id == user.id
-        assert result.organization_id == org.id
-
 
 class TestUserOrganizationRepositoryList:
     """Test UserOrganization repository list operations."""

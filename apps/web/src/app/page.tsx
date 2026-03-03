@@ -3,7 +3,7 @@
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { isAdminUser, isSuperAdminUser } from "@/lib/api";
+import { getMe, isSuperAdminUser } from "@/lib/api";
 import { Footer } from "@/components/Footer";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -18,24 +18,10 @@ export default function Home() {
     if (isAuthenticated) {
       const checkUserRole = async () => {
         try {
-          const res = await fetch("/api/me", {
-            headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
-            },
-          });
-
-          if (res.ok) {
-            const user = await res.json();
-            const isSuperAdmin = isSuperAdminUser(user);
-            const isAdmin = isAdminUser(user);
-
-            if (isSuperAdmin) {
-              router.replace("/super-admin");
-            } else if (isAdmin) {
-              router.replace("/admin");
-            } else {
-              router.replace("/portal");
-            }
+          const user = await getMe();
+          const isSuperAdmin = isSuperAdminUser(user);
+          if (isSuperAdmin) {
+            router.replace("/admin");
           } else {
             router.replace("/portal");
           }

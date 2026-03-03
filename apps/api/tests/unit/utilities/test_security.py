@@ -1,5 +1,4 @@
 """Unit tests for security utility functions."""
-import re
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
@@ -9,7 +8,6 @@ from jose import JWTError, jwt
 from app.auth.security import (
     create_access_token,
     decode_access_token,
-    generate_otp,
     get_password_hash,
     is_admin_or_super_admin,
     is_super_admin,
@@ -17,34 +15,6 @@ from app.auth.security import (
 )
 from app.core.config.settings import settings
 from app.core.models.user import User
-
-
-class TestGenerateOTP:
-    """Test OTP generation utility."""
-
-    def test_generate_otp_default_length(self) -> None:
-        """Test that OTP is generated with default length of 6."""
-        otp = generate_otp()
-        assert len(otp) == 6
-        assert otp.isdigit()
-
-    def test_generate_otp_custom_length(self) -> None:
-        """Test that OTP can be generated with custom length."""
-        for length in [4, 6, 8, 10]:
-            otp = generate_otp(length=length)
-            assert len(otp) == length
-            assert otp.isdigit()
-
-    def test_generate_otp_numeric_only(self) -> None:
-        """Test that OTP contains only numeric digits."""
-        otp = generate_otp()
-        assert re.match(r"^\d+$", otp) is not None
-
-    def test_generate_otp_randomness(self) -> None:
-        """Test that generated OTPs are different."""
-        otps = [generate_otp() for _ in range(20)]
-        unique_otps = set(otps)
-        assert len(unique_otps) > 1, "OTPs should be random"
 
 
 class TestCreateAccessToken:

@@ -1,3 +1,6 @@
+import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
+import { toApiError } from "@/lib/api/error";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export interface LoginResponse {
@@ -146,6 +149,16 @@ function getAccessToken(): string | null {
   return sessionStorage.getItem("access_token");
 }
 
+/**
+ * Optional async token getter (e.g. Clerk's getToken()). When set, API client
+ * uses this first, then falls back to sessionStorage (invitation flow).
+ */
+let apiTokenGetter: (() => Promise<string | null>) | null = null;
+
+export function setApiTokenGetter(fn: () => Promise<string | null>): void {
+  apiTokenGetter = fn;
+}
+
 export function getAuthHeader(): Record<string, string> {
   const token = getAccessToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -155,30 +168,65 @@ async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
-  const headers = new Headers(options.headers || {});
-  if (!headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
+  const axiosInstance = getBackendAxios();
+  const url = `${path.startsWith("/") ? path : `/${path}`}`;
+
+  const config: AxiosRequestConfig = {
+    url,
+    method: (options.method || "GET") as AxiosRequestConfig["method"],
+    headers: options.headers as AxiosRequestConfig["headers"],
+    data: options.body,
+    withCredentials: true,
+  };
+
+  const res = await axiosInstance.request(config);
+  const data = res.data;
+  if (data === "" || data === null || typeof data === "undefined") {
+    return undefined as unknown as T;
   }
-  // Attach bearer token on the client when available
-  const authHeader = getAuthHeader();
-  if (authHeader.Authorization && !headers.has("Authorization")) {
-    headers.set("Authorization", authHeader.Authorization);
-  }
-  const res = await fetch(url, { ...options, headers });
-  if (!res.ok) {
-    let message = `Request failed with ${res.status}`;
-    try {
-      const data = await res.json();
-      message = (data && (data.detail || data.message)) || message;
-    } catch {
-      // ignore
+  return data as T;
+}
+
+let backendAxios: AxiosInstance | null = null;
+function getBackendAxios(): AxiosInstance {
+  if (backendAxios) return backendAxios;
+
+  backendAxios = axios.create({ baseURL: API_URL });
+
+  backendAxios.interceptors.request.use(async (config) => {
+    config.headers = config.headers ?? {};
+
+    if (
+      !("Content-Type" in config.headers) &&
+      !("content-type" in config.headers)
+    ) {
+      config.headers["Content-Type"] = "application/json";
     }
-    throw new Error(message);
-  }
-  // Some endpoints may return no content
-  const text = await res.text();
-  return text ? (JSON.parse(text) as T) : (undefined as unknown as T);
+
+    let token: string | null = null;
+    if (apiTokenGetter) {
+      try {
+        token = await apiTokenGetter();
+      } catch {
+        token = null;
+      }
+    }
+    if (!token) token = getAccessToken();
+    const hasAuth =
+      "Authorization" in config.headers || "authorization" in config.headers;
+    if (token && !hasAuth) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  });
+
+  backendAxios.interceptors.response.use(
+    (res) => res,
+    (err) => Promise.reject(toApiError(err)),
+  );
+
+  return backendAxios;
 }
 
 export async function login(

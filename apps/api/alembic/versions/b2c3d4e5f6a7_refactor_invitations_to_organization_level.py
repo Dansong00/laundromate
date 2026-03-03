@@ -66,9 +66,21 @@ def upgrade() -> None:
         unique=True,
     )
 
-    # Add organization_role enum to invitations table
+    # Add organization_role enum to invitations table (create type only if not exists)
     op.execute(
-        "CREATE TYPE userorganizationrole AS ENUM ('OWNER', 'EMPLOYEE', 'ADMIN')"
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM pg_type WHERE typname = 'userorganizationrole'
+            ) THEN
+                CREATE TYPE userorganizationrole AS ENUM (
+                    'OWNER', 'EMPLOYEE', 'ADMIN'
+                );
+            END IF;
+        END
+        $$;
+        """
     )
 
     # Add new columns to invitations table (non-nullable since no existing data)

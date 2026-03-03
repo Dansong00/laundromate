@@ -24,7 +24,6 @@ from app.core.models.order import Order  # noqa: F401
 from app.core.models.order_item import OrderItem  # noqa: F401
 from app.core.models.service import Service, ServiceCategory
 from app.core.models.user import User
-from app.core.models.verification_code import VerificationCode  # noqa: F401
 from app.main import app
 
 # Test database URL - using SQLite for tests

@@ -1,9 +1,11 @@
 /**
- * Base API client utility for making HTTP requests to the backend API.
+ * Base API client utility for making HTTP requests to Next.js API routes.
  * Provides a centralized apiFetch function with authentication and error handling.
+ * All requests are routed through Next.js API routes which proxy to the FastAPI backend.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
+import { toApiError } from "@/lib/api/error";
 
 /**
  * Get the access token from session storage
@@ -21,9 +23,78 @@ export function getAuthHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function normalizeApiPath(path: string): string {
+  // We use an Axios baseURL of "/api", so callers may pass:
+  // - "/api/foo"  -> "/foo"
+  // - "/foo"      -> "/foo"
+  // - "foo"       -> "/foo"
+  if (path.startsWith("/api/")) return path.slice(4);
+  if (path === "/api") return "/";
+  if (path.startsWith("/")) return path;
+  return `/${path}`;
+}
+
+function toPlainHeaders(
+  headersInit: HeadersInit | undefined,
+): Record<string, string> {
+  if (!headersInit) return {};
+  if (headersInit instanceof Headers) {
+    const out: Record<string, string> = {};
+    headersInit.forEach((value, key) => {
+      out[key] = value;
+    });
+    return out;
+  }
+  if (Array.isArray(headersInit)) {
+    const out: Record<string, string> = {};
+    for (const [key, value] of headersInit) out[key] = value;
+    return out;
+  }
+  return headersInit as Record<string, string>;
+}
+
+let apiAxios: AxiosInstance | null = null;
+function getApiAxios(): AxiosInstance {
+  if (apiAxios) return apiAxios;
+
+  apiAxios = axios.create({
+    baseURL: "/api",
+  });
+
+  apiAxios.interceptors.request.use((config) => {
+    config.headers = config.headers ?? {};
+
+    // Default Content-Type if not provided
+    if (
+      !("Content-Type" in config.headers) &&
+      !("content-type" in config.headers)
+    ) {
+      config.headers["Content-Type"] = "application/json";
+    }
+
+    // Attach bearer token on the client when available, unless caller already set it
+    const token = getAccessToken();
+    const hasAuth =
+      "Authorization" in config.headers || "authorization" in config.headers;
+    if (token && !hasAuth) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  });
+
+  apiAxios.interceptors.response.use(
+    (res) => res,
+    (err) => Promise.reject(toApiError(err)),
+  );
+
+  return apiAxios;
+}
+
 /**
- * Generic API fetch function with authentication and error handling
- * @param path - API endpoint path (with or without leading slash)
+ * Generic API fetch function with authentication and error handling.
+ * Routes requests through Next.js API routes (BFF pattern).
+ * @param path - API endpoint path (with or without leading slash, e.g., "/api/super-admin/organizations")
  * @param options - Fetch options (method, body, headers, etc.)
  * @returns Promise resolving to the response data
  * @throws Error if request fails
@@ -32,36 +103,28 @@ export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
-  const headers = new Headers(options.headers || {});
+  const url = normalizeApiPath(path);
+  const headers = toPlainHeaders(options.headers);
 
-  // Set Content-Type if not already set
-  if (!headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
+  const config: AxiosRequestConfig = {
+    url,
+    method: (options.method || "GET") as AxiosRequestConfig["method"],
+    headers,
+    // Preserve fetch semantics: caller provides body as string (usually JSON.stringify)
+    data: options.body,
+    // Avoid caching surprises in browser
+    withCredentials: true,
+  };
 
-  // Attach bearer token on the client when available
-  const authHeader = getAuthHeader();
-  if (authHeader.Authorization && !headers.has("Authorization")) {
-    headers.set("Authorization", authHeader.Authorization);
-  }
-
-  const res = await fetch(url, { ...options, headers });
-
-  if (!res.ok) {
-    let message = `Request failed with ${res.status}`;
-    try {
-      const data = await res.json();
-      message = (data && (data.detail || data.message)) || message;
-    } catch {
-      // ignore JSON parse errors
-    }
-    throw new Error(message);
-  }
+  const res = await getApiAxios().request(config);
+  const data = res.data;
 
   // Some endpoints may return no content
-  const text = await res.text();
-  return text ? (JSON.parse(text) as T) : (undefined as unknown as T);
+  if (data === "" || data === null || typeof data === "undefined") {
+    return undefined as unknown as T;
+  }
+
+  return data as T;
 }
 
 /**

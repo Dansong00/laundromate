@@ -9,6 +9,7 @@ from app.core.models.organization import Organization
 from app.core.models.user import User
 from app.core.models.user_organization import UserOrganizationRole
 from app.core.repositories.invitation_repository import InvitationRepository
+from app.core.repositories.organization_repository import OrganizationRepository
 from app.core.repositories.user_organization_repository import (
     UserOrganizationRepository,
 )
@@ -23,7 +24,10 @@ def create_invitation_service(db_session):
     user_repo = UserRepository(db_session)
     user_org_repo = UserOrganizationRepository(db_session)
     user_store_repo = UserStoreRepository(db_session)
-    return InvitationService(invitation_repo, user_repo, user_org_repo, user_store_repo)
+    org_repo = OrganizationRepository(db_session)
+    return InvitationService(
+        invitation_repo, user_repo, user_org_repo, user_store_repo, org_repo
+    )
 
 
 class TestInvitationTokenGeneration:

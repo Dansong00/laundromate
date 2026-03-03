@@ -21,6 +21,10 @@ class User(Base):
     is_support_agent = Column(Boolean, default=False, nullable=False)
     is_provisioning_specialist = Column(Boolean, default=False, nullable=False)
 
+    # IdP link (Clerk etc.) for Phase 1
+    auth_provider = Column(String(32), nullable=True, index=True)
+    auth_provider_sub = Column(String(255), nullable=True, unique=True)
+
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

@@ -28,7 +28,6 @@ from app.core.models.user_organization import (  # noqa: E402
     UserOrganizationRole,
 )
 from app.core.models.user_store import UserStore, UserStoreRole  # noqa: E402
-from app.core.models.verification_code import VerificationCode  # noqa: E402
 
 __all__ = [
     "Base",
@@ -39,7 +38,6 @@ __all__ = [
     "OrderItem",
     "Service",
     "User",
-    "VerificationCode",
     "Organization",
     "OrganizationStatus",
     "Store",
