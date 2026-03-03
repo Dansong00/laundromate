@@ -1,5 +1,16 @@
 import { NextRequest } from "next/server";
-import { proxyPost } from "@/lib/api/server-route";
+import { proxyGet, proxyPost } from "@/lib/api/server-route";
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ organizationId: string }> },
+) {
+  const { organizationId } = await params;
+  return proxyGet(
+    req,
+    `/super-admin/stores/organizations/${organizationId}/stores`,
+  );
+}
 
 export async function POST(
   req: NextRequest,

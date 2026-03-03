@@ -24,14 +24,15 @@ def _get_jwk_client() -> Optional[PyJWKClient]:
     )
 
 
-_jwk_client: Optional[PyJWKClient] = None
+_NOT_INITIALIZED = object()
+_jwk_client: Optional[PyJWKClient] | object = _NOT_INITIALIZED
 
 
 def get_jwk_client() -> Optional[PyJWKClient]:
     """Lazy-initialize and return the global JWK client."""
     global _jwk_client
-    if _jwk_client is not None:
-        return _jwk_client
+    if _jwk_client is not _NOT_INITIALIZED:
+        return _jwk_client  # type: ignore[return-value]
     _jwk_client = _get_jwk_client()
     return _jwk_client
 

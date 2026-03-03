@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import axios, { type AxiosRequestConfig } from "axios";
+import { auth } from "@clerk/nextjs/server";
 import { toApiError } from "@/lib/api/error";
 
 /**
@@ -19,22 +20,33 @@ export function getApiUrl(): string {
 }
 
 /**
- * Extract authorization token from request (cookie or header).
+ * Extract authorization token from request (cookie, header, or Clerk session).
  * Returns the token string or null if not found.
  */
-export function getAuthToken(req: NextRequest): string | null {
-  // Check cookie first (preferred for server-side)
+export async function getAuthToken(req: NextRequest): Promise<string | null> {
+  // Check cookie first (legacy auth)
   const cookieToken = req.cookies.get("access_token")?.value;
   if (cookieToken) {
     return cookieToken;
   }
 
-  // Fall back to Authorization header
+  // Fall back to Authorization header (from client-side requests)
   const headerAuth = req.headers.get("authorization");
   if (headerAuth) {
     // Extract token from "Bearer <token>" format
     const match = headerAuth.match(/^Bearer\s+(.+)$/i);
     return match ? match[1] : headerAuth;
+  }
+
+  // Try Clerk session token
+  try {
+    const { getToken } = await auth();
+    const clerkToken = await getToken();
+    if (clerkToken) {
+      return clerkToken;
+    }
+  } catch {
+    // Clerk auth not available or failed
   }
 
   return null;
@@ -44,12 +56,14 @@ export function getAuthToken(req: NextRequest): string | null {
  * Build authorization headers from request.
  * Returns headers object with Authorization header if token is available.
  */
-export function getAuthHeaders(req: NextRequest): Record<string, string> {
+export async function getAuthHeaders(
+  req: NextRequest,
+): Promise<Record<string, string>> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
-  const token = getAuthToken(req);
+  const token = await getAuthToken(req);
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -100,7 +114,7 @@ export async function proxyToBackend(
   } = {},
 ): Promise<NextResponse> {
   const apiUrl = getApiUrl();
-  const headers = getAuthHeaders(req);
+  const headers = await getAuthHeaders(req);
 
   // Build URL with query params
   const baseUrl = `${apiUrl}${

@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config.settings import settings
@@ -89,7 +90,22 @@ def _resolve_user_from_idp_payload(
         auth_provider_sub=sub,
     )
     db.add(user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        # Concurrent request may have created the user; retry lookup
+        user = (
+            db.query(User)
+            .filter(
+                User.auth_provider == "clerk",
+                User.auth_provider_sub == sub,
+            )
+            .first()
+        )
+        if user:
+            return user
+        raise credentials_exception
     db.refresh(user)
     return user
 
