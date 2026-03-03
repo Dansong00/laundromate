@@ -8,8 +8,7 @@ export default function SignUpPage() {
     <div className="mx-auto max-w-sm py-12 px-4">
       <div className="flex flex-col items-center gap-6">
         <SignUp
-          afterSignUpUrl="/portal"
-          afterSignInUrl="/portal"
+          fallbackRedirectUrl="/portal"
           signInUrl="/auth/login"
         />
         <p className="text-sm text-gray-500">
